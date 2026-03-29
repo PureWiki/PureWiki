@@ -1,0 +1,31 @@
+{
+    "pagetitle": "Footer",
+    "blocks": [
+        {
+            "id": "8dP4uXthUX",
+            "type": "raw",
+            "data": {
+                "html": "<div class=\"pw-footer-content\">\n <span>Last modified: <strong>{{ date_modified }}<\/strong> by <strong>{{ author }}<\/strong><\/span>\n <span>Powered by <a href=\"https:\/\/purewiki.org\">PureWiki<\/a><\/span>\n<\/div>"
+            },
+            "tunes": {
+                "cssClassTune": {
+                    "cssClass": ""
+                },
+                "duplicateBlockTune": []
+            }
+        }
+    ],
+    "DateCreated": "2026-02-26T21:00:00+00:00",
+    "DateModified": "2026-03-08T18:22:59+00:00",
+    "Description": "",
+    "Author": "System",
+    "Settings": {
+        "Layout": "page",
+        "hide_left_sidebar": false,
+        "hide_right_sidebar": false,
+        "include_in_navbar": false,
+        "navbar_link_text": ""
+    },
+    "Order": 9,
+    "isPrivate": false
+}

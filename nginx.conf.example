@@ -1,0 +1,53 @@
+# PureWiki - Nginx Configuration (Example)
+# Ensure the root path and fastcgi_pass are correctly configured for your server.
+
+server {
+    listen 80;
+    server_name yourdomain.com;
+    root /var/www/purewiki;
+    index index.php;
+
+    # URL Rewriting (PureWiki PHP Router)
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    # Pass PHP scripts to FastCGI server
+    location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/var/run/php/php8.1-fpm.sock; 
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
+
+    # Security: Block sensitive system directories
+    # Note: 'pages' is not blocked as it contains public media/uploads.
+    location ~ ^/(config|cache|backups|purewiki/admin|purewiki/core|purewiki/api|purewiki/lang|purewiki/data|purewiki/extern|purewiki/frontend)/ {
+        deny all;
+        return 404;
+    }
+
+    # Security: Block sensitive file types (protects pages/*.json and root documentation)
+    location ~ \.(md|json|log|sh|ini|env|bak|swp|lock)$ {
+        deny all;
+        return 404;
+    }
+
+    # Security: Block access to hidden files/directories
+    location ~ /\.(?!well-known).* {
+        deny all;
+        return 404;
+    }
+
+    autoindex off;
+
+    # Compression
+    gzip on;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript image/svg+xml;
+
+    # Caching for static assets
+    location ~* \.(ico|jpg|jpeg|png|gif|webp|svg|ttf|otf|woff|woff2)$ {
+        expires 1y;
+        add_header Cache-Control "public, no-transform";
+    }
+}

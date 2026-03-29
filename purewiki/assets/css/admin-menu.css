@@ -1,0 +1,100 @@
+/**
+ * PureWiki - Admin Menu Stylesheet
+ *
+ * Provides styling for the floating in-page administration menu.
+ *
+ * @package   PureWiki
+ * @author    Oliver Weinhold <oliverweinhold.de>
+ * @copyright (c) 2026 by Oliver Weinhold
+ * @license   GNU AGPLv3
+ */
+
+.pw-admin-menu {
+    position: fixed;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(30, 31, 34, 0.8);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--pw-border, #444);
+    border-radius: 50px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    z-index: 10;
+    user-select: none;
+}
+
+.pw-admin-menu:hover {
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.7);
+    border-color: var(--pw-primary, #007bff);
+}
+
+.pw-admin-menu-item[data-tooltip]:hover::before {
+    font-size: 12px;
+}
+
+.pw-admin-menu-item {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--pw-text, #fff);
+    text-decoration: none;
+    background: rgba(255, 255, 255, 0.05);
+    position: relative;
+    cursor: pointer;
+    border: 1px solid transparent;
+    outline: none;
+}
+
+.pw-admin-menu-item:hover {
+    background: var(--pw-primary, #007bff);
+    color: #ffffff;
+    transform: scale(1.15);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.pw-admin-menu-item iconify-icon {
+    font-size: 22px;
+}
+
+.pw-admin-menu-item::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    right: 55px;
+    top: 50%;
+    transform: translateY(-50%) translateX(10px);
+    background: var(--pw-bg-panel, #1e1f22);
+    color: var(--pw-text, #fff);
+    border: 1px solid var(--pw-border, #444);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.pw-admin-menu-drag-handle {
+    width: 24px;
+    height: 10px;
+    background: var(--pw-border, #444);
+    border-radius: 3px;
+    align-self: center;
+    cursor: move;
+    transition: background 0.2s;
+}
+
+.pw-admin-menu:hover .pw-admin-menu-drag-handle {
+    background: var(--pw-text-muted, #aaa);
+}

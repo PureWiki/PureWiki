@@ -1,0 +1,144 @@
+/**
+ * PureWiki - Notification Stylesheet
+ *
+ * Defines the visual appearance of toast notifications
+ *
+ * @package   PureWiki
+ * @author    Oliver Weinhold <oliverweinhold.de>
+ * @copyright (c) 2026 by Oliver Weinhold
+ * @license   GNU AGPLv3
+ */
+
+#pw-notify-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 9999;
+    pointer-events: none;
+}
+
+.pw-notify-toast {
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-width: 250px;
+    max-width: 400px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 2px solid;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 0.95rem;
+    animation: pw-notify-slide-in 0.3s cubic-bezier(0.2, 0, 0, 1) forwards;
+    position: relative;
+    overflow: hidden;
+    background-color: rgba(31, 31, 31, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.pw-notify-toast.pw-closing {
+    animation: pw-notify-slide-out 0.3s cubic-bezier(0.2, 0, 0, 1) forwards;
+}
+
+/* Toast Types */
+.pw-notify-toast-success {
+    background-color: rgba(40, 167, 70, 0.15);
+    border-color: rgba(40, 167, 70, 0.5);
+}
+
+.pw-notify-toast-error {
+    background-color: rgba(220, 53, 69, 0.15);
+    border-color: rgba(220, 53, 69, 0.5);
+}
+
+.pw-notify-toast-warning {
+    background-color: rgba(255, 193, 7, 0.15);
+    border-color: rgba(255, 193, 7, 0.5);
+    color: #ffffff;
+}
+
+.pw-notify-toast-info {
+    background-color: rgba(23, 162, 184, 0.15);
+    border-color: rgba(23, 162, 184, 0.5);
+}
+
+.pw-notify-text {
+    flex-grow: 1;
+    margin-right: 12px;
+    line-height: 1.4;
+}
+
+.pw-notify-close {
+    background: transparent;
+    border: none;
+    color: inherit;
+    font-size: 1.25rem;
+    line-height: 1;
+    cursor: pointer;
+    opacity: 0.7;
+    padding: 4px;
+    margin: 0;
+    transition: opacity 0.2s ease, transform 0.2s ease, background-color 0.2s ease;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pw-notify-close:hover {
+    opacity: 1;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.pw-notify-close:active {
+    transform: scale(0.9);
+}
+
+.pw-notify-close:focus {
+    outline: 2px solid rgba(255, 255, 255, 0.5);
+    outline-offset: 2px;
+}
+
+.pw-notify-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background-color: rgba(255, 255, 255, 0.5);
+    width: 100%;
+    transform-origin: left;
+}
+
+.pw-notify-toast-warning .pw-notify-progress {
+    background-color: rgba(255, 255, 255, 0.7);
+}
+
+@keyframes pw-notify-slide-in {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes pw-notify-slide-out {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+        margin-bottom: 0;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+        margin-bottom: -50px;
+    }
+}

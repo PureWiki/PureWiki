@@ -1,0 +1,33 @@
+{
+    "pagetitle": "Left Sidebar",
+    "blocks": [
+        {
+            "id": "CH80JlveB8",
+            "type": "header",
+            "data": {
+                "text": "Page Tree",
+                "level": 3
+            },
+            "tunes": []
+        },
+        {
+            "id": "LeL6X2ED_3",
+            "type": "pagelist",
+            "data": {
+                "startPath": "\/",
+                "boldHeader": true
+            },
+            "tunes": []
+        }
+    ],
+    "Order": 2,
+    "DateCreated": "2026-02-22T12:00:00+00:00",
+    "DateModified": "2026-03-18T21:56:52+00:00",
+    "Author": "system",
+    "Description": "",
+    "Settings": {
+        "Layout": "page",
+        "hide_left_sidebar": false,
+        "hide_right_sidebar": false
+    }
+}

@@ -1,0 +1,34 @@
+{
+    "pagetitle": "404 - Page Not Found",
+    "blocks": [
+        {
+            "type": "header",
+            "data": {
+                "text": "Oops! Page not found.",
+                "level": 2
+            }
+        },
+        {
+            "type": "paragraph",
+            "data": {
+                "text": "The page you are looking for doesn't exist or has been moved. You can return to the start page to find what you need."
+            }
+        },
+        {
+            "type": "paragraph",
+            "data": {
+                "text": "<a href=\"/\" role=\"button\">Return to Startpage</a>"
+            }
+        }
+    ],
+    "Settings": {
+        "Layout": "page.php",
+        "hide_left_sidebar": false,
+        "hide_right_sidebar": true,
+        "isPrivate": false,
+        "showInNavbar": false
+    },
+    "Author": "System",
+    "Description": "Default 404 error page.",
+    "Order": 0
+}

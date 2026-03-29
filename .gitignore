@@ -1,0 +1,11 @@
+# Application data
+/Backups/
+/cache/
+/pages/
+/config/
+
+# Logs
+*.log
+
+# IDE
+.vscode/
