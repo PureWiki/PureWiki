@@ -4,6 +4,10 @@
 /pages/
 /config/
 
+# Themes (only track default theme)
+/themes/*
+!/themes/default/
+
 # Logs
 *.log
 
