@@ -4,7 +4,8 @@ PureWiki is a lightweight, high-performance, and file-based wiki system built wi
 
 ![Static Badge](https://img.shields.io/badge/Min.%20PHP%20Version-8.1-blue)
 ![GitHub Release](https://img.shields.io/github/v/release/PureWiki/PureWiki)
-![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/PureWiki/PureWiki)
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/PureWiki/PureWiki?color=2ea043)
+
 
 ## Table of Contents
 
@@ -18,6 +19,9 @@ PureWiki is a lightweight, high-performance, and file-based wiki system built wi
 - [Contributions](#contributions)
 
 ## Basic Features
+
+> [!IMPORTANT]
+> PureWiki is currently in a very early stage of development and is actively being worked on. As a result, there may be unexpected bugs, incomplete features, and breaking changes in future updates. **Use in production environments with caution!**
 
 - **Flat File Wiki**: All content is stored as JSON files, No Database Required.
 - **No Node.js/Build Tools**: Built purely with native web technologies.
