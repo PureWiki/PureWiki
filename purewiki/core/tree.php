@@ -152,6 +152,21 @@ function filterPrivatePages(array $tree): array {
     return $filtered;
 }
 
+/** Recursively filters out nodes with 'hide_in_treeview' set to true. */
+function filterHiddenPages(array $tree): array {
+    $filtered = [];
+    foreach ($tree as $node) {
+        if (!empty($node['hide_in_treeview'])) {
+            continue; // Skip page if hidden
+        }
+        if (!empty($node['children'])) {
+            $node['children'] = filterHiddenPages($node['children']);
+        }
+        $filtered[] = $node;
+    }
+    return $filtered;
+}
+
 /** Recursively strips 'has_draft' from a tree. */
 function stripDraftInfo(array $tree): array {
     foreach ($tree as &$node) {
@@ -287,6 +302,7 @@ function getPageNeighbors(string $currentPath, bool $includeHigherLevels = false
 
     $rootDir = getPageDir();
     $tree = getCachedPagesTree($rootDir);
+    $tree = filterHiddenPages($tree);
 
     if ($includeHigherLevels) {
         $flatList = flattenTreeForNavigation($tree);
@@ -327,9 +343,23 @@ function getPageNeighbors(string $currentPath, bool $includeHigherLevels = false
 
     if ($sIndex === -1) return ['prev' => null, 'next' => null];
 
+    $prev = null;
+    $next = null;
+
+    if ($sIndex > 0) {
+        $prev = ['path' => $siblings[$sIndex - 1]['path'], 'name' => $siblings[$sIndex - 1]['name']];
+    }
+
+    if (!empty($siblings[$sIndex]['children'])) {
+        $firstChild = reset($siblings[$sIndex]['children']);
+        $next = ['path' => $firstChild['path'], 'name' => $firstChild['name']];
+    } else if ($sIndex < count($siblings) - 1) {
+        $next = ['path' => $siblings[$sIndex + 1]['path'], 'name' => $siblings[$sIndex + 1]['name']];
+    }
+
     return [
-        'prev' => ($sIndex > 0) ? ['path' => $siblings[$sIndex - 1]['path'], 'name' => $siblings[$sIndex - 1]['name']] : null,
-        'next' => ($sIndex < count($siblings) - 1) ? ['path' => $siblings[$sIndex + 1]['path'], 'name' => $siblings[$sIndex + 1]['name']] : null
+        'prev' => $prev,
+        'next' => $next
     ];
 }
 
