@@ -10,7 +10,7 @@ These libraries are included locally in the `purewiki/extern/` directory.
 | :--- | :--- | :--- | :--- |
 | **[Parsedown](https://github.com/erusev/parsedown)** | 1.8.0 | MIT | Translates Markdown blocks into HTML. |
 | **[Parsedown Extra](https://github.com/erusev/parsedown-extra)** | 0.9.0 | MIT | Extra extensions for Parsedown (tables, etc.). |
-| **[PHPMailer](https://github.com/PHPMailer/PHPMailer)** | Master (commit: 525d393) | LGPL-2.1 | Send emails via PHP. |
+| **[PHPMailer](https://github.com/PHPMailer/PHPMailer)** | 7.0.2 | LGPL-2.1 | Send emails via PHP. |
 
 ---
 
