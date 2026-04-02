@@ -6,11 +6,11 @@ PureWiki is built using amazing open-source projects. Below is a list of externa
 
 These libraries are included locally in the `purewiki/extern/` directory.
 
-| Library | Version | License | Description |
-| :--- | :--- | :--- | :--- |
-| **[Parsedown](https://github.com/erusev/parsedown)** | 1.8.0 | MIT | Translates Markdown blocks into HTML. |
-| **[Parsedown Extra](https://github.com/erusev/parsedown-extra)** | 0.9.0 | MIT | Extra extensions for Parsedown (tables, etc.). |
-| **[PHPMailer](https://github.com/PHPMailer/PHPMailer)** | 7.0.2 | LGPL-2.1 | Send emails via PHP. |
+| Library | License | Description |
+| :--- | :--- | :--- |
+| **[Parsedown](https://github.com/erusev/parsedown)** | MIT | Translates Markdown blocks into HTML. |
+| **[Parsedown Extra](https://github.com/erusev/parsedown-extra)** | MIT | Extra extensions for Parsedown (tables, etc.). |
+| **[PHPMailer](https://github.com/PHPMailer/PHPMailer)** | LGPL-2.1 | Send emails via PHP. |
 
 ---
 
@@ -31,3 +31,5 @@ The following libraries are loaded via Content Delivery Networks to keep the pro
 
 > [!NOTE]
 > All licenses for these libraries are respected and included in their respective sources or as part of this project's documentation.
+
+Check [dependencies.json](.dev/dependencies.json) for the exact versions.

@@ -113,7 +113,7 @@ DirectoryIndex index.php
 
 # Block access to sensitive directories
 <IfModule mod_rewrite.c>
-    RewriteRule ^(config|cache|backups|purewiki/admin|purewiki/core|purewiki/api|purewiki/lang|purewiki/data|purewiki/extern|purewiki/frontend)/ - [F,L]
+    RewriteRule ^(.dev|config|cache|backups|purewiki/admin|purewiki/core|purewiki/api|purewiki/lang|purewiki/data|purewiki/extern|purewiki/frontend)/ - [F,L]
 </IfModule>
 
 # Block specific extensions or files from direct access

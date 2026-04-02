@@ -1,0 +1,24 @@
+{
+  "php": {
+    "erusev/parsedown": "1.8.0",
+    "erusev/parsedown-extra": "0.9.0",
+    "PHPMailer/PHPMailer": "7.0.2"
+  },
+  "client": {
+    "@editorjs/editorjs": "latest",
+    "@editorjs/paragraph": "latest",
+    "@editorjs/header": "latest",
+    "@editorjs/list": "latest",
+    "@editorjs/delimiter": "latest",
+    "@editorjs/table": "latest",
+    "@editorjs/inline-code": "latest",
+    "@editorjs/underline": "latest",
+    "@editorjs/marker": "latest",
+    "@editorjs/link-autocomplete": "latest",
+    "editorjs-drag-drop": "latest",
+    "@picocss/pico": "2.x",
+    "iconify-icon": "2.1.0",
+    "prismjs": "1.29.0",
+    "croppie": "2.6.5"
+  }
+}
