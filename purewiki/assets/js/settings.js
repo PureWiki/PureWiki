@@ -57,6 +57,7 @@ const settingsFields = {
     'editor_show_accordion': 'pw-setting-editor-show-accordion',
     'editor_show_grid': 'pw-setting-editor-show-grid',
     'dev_debug_output': 'pw-setting-dev-debug-output',
+    'allow_prerelease_updates': 'pw-setting-allow-prerelease-updates',
     'mail_enable': 'pw-setting-mail-enable',
     'mail_host': 'pw-setting-mail-host',
     'mail_port': 'pw-setting-mail-port',
@@ -513,7 +514,10 @@ async function checkForUpdates() {
         const d = res.data;
         if (d.update_available) {
             statusText.innerHTML = '<strong>' + __('settings.update_available') + '</strong> ' + __('settings.update_available_desc');
-            newVerEl.textContent = d.latest_version;
+            const badgeType = d.is_prerelease ? __('settings.prerelease_badge') : __('settings.stable_badge');
+            const badgeColor = d.is_prerelease ? 'var(--pw-warning)' : 'var(--pw-success)';
+            const badgeHtml = `<span style="background: ${badgeColor}; color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 0.8em; margin-left: 8px;">${badgeType}</span>`;
+            newVerEl.innerHTML = d.latest_version + badgeHtml;
             changelogEl.textContent = d.release_notes.substring(0, 300) + (d.release_notes.length > 300 ? '...' : '');
             metaEl.style.display = 'block';
 

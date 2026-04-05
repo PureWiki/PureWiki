@@ -69,7 +69,8 @@ function getGlobalConfig(bool $forceReload = false): array {
         'editor_show_accordion' => true,
         'editor_show_grid' => true,
         'dev_debug_output' => false,
-        'allowed_file_extensions' => 'jpg, jpeg, png, gif, svg, webp, pdf, mp4, webm, zip, csv, txt'
+        'allowed_file_extensions' => 'jpg, jpeg, png, gif, svg, webp, pdf, mp4, webm, zip, csv, txt',
+        'allow_prerelease_updates' => false
     ];
 
     try {

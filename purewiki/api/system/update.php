@@ -13,9 +13,69 @@
 defined('PUREWIKI') || die('Direct access denied.');
 
 
+/**
+ * Compares two Version strings.
+ * Uses SemVer 2.0.0 Version structure.
+ * Returns 1 if $v1 > $v2, -1 if $v1 < $v2, 0 if equal.
+ */
+function compareSemVer(string $v1, string $v2): int {
+    $parse = function($v) {
+        $v = ltrim($v, 'vV');
+        $parts = explode('-', $v, 2);
+        $core = explode('.', $parts[0]);
+        $pre = isset($parts[1]) ? explode('.', explode('+', $parts[1])[0]) : [];
+        return ['core' => $core, 'pre' => $pre];
+    };
+
+    $p1 = $parse($v1);
+    $p2 = $parse($v2);
+
+    for ($i = 0; $i < 3; $i++) {
+        $c1 = (int)($p1['core'][$i] ?? 0);
+        $c2 = (int)($p2['core'][$i] ?? 0);
+        if ($c1 > $c2) return 1;
+        if ($c1 < $c2) return -1;
+    }
+
+    if (empty($p1['pre']) && !empty($p2['pre'])) return 1;
+    if (!empty($p1['pre']) && empty($p2['pre'])) return -1;
+    if (empty($p1['pre']) && empty($p2['pre'])) return 0;
+
+    $len = max(count($p1['pre']), count($p2['pre']));
+    for ($i = 0; $i < $len; $i++) {
+        if (!isset($p1['pre'][$i])) return -1;
+        if (!isset($p2['pre'][$i])) return 1;
+
+        $pr1 = $p1['pre'][$i];
+        $pr2 = $p2['pre'][$i];
+
+        $isNum1 = ctype_digit($pr1);
+        $isNum2 = ctype_digit($pr2);
+
+        if ($isNum1 && !$isNum2) return -1;
+        if (!$isNum1 && $isNum2) return 1;
+
+        if ($isNum1 && $isNum2) {
+            $pr1 = (int)$pr1;
+            $pr2 = (int)$pr2;
+        }
+
+        if ($pr1 > $pr2) return 1;
+        if ($pr1 < $pr2) return -1;
+    }
+
+    return 0;
+}
+
 if ($action === 'check_for_updates') {
     $currentVersion = PUREWIKI_VERSION;
-    $apiUrl = "https://api.github.com/repos/purewiki/purewiki/releases/latest";
+    
+    $config = getGlobalConfig();
+    $allowPrerelease = !empty($config['allow_prerelease_updates']);
+    
+    $apiUrl = $allowPrerelease 
+        ? "https://api.github.com/repos/purewiki/purewiki/releases"
+        : "https://api.github.com/repos/purewiki/purewiki/releases/latest";
 
     if (!function_exists('curl_init')) {
         $response['message'] = 'PHP CURL extension is required for update checks.';
@@ -36,21 +96,38 @@ if ($action === 'check_for_updates') {
     $curlError = curl_error($ch);
 
     if ($httpCode === 200 && $jsonResponse) {
-        $release = json_decode($jsonResponse, true);
-        if ($release && isset($release['tag_name'])) {
-            $latestVersion = ltrim($release['tag_name'], 'v');
-            $updateAvailable = version_compare($latestVersion, $currentVersion, '>');
+        $releases = json_decode($jsonResponse, true);
+        $targetRelease = null;
+
+        if ($allowPrerelease && is_array($releases)) {
+            $highestVer = '0.0.0';
+            foreach ($releases as $rel) {
+                if (!empty($rel['draft'])) continue;
+                $ver = ltrim($rel['tag_name'], 'v');
+                if (compareSemVer($ver, $highestVer) > 0) {
+                    $highestVer = $ver;
+                    $targetRelease = $rel;
+                }
+            }
+        } else {
+            $targetRelease = $releases;
+        }
+
+        if ($targetRelease && isset($targetRelease['tag_name'])) {
+            $latestVersion = ltrim($targetRelease['tag_name'], 'v');
+            $updateAvailable = compareSemVer($latestVersion, $currentVersion) > 0;
 
             $response['success'] = true;
             $response['data'] = [
                 'current_version' => $currentVersion,
                 'latest_version' => $latestVersion,
                 'update_available' => $updateAvailable,
-                'release_name' => $release['name'] ?? $release['tag_name'],
-                'release_notes' => $release['body'] ?? '',
-                'published_at' => $release['published_at'] ?? '',
-                'zip_url' => $release['zipball_url'] ?? '',
-                'html_url' => $release['html_url'] ?? ''
+                'is_prerelease' => !empty($targetRelease['prerelease']),
+                'release_name' => $targetRelease['name'] ?? $targetRelease['tag_name'],
+                'release_notes' => $targetRelease['body'] ?? '',
+                'published_at' => $targetRelease['published_at'] ?? '',
+                'zip_url' => $targetRelease['zipball_url'] ?? '',
+                'html_url' => $targetRelease['html_url'] ?? ''
             ];
         } else {
             $response['message'] = 'Could not parse GitHub release information.';

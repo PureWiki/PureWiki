@@ -461,6 +461,9 @@ require_once __DIR__ . '/layout_head.php';
 
                     <div id="pw-update-section">
                         <h3 class="pw-settings-heading"><?php echo __('settings.software_update'); ?></h3>
+                        <div style="margin-top: 15px;"> 
+                            <?php renderToggle('pw-setting-allow-prerelease-updates', __('settings.allow_prerelease_updates'), __('settings.allow_prerelease_updates_desc')); ?>
+                        </div>
                         <div id="pw-update-container" class="pw-update-card">
                             <div class="pw-update-info">
                                 <p id="pw-update-status-text"><?php echo __('settings.checking_updates'); ?></p>
