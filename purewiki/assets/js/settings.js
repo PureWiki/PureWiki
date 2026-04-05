@@ -10,6 +10,8 @@
  * @license   GNU AGPLv3
  */
 
+let currentRelease = null;
+
 const settingsFields = {
     'wiki_name':     'pw-setting-wiki-name',
     'wiki_logo':     'pw-setting-wiki-logo',
@@ -294,8 +296,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const mailEnableToggle = document.getElementById('pw-setting-mail-enable');
     const sendTestMailBtn = document.getElementById('pw-btn-send-test-mail');
 
-    let currentRelease = null;
-    let updateBackupInterval = null;
     let usersLoaded = false;
     let backupsLoaded = false;
     let statusInterval = null;

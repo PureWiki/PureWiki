@@ -25,14 +25,14 @@ if ($action === 'check_for_updates') {
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $apiUrl);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false);
     curl_setopt($ch, CURLOPT_USERAGENT, 'PureWiki-Updater/' . $currentVersion);
     curl_setopt($ch, CURLOPT_TIMEOUT, 10);
 
     applyCurlSslOptions($ch);
 
     $jsonResponse = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $httpCode = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
     $curlError = curl_error($ch);
 
     if ($httpCode === 200 && $jsonResponse) {
@@ -104,7 +104,7 @@ if ($action === 'download_update') {
 
     $host = $parsedUrl['host'] ?? '';
     $scheme = $parsedUrl['scheme'] ?? '';
-    $allowedHosts = ['github.com', 'api.github.com'];
+    $allowedHosts = ['github.com', 'api.github.com', 'codeload.github.com'];
 
     if ($scheme !== 'https' || !in_array($host, $allowedHosts)) {
         $response['message'] = 'Invalid download source.';
@@ -126,7 +126,8 @@ if ($action === 'download_update') {
     applyCurlSslOptions($ch);
 
     $success = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $httpCode = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlError = curl_error($ch);
     fclose($fp);
 
     if ($success && $httpCode === 200) {
@@ -134,7 +135,8 @@ if ($action === 'download_update') {
         $response['data'] = ['file_size' => filesize($targetFile)];
     } else {
         if (file_exists($targetFile)) unlink($targetFile);
-        $response['message'] = 'Failed to download update package. HTTP: ' . $httpCode;
+        $response['message'] = 'Failed to download update package. HTTP: ' . $httpCode
+            . ($curlError ? ' | cURL error: ' . $curlError : '');
     }
 }
 
