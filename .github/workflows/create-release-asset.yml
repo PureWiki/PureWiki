@@ -1,0 +1,28 @@
+# This GitHub Action creates a ZIP archive of the repository when
+# a new release is published and attaches it as a better named release asset.
+
+name: Upload Release Asset
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Create Zip Archive
+        run: zip -r "PureWiki-${{ github.ref_name }}.zip" . -x "*.git*" ".github*"
+
+      - name: Upload Zip to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: "PureWiki-${{ github.ref_name }}.zip"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
