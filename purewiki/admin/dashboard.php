@@ -39,10 +39,10 @@ require_once __DIR__ . '/layout_head.php';
             <?php if ( $config['enable_cache'] ) { ?>
                 <button id="pw-btn-clear-cache" class="pw-btn" title="<?php echo __('dashboard.clear_cache'); ?>" aria-label="<?php echo __('dashboard.clear_cache'); ?>"><iconify-icon icon="mdi:lightning-bolt"></iconify-icon></button>
             <?php } ?>
-            <button class="pw-btn" onclick="window.open('/', '_blank')"><iconify-icon icon="mdi:open-in-new"></iconify-icon> <?php echo __('dashboard.visit_wiki'); ?></button>
-            <button class="pw-btn" onclick="window.location.href='/dashboard/media'"><iconify-icon icon="mdi:image-multiple"></iconify-icon> <?php echo __('dashboard.media'); ?></button>
+            <button class="pw-btn" onclick="window.open(window.PW_BASE_PATH+'/', '_blank')"><iconify-icon icon="mdi:open-in-new"></iconify-icon> <?php echo __('dashboard.visit_wiki'); ?></button>
+            <button class="pw-btn" onclick="window.location.href=window.PW_BASE_PATH+'/dashboard/media'"><iconify-icon icon="mdi:image-multiple"></iconify-icon> <?php echo __('dashboard.media'); ?></button>
             <?php if (hasRole('admin')) { ?>
-                <button class="pw-btn" onclick="window.location.href='/dashboard/settings'"><iconify-icon icon="mdi:cog"></iconify-icon> <?php echo __('setup.wiki_settings'); ?></button>
+                <button class="pw-btn" onclick="window.location.href=window.PW_BASE_PATH+'/dashboard/settings'"><iconify-icon icon="mdi:cog"></iconify-icon> <?php echo __('setup.wiki_settings'); ?></button>
             <?php } ?>
             <button class="pw-btn pw-btn-danger" onclick="logoutAndRedirect()"><iconify-icon icon="mdi:logout"></iconify-icon> <?php echo __('dashboard.logout'); ?></button>
         </div>
@@ -152,13 +152,13 @@ require_once __DIR__ . '/layout_head.php';
         ?>;
     </script>
     <?php echo getLanguageScript(); ?>
-    <script src="/purewiki/assets/js/i18n.js"></script>
-    <script src="/purewiki/assets/js/core.js"></script>
-    <script src="/purewiki/assets/js/page-picker.js"></script>
+    <script src="<?php echo BASE_PATH; ?>/purewiki/assets/js/i18n.js"></script>
+    <script src="<?php echo BASE_PATH; ?>/purewiki/assets/js/core.js"></script>
+    <script src="<?php echo BASE_PATH; ?>/purewiki/assets/js/page-picker.js"></script>
     <script>window.PW_DEBUG = <?php echo !empty($config['dev_debug_output']) ? 'true' : 'false'; ?>;</script>
-    <script src="/purewiki/assets/js/editor.js"></script>
-    <script src="/purewiki/assets/js/notify.js"></script>
-    <script src="/purewiki/assets/js/clear_cache.js"></script>
+    <script src="<?php echo BASE_PATH; ?>/purewiki/assets/js/editor.js"></script>
+    <script src="<?php echo BASE_PATH; ?>/purewiki/assets/js/notify.js"></script>
+    <script src="<?php echo BASE_PATH; ?>/purewiki/assets/js/clear_cache.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             initDialogSystem();
@@ -211,7 +211,7 @@ require_once __DIR__ . '/layout_head.php';
 
         async function logoutAndRedirect() {
             await apiCall('logout');
-            window.location.href = '/dashboard/login';
+            window.location.href = window.PW_BASE_PATH + '/dashboard/login';
         }
     </script>
 

@@ -150,11 +150,11 @@ require_once __DIR__ . '/layout_head.php';
 
     <!-- Scripts -->
     <?php echo getLanguageScript(); ?>
-    <script src="/purewiki/assets/js/i18n.js"></script>
-    <script src="/purewiki/assets/js/core.js"></script>
+    <script src="<?php echo BASE_PATH; ?>/purewiki/assets/js/i18n.js"></script>
+    <script src="<?php echo BASE_PATH; ?>/purewiki/assets/js/core.js"></script>
     <script>window.PW_DEBUG = <?php echo !empty(getGlobalConfig()['dev_debug_output']) ? 'true' : 'false'; ?>;</script>
-    <script src="/purewiki/assets/js/notify.js"></script>
-    <script src="/purewiki/assets/js/pageSettings.js"></script>
+    <script src="<?php echo BASE_PATH; ?>/purewiki/assets/js/notify.js"></script>
+    <script src="<?php echo BASE_PATH; ?>/purewiki/assets/js/pageSettings.js"></script>
     
 </body>
 </html>

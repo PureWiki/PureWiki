@@ -147,8 +147,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (btnBack) {
         btnBack.addEventListener('click', () => {
             window.location.href = fromLocation === 'editor'
-                ? '/dashboard/edit?path=' + encodeURIComponent(targetPath)
-                : '/dashboard';
+                ? (window.PW_BASE_PATH || '') + '/dashboard/edit?path=' + encodeURIComponent(targetPath)
+                : (window.PW_BASE_PATH || '') + '/dashboard';
         });
     }
 

@@ -30,10 +30,10 @@ if (!isset($pageTitle)) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($pageTitle); ?></title>
-    <link rel="stylesheet" href="/purewiki/assets/css/core.css">
+    <link rel="stylesheet" href="<?php echo BASE_PATH; ?>/purewiki/assets/css/core.css">
 <?php
 if (!isset($skipNotifyCss) || !$skipNotifyCss) {
-    echo '    <link rel="stylesheet" href="/purewiki/assets/css/notify.css">' . "\n";
+    echo '    <link rel="stylesheet" href="' . BASE_PATH . '/purewiki/assets/css/notify.css">' . "\n";
 }
 if (isset($extraCss)) {
     foreach ((array)$extraCss as $cssFile) {
@@ -54,4 +54,5 @@ if (isset($extraCss)) {
         echo $extraHead;
     }
     ?>
+    <script>window.PW_BASE_PATH = '<?php echo addslashes(BASE_PATH); ?>';</script>
 </head>

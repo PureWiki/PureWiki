@@ -19,7 +19,7 @@ require_once __DIR__ . '/../core/asset_manager.php';
 
 // If already logged in, redirect immediately
 if (isLoggedIn()) {
-    header('Location: /dashboard');
+    header('Location: ' . BASE_PATH . '/dashboard');
     exit;
 }
 
@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'] ?? '';
     $result = loginUser($username, $password);
     if ($result === true) {
-        header('Location: /dashboard');
+        header('Location: ' . BASE_PATH . '/dashboard');
         exit;
     } else {
         $error = $result;
@@ -100,7 +100,7 @@ require_once __DIR__ . '/layout_head.php';
     <div class="pw-login-wrapper">
         <h1 class="pw-login-title"><?php echo htmlspecialchars($wikiName); ?></h1>
 
-        <form class="pw-login-card" method="POST" action="/dashboard/login">
+        <form class="pw-login-card" method="POST" action="<?php echo htmlspecialchars(BASE_PATH); ?>/dashboard/login">
             <?php if ($error): ?>
                 <div class="pw-login-error"><?php echo htmlspecialchars($error); ?></div>
             <?php endif; ?>

@@ -141,12 +141,12 @@ require_once __DIR__ . '/layout_head.php';
 
     <!-- Scripts -->
     <?php echo getLanguageScript(); ?>
-    <script src="/purewiki/assets/js/i18n.js"></script>
-    <script src="/purewiki/assets/js/core.js"></script>
+    <script src="<?php echo BASE_PATH; ?>/purewiki/assets/js/i18n.js"></script>
+    <script src="<?php echo BASE_PATH; ?>/purewiki/assets/js/core.js"></script>
     <script>window.PW_DEBUG = <?php echo !empty(getGlobalConfig()['dev_debug_output']) ? 'true' : 'false'; ?>;</script>
-    <script src="/purewiki/assets/js/notify.js"></script>
+    <script src="<?php echo BASE_PATH; ?>/purewiki/assets/js/notify.js"></script>
     <?php echo AssetManager::getScripts('footer'); ?>
-    <script src="/purewiki/assets/js/image_editor.js"></script>
+    <script src="<?php echo BASE_PATH; ?>/purewiki/assets/js/image_editor.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             initDialogSystem();
@@ -229,7 +229,7 @@ require_once __DIR__ . '/layout_head.php';
                 for (let f of files) formData.append('files[]', f);
                 notify(__('editor.uploading_files', files.length), 'info');
                 try {
-                    const res = await (await fetch('/purewiki/api.php', { method: 'POST', body: formData })).json();
+                    const res = await (await fetch(window.PW_BASE_PATH + '/purewiki/api.php', { method: 'POST', body: formData })).json();
 
                     if (res.require_confirmation) {
                         const confirmMsg = __('media.file_exists_confirm', res.existing_files.join(', '));

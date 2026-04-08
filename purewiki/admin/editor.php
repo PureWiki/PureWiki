@@ -19,7 +19,7 @@ require_once __DIR__ . '/../core/misc.php';
 
 $editPath = $_GET['path'] ?? '/';
 $pageTitle = 'PureWiki - ' . __('editor.title');
-$extraCss = ['/purewiki/assets/css/editor.css'];
+$extraCss = [BASE_PATH . '/purewiki/assets/css/editor.css'];
 require_once __DIR__ . '/layout_head.php';
 ?>
 <body class="pw-dashboard-body">
@@ -43,7 +43,7 @@ require_once __DIR__ . '/layout_head.php';
         <div class="pw-edit-header-right">
             <button id="pw-btn-delete-draft" class="pw-btn pw-btn-danger" style="display: none;"><iconify-icon icon="mdi:delete-outline"></iconify-icon> <?php echo __('editor.delete_draft'); ?></button>
             <button id="pw-btn-preview" class="pw-btn"><iconify-icon icon="mdi:eye"></iconify-icon> <?php echo __('editor.preview'); ?></button>
-            <button id="pw-btn-media" class="pw-btn" onclick="window.location.href='/dashboard/media?from=' + encodeURIComponent(window.location.pathname + window.location.search)"><iconify-icon icon="mdi:image-multiple"></iconify-icon> <?php echo __('dashboard.media'); ?></button>
+            <button id="pw-btn-media" class="pw-btn" onclick="window.location.href=window.PW_BASE_PATH+'/dashboard/media?from='+encodeURIComponent(window.location.pathname+window.location.search)"><iconify-icon icon="mdi:image-multiple"></iconify-icon> <?php echo __('dashboard.media'); ?></button>
             <?php if (!str_starts_with($editPath, '/_virtual/') && !str_starts_with($editPath, '/_snippets/')): ?>
             <button id="pw-btn-page-settings" class="pw-btn"><iconify-icon icon="mdi:cog"></iconify-icon> <?php echo __('editor.page_settings'); ?></button>
             <?php endif; ?>
@@ -106,7 +106,7 @@ require_once __DIR__ . '/layout_head.php';
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/header@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/list@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/delimiter@latest"></script>
-    <script src="/purewiki/editorPlugins/editor-raw.js"></script>
+    <script src="<?php echo BASE_PATH; ?>/purewiki/editorPlugins/editor-raw.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/table@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/inline-code@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/underline@latest"></script>
@@ -114,30 +114,30 @@ require_once __DIR__ . '/layout_head.php';
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/link-autocomplete@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/editorjs-drag-drop"></script>
     <!-- PureWiki Editor.js Plugins -->
-    <script src="/purewiki/editorPlugins/editor-image.js"></script>
-    <script src="/purewiki/editorPlugins/editor-markdown.js"></script>
-    <script src="/purewiki/editorPlugins/editor-live-markdown.js"></script>
-    <script src="/purewiki/editorPlugins/editor-pagelist.js"></script>
-    <script src="/purewiki/editorPlugins/editor-pageinclude.js"></script>
-    <script src="/purewiki/editorPlugins/editor-toc.js"></script>
-    <script src="/purewiki/editorPlugins/editor-code-prism.js"></script>
-    <script src="/purewiki/editorPlugins/editor-callout.js"></script>
-    <script src="/purewiki/editorPlugins/editor-css-class-tune.js"></script>
-    <script src="/purewiki/editorPlugins/editor-duplicate-tune.js"></script>
-    <script src="/purewiki/editorPlugins/editor-text-align-tune.js"></script>
-    <script src="/purewiki/editorPlugins/editor-accordion.js"></script>
-    <script src="/purewiki/editorPlugins/editor-snippet.js"></script>
-    <script src="/purewiki/editorPlugins/editor-grid.js"></script>
-    <script src="/purewiki/editorPlugins/editor-block.js"></script>
+    <script src="<?php echo BASE_PATH; ?>/purewiki/editorPlugins/editor-image.js"></script>
+    <script src="<?php echo BASE_PATH; ?>/purewiki/editorPlugins/editor-markdown.js"></script>
+    <script src="<?php echo BASE_PATH; ?>/purewiki/editorPlugins/editor-live-markdown.js"></script>
+    <script src="<?php echo BASE_PATH; ?>/purewiki/editorPlugins/editor-pagelist.js"></script>
+    <script src="<?php echo BASE_PATH; ?>/purewiki/editorPlugins/editor-pageinclude.js"></script>
+    <script src="<?php echo BASE_PATH; ?>/purewiki/editorPlugins/editor-toc.js"></script>
+    <script src="<?php echo BASE_PATH; ?>/purewiki/editorPlugins/editor-code-prism.js"></script>
+    <script src="<?php echo BASE_PATH; ?>/purewiki/editorPlugins/editor-callout.js"></script>
+    <script src="<?php echo BASE_PATH; ?>/purewiki/editorPlugins/editor-css-class-tune.js"></script>
+    <script src="<?php echo BASE_PATH; ?>/purewiki/editorPlugins/editor-duplicate-tune.js"></script>
+    <script src="<?php echo BASE_PATH; ?>/purewiki/editorPlugins/editor-text-align-tune.js"></script>
+    <script src="<?php echo BASE_PATH; ?>/purewiki/editorPlugins/editor-accordion.js"></script>
+    <script src="<?php echo BASE_PATH; ?>/purewiki/editorPlugins/editor-snippet.js"></script>
+    <script src="<?php echo BASE_PATH; ?>/purewiki/editorPlugins/editor-grid.js"></script>
+    <script src="<?php echo BASE_PATH; ?>/purewiki/editorPlugins/editor-block.js"></script>
 
     <!-- Core Scripts -->
     <?php echo getLanguageScript(); ?>
-    <script src="/purewiki/assets/js/i18n.js"></script>
-    <script src="/purewiki/assets/js/page-picker.js"></script>
-    <script src="/purewiki/assets/js/core.js"></script>
+    <script src="<?php echo BASE_PATH; ?>/purewiki/assets/js/i18n.js"></script>
+    <script src="<?php echo BASE_PATH; ?>/purewiki/assets/js/page-picker.js"></script>
+    <script src="<?php echo BASE_PATH; ?>/purewiki/assets/js/core.js"></script>
     <script>window.PW_DEBUG = <?php echo !empty(getGlobalConfig()['dev_debug_output']) ? 'true' : 'false'; ?>;</script>
-    <script src="/purewiki/assets/js/editor.js"></script>
-    <script src="/purewiki/assets/js/notify.js"></script>
+    <script src="<?php echo BASE_PATH; ?>/purewiki/assets/js/editor.js"></script>
+    <script src="<?php echo BASE_PATH; ?>/purewiki/assets/js/notify.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             initDialogSystem();

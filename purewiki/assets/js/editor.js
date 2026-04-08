@@ -101,9 +101,9 @@ function updateHistoryLabel() {
 function openEditorForPage(pagePath, _ignored, openSettings = false) {
     if (!pagePath) return;
     if (openSettings) {
-        window.location.href = '/dashboard/page-settings?path=' + encodeURIComponent(pagePath) + '&from=dashboard';
+        window.location.href = (window.PW_BASE_PATH || '') + '/dashboard/page-settings?path=' + encodeURIComponent(pagePath) + '&from=dashboard';
     } else {
-        window.location.href = '/dashboard/edit?path=' + encodeURIComponent(pagePath);
+        window.location.href = (window.PW_BASE_PATH || '') + '/dashboard/edit?path=' + encodeURIComponent(pagePath);
     }
 }
 
@@ -147,7 +147,7 @@ async function openEditor(pagePath) {
 
         // Release lock on page unload
         window.addEventListener('beforeunload', () => {
-            navigator.sendBeacon('/purewiki/api.php', (() => {
+            navigator.sendBeacon((window.PW_BASE_PATH || '') + '/purewiki/api.php', (() => {
                 const fd = new FormData();
                 fd.append('action', 'release_lock');
                 fd.append('path', pagePath);
@@ -219,7 +219,7 @@ function initEditorJS(blocksData) {
             link: {
                 class: LinkAutocomplete,
                 config: {
-                    endpoint: '/purewiki/api.php?action=search&format=link-autocomplete&',
+                    endpoint: (window.PW_BASE_PATH || '') + '/purewiki/api.php?action=search&format=link-autocomplete&',
                     queryParam: 'q',
                 }
             },
@@ -305,7 +305,7 @@ function initEditorJS(blocksData) {
 
 /** Closes the Editor view and returns to the dashboard. */
 function closeEditorView() {
-    window.location.href = '/dashboard';
+    window.location.href = (window.PW_BASE_PATH || '') + '/dashboard';
 }
 
 
@@ -642,7 +642,7 @@ function bindPageSettingsPanel() {
                 await saveCurrentDraft(true);
             }
 
-            window.location.href = '/dashboard/page-settings?path=' + encodeURIComponent(path) + '&from=editor';
+            window.location.href = (window.PW_BASE_PATH || '') + '/dashboard/page-settings?path=' + encodeURIComponent(path) + '&from=editor';
         });
     }
 }
@@ -808,7 +808,7 @@ function openImageSelectionDialog(imageToolInstance) {
         formData.append('path', targetPath);
 
         try {
-            const res = await fetch('/purewiki/api.php', { method: 'POST', body: formData });
+            const res = await fetch((window.PW_BASE_PATH || '') + '/purewiki/api.php', { method: 'POST', body: formData });
             const result = await res.json();
 
             grid.innerHTML = '';
@@ -885,7 +885,7 @@ function openImageSelectionDialog(imageToolInstance) {
         notify(`Uploading ${files.length} file(s)...`, 'info');
 
         try {
-            const res = await fetch('/purewiki/api.php', { method: 'POST', body: formData });
+            const res = await fetch((window.PW_BASE_PATH || '') + '/purewiki/api.php', { method: 'POST', body: formData });
             const result = await res.json();
 
             if (result.require_confirmation) {

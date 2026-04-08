@@ -25,16 +25,16 @@ function injectAdminMenu(string &$html, array $config, string $contextPath) {
     }
 
     $adminMenuHtml = '
-    <link rel="stylesheet" href="/purewiki/assets/css/admin-menu.css">
+    <link rel="stylesheet" href="' . BASE_PATH . '/purewiki/assets/css/admin-menu.css">
     <div class="pw-admin-menu" id="pw-admin-menu">
         <div class="pw-admin-menu-drag-handle"></div>';
 
     if (hasRole('editor')) {
         $adminMenuHtml .= '
-        <a href="/dashboard/edit?path=' . urlencode($contextPath) . '" class="pw-admin-menu-item" data-tooltip="Edit Page">
+        <a href="' . BASE_PATH . '/dashboard/edit?path=' . urlencode($contextPath) . '" class="pw-admin-menu-item" data-tooltip="Edit Page">
             <iconify-icon icon="mdi:pencil"></iconify-icon>
         </a>
-        <a href="/dashboard" class="pw-admin-menu-item" data-tooltip="Dashboard">
+        <a href="' . BASE_PATH . '/dashboard" class="pw-admin-menu-item" data-tooltip="Dashboard">
             <iconify-icon icon="mdi:view-dashboard"></iconify-icon>
         </a>';
     }
@@ -51,12 +51,12 @@ function injectAdminMenu(string &$html, array $config, string $contextPath) {
             } else {
                 const fd = new FormData();
                 fd.append("action", "logout");
-                await fetch("/purewiki/api.php", { method: "POST", body: fd });
+                await fetch("' . BASE_PATH . '/purewiki/api.php", { method: "POST", body: fd });
             }
-            window.location.href = "/";
+            window.location.href = window.PW_BASE_PATH + "/";
         }
     </script>
-    <script src="/purewiki/assets/js/admin-menu.js"></script>';
+    <script src="' . BASE_PATH . '/purewiki/assets/js/admin-menu.js"></script>';
 
     if (str_contains($html, '</body>')) {
         $html = str_replace('</body>', $adminMenuHtml . '</body>', $html);

@@ -30,6 +30,9 @@ if ($baseDir !== '' && str_starts_with($requestUri, $baseDir)) {
 }
 $path = '/' . ltrim($path, '/');
 
+// Expose base path as a constant so all redirects and asset URLs stay within the installation sub-directory
+define('BASE_PATH', $baseDir);
+
 // Strip query parameters
 $path = explode('?', $path)[0];
 
@@ -40,13 +43,13 @@ require_once __DIR__ . '/purewiki/core/config.php';
 // Setup Redirect Logic
 $isSetupAction = str_starts_with($path, '/setup') || (str_starts_with($path, '/purewiki/api.php') && ($_REQUEST['action'] ?? '') === 'setup_wiki');
 if (!isSetupCompleted() && !$isSetupAction) {
-    header('Location: /setup');
+    header('Location: ' . BASE_PATH . '/setup');
     exit;
 }
 
 // Block /setup after completion
 if (isSetupCompleted() && str_starts_with($path, '/setup')) {
-    header('Location: /dashboard');
+    header('Location: ' . BASE_PATH . '/dashboard');
     exit;
 }
 
@@ -68,24 +71,24 @@ if (str_starts_with($path, '/dashboard/login')) {
 } elseif (str_starts_with($path, '/dashboard')) {
     // Guard: all dashboard routes require authentication
     if (!isLoggedIn()) {
-        header('Location: /dashboard/login');
+        header('Location: ' . BASE_PATH . '/dashboard/login');
         exit;
     }
 
     if (str_starts_with($path, '/dashboard/media')) {
-        if (!hasRole('editor')) { header('Location: /'); exit; }
+        if (!hasRole('editor')) { header('Location: ' . BASE_PATH . '/'); exit; }
         include 'purewiki/admin/media.php';
     } elseif (str_starts_with($path, '/dashboard/settings')) {
-        if (!hasRole('admin')) { header('Location: /dashboard'); exit; }
+        if (!hasRole('admin')) { header('Location: ' . BASE_PATH . '/dashboard'); exit; }
         include 'purewiki/admin/settings.php';
     } elseif (str_starts_with($path, '/dashboard/page-settings')) {
-        if (!hasRole('editor')) { header('Location: /'); exit; }
+        if (!hasRole('editor')) { header('Location: ' . BASE_PATH . '/'); exit; }
         include 'purewiki/admin/pageSettings.php';
     } elseif (str_starts_with($path, '/dashboard/edit')) {
-        if (!hasRole('editor')) { header('Location: /'); exit; }
+        if (!hasRole('editor')) { header('Location: ' . BASE_PATH . '/'); exit; }
         include 'purewiki/admin/editor.php';
     } else {
-        if (!hasRole('editor')) { header('Location: /'); exit; }
+        if (!hasRole('editor')) { header('Location: ' . BASE_PATH . '/'); exit; }
         include 'purewiki/admin/dashboard.php';
     }
 
@@ -142,7 +145,7 @@ if (str_starts_with($path, '/dashboard/login')) {
         
         // Private Page Check
         if (!empty($pageData['isPrivate']) && !isLoggedIn()) {
-            header('Location: /');
+            header('Location: ' . BASE_PATH . '/');
             exit;
         }
 

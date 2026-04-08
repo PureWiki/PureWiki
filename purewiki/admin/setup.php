@@ -245,7 +245,7 @@ require_once __DIR__ . '/layout_head.php';
         </div>
     </div>
 
-    <script src="/purewiki/assets/js/notify.js"></script>
+    <script src="<?php echo BASE_PATH; ?>/purewiki/assets/js/notify.js"></script>
     <?php
     require_once realpath(__DIR__ . '/../core/json.php');
     $enLang = readJsonFile(__DIR__ . '/../lang/en.json');
@@ -315,7 +315,7 @@ require_once __DIR__ . '/layout_head.php';
             formData.append('action', 'setup_wiki');
 
             try {
-                const res = await fetch('/purewiki/api.php', { method: 'POST', body: formData });
+                const res = await fetch('<?php echo BASE_PATH; ?>/purewiki/api.php', { method: 'POST', body: formData });
                 const result = await res.json();
 
                 if (result.success) {
@@ -326,7 +326,7 @@ require_once __DIR__ . '/layout_head.php';
                     welcomeScreen.style.display = 'flex';
 
                     setTimeout(() => {
-                        window.location.href = '/';
+                        window.location.href = window.PW_BASE_PATH + '/';
                     }, 4000);
                 } else {
                     errorDiv.textContent = result.message || catalog.setup.error_occurred;

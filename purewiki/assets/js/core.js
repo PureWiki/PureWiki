@@ -22,7 +22,7 @@ async function apiCall(action, params = {}) {
     for (const [key, val] of Object.entries(params)) {
         fd.append(key, val);
     }
-    const res = await fetch('/purewiki/api.php', { method: 'POST', body: fd });
+    const res = await fetch((window.PW_BASE_PATH || '') + '/purewiki/api.php', { method: 'POST', body: fd });
     return res.json();
 }
 
@@ -389,7 +389,7 @@ function initDashboardInteractions() {
             if (typeof openEditorForPage === 'function') {
                 openEditorForPage(currentSelectedPath, currentSelectedName);
             } else {
-                window.location.href = '/dashboard/edit?path=' + encodeURIComponent(currentSelectedPath);
+                window.location.href = (window.PW_BASE_PATH || '') + '/dashboard/edit?path=' + encodeURIComponent(currentSelectedPath);
             }
         });
     }
@@ -400,7 +400,7 @@ function initDashboardInteractions() {
             if (typeof openEditorForPage === 'function') {
                 openEditorForPage(currentSelectedPath, currentSelectedName, true);
             } else {
-                window.location.href = '/dashboard/page-settings?path=' + encodeURIComponent(currentSelectedPath) + '&from=dashboard';
+                window.location.href = (window.PW_BASE_PATH || '') + '/dashboard/page-settings?path=' + encodeURIComponent(currentSelectedPath) + '&from=dashboard';
             }
         });
     }
@@ -430,7 +430,7 @@ function initSnippets() {
                 const result = await apiSafe('create_snippet', { title });
                 if (result) {
                     sessionStorage.setItem('pw-notify', JSON.stringify({text: __('dashboard.snippet_created'), type: 'success'}));
-                    window.location.href = '/dashboard/edit?path=' + encodeURIComponent(result.new_path);
+                    window.location.href = (window.PW_BASE_PATH || '') + '/dashboard/edit?path=' + encodeURIComponent(result.new_path);
                 } else {
                     notify(__('dashboard.error_create_snippet'), 'error');
                 }
@@ -675,7 +675,7 @@ function bindAddSubPageAction(btnAdd) {
             const result = await apiSafe('create_page', { title, parent_path: parentPath, layout });
             if (result) {
                 sessionStorage.setItem('pw-notify', JSON.stringify({text: __('dashboard.page_created'), type: 'success'}));
-                window.location.href = '/dashboard/edit?path=' + encodeURIComponent(result.new_path);
+                window.location.href = (window.PW_BASE_PATH || '') + '/dashboard/edit?path=' + encodeURIComponent(result.new_path);
             }
         }
     });

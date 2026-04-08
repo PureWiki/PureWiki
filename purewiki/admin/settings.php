@@ -78,7 +78,7 @@ require_once __DIR__ . '/layout_head.php';
             <h1 class="pw-site-title"><?php echo __('settings.title'); ?></h1>
         </div>
         <div class="pw-header-right">
-            <button class="pw-btn" onclick="window.location.href='/dashboard'"><iconify-icon icon="mdi:arrow-left"></iconify-icon> <?php echo __('settings.back_to_dashboard'); ?></button>
+            <button class="pw-btn" onclick="window.location.href=window.PW_BASE_PATH+'/dashboard'"><iconify-icon icon="mdi:arrow-left"></iconify-icon> <?php echo __('settings.back_to_dashboard'); ?></button>
             <button id="pw-btn-save-settings" class="pw-btn pw-btn-primary"><iconify-icon icon="mdi:content-save"></iconify-icon> <?php echo __('settings.save_settings'); ?></button>
         </div>
     </header>
@@ -501,12 +501,12 @@ require_once __DIR__ . '/layout_head.php';
 
     <!-- Scripts -->
     <?php echo getLanguageScript(); ?>
-    <script src="/purewiki/assets/js/i18n.js"></script>
-    <script src="/purewiki/assets/js/core.js"></script>
+    <script src="<?php echo BASE_PATH; ?>/purewiki/assets/js/i18n.js"></script>
+    <script src="<?php echo BASE_PATH; ?>/purewiki/assets/js/core.js"></script>
     <script>window.PW_DEBUG = <?php echo !empty(getGlobalConfig()['dev_debug_output']) ? 'true' : 'false'; ?>;</script>
-    <script src="/purewiki/assets/js/notify.js"></script>
-    <script src="/purewiki/assets/js/settings.js"></script>
-    <script src="/purewiki/assets/js/clear_cache.js"></script>
+    <script src="<?php echo BASE_PATH; ?>/purewiki/assets/js/notify.js"></script>
+    <script src="<?php echo BASE_PATH; ?>/purewiki/assets/js/settings.js"></script>
+    <script src="<?php echo BASE_PATH; ?>/purewiki/assets/js/clear_cache.js"></script>
 
     <!-- Templates (used by settings.js) -->
     <template id="tpl-user-row">
