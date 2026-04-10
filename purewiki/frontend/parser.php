@@ -25,6 +25,20 @@ function renderMarkdown(string $text): string {
     return $pd->text($text);
 }
 
+/** Adds BASE_PATH to internal href elements in an HTML string. */
+function prefixInternalLinks(string $html): string {
+    if (BASE_PATH === '') {
+        return $html;
+    }
+    return preg_replace_callback(
+        '/\bhref=(["\'])(\/)(?!\/)([^"\']*)\1/i',
+        function ($m) {
+            return 'href=' . $m[1] . BASE_PATH . '/' . $m[3] . $m[1];
+        },
+        $html
+    );
+}
+
 function generateAnchor(string $text): string {
     $clean = strip_tags($text);
     return strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $clean), '-'));
@@ -50,14 +64,14 @@ function parseBlocksToHtml(array $blocks, string $contextPath = '/', ?array $mai
 
         switch ($type) {
             case 'paragraph':
-                $text = htmlspecialchars_decode($data['text'] ?? '', ENT_QUOTES);
+                $text = prefixInternalLinks(htmlspecialchars_decode($data['text'] ?? '', ENT_QUOTES));
                 $parts[] = '<p>' . $text . '</p>';
                 break;
 
             case 'header':
                 $level = isset($data['level']) ? (int)$data['level'] : 2;
                 if ($level < 1 || $level > 6) $level = 2;
-                $text = htmlspecialchars_decode($data['text'] ?? '', ENT_QUOTES);
+                $text = prefixInternalLinks(htmlspecialchars_decode($data['text'] ?? '', ENT_QUOTES));
                 $anchor = generateAnchor($text);
                 $parts[] = '<h' . $level . ' id="' . $anchor . '">' . $text . '</h' . $level . '>';
                 break;
@@ -101,8 +115,8 @@ function parseBlocksToHtml(array $blocks, string $contextPath = '/', ?array $mai
                     $html = '<' . $tag . '>';
                     foreach ($items as $item) {
                         $itemText = is_array($item)
-                            ? htmlspecialchars_decode($item['content'] ?? '', ENT_QUOTES)
-                            : htmlspecialchars_decode($item ?? '', ENT_QUOTES);
+                            ? prefixInternalLinks(htmlspecialchars_decode($item['content'] ?? '', ENT_QUOTES))
+                            : prefixInternalLinks(htmlspecialchars_decode($item ?? '', ENT_QUOTES));
 
                         if ($isChecklist && is_array($item)) {
                             $checked = !empty($item['meta']['checked']) ? ' checked disabled' : ' disabled';
@@ -167,6 +181,9 @@ function parseBlocksToHtml(array $blocks, string $contextPath = '/', ?array $mai
 
                 if ($url) {
                     $webpUrl = getWebpUrl($data['url'] ?? '');
+                    if (str_starts_with($webpUrl, '/') && !str_starts_with($webpUrl, '//')) {
+                        $webpUrl = BASE_PATH . $webpUrl;
+                    }
                     $figParts = ['<figure>', '  <img src="' . $webpUrl . '" alt="' . strip_tags($caption) . '">'];
                     if ($caption && $showCaption) {
                         $figParts[] = '  <figcaption>' . $caption . '</figcaption>';
@@ -179,7 +196,7 @@ function parseBlocksToHtml(array $blocks, string $contextPath = '/', ?array $mai
             case 'callout':
                 $style    = htmlspecialchars($data['style'] ?? $data['type'] ?? 'info', ENT_QUOTES);
                 $header   = htmlspecialchars_decode($data['header'] ?? '', ENT_QUOTES);
-                $text     = htmlspecialchars_decode($data['text'] ?? $data['message'] ?? '', ENT_QUOTES);
+                $text     = prefixInternalLinks(htmlspecialchars_decode($data['text'] ?? $data['message'] ?? '', ENT_QUOTES));
                 $showIcon = $data['showIcon'] ?? true;
                 $iconName = htmlspecialchars($data['icon'] ?? '', ENT_QUOTES);
 
@@ -203,7 +220,7 @@ function parseBlocksToHtml(array $blocks, string $contextPath = '/', ?array $mai
 
             case 'markdown':
                 $mdText = $data['markdown'] ?? '';
-                $parts[] = renderMarkdown($mdText);
+                $parts[] = prefixInternalLinks(renderMarkdown($mdText));
                 break;
 
             case 'liveMarkdown':

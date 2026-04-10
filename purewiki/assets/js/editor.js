@@ -831,7 +831,7 @@ function openImageSelectionDialog(imageToolInstance) {
                     const basePath = targetPath === '__global__' ? '/pages/' : '/pages' + (targetPath === '/' ? '' : targetPath) + '/';
                     const imgUrl = basePath + f.name;
 
-                    img.src = imgUrl;
+                    img.src = (window.PW_BASE_PATH || '') + imgUrl;
                     img.style.cssText = 'max-width: 100%; max-height: 100%; object-fit: contain;';
 
                     imgContainer.appendChild(img);

@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Implement BASE_PATH in links for subdirectory and reverse-proxy deployments
 - Make PureWiki path-agnostic
 
 ## [0.2.0-alpha.1] - 2026-04-06

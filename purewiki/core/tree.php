@@ -276,7 +276,7 @@ function buildNavTree(array $tree, string $currentPath, bool $boldHeadings = fal
             $html .= '<span class="pw-toggle"></span>';
         }
 
-        $html .= '<a href="' . htmlspecialchars($nodePath) . '">' . htmlspecialchars($node['name']) . '</a>';
+        $html .= '<a href="' . htmlspecialchars(BASE_PATH . $nodePath) . '">' . htmlspecialchars($node['name']) . '</a>';
 
         if (!empty($node['children'])) {
             $html .= buildNavTree($node['children'], $currentPath, false);

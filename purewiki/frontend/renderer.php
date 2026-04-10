@@ -84,7 +84,7 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
         $title = 'Page Not Found - PureWiki';
         $contentHtml = '<h2>404 - Not Found</h2><p>The page you are looking for does not exist.</p>';
         if ($contextPath !== '/') {
-            $contentHtml .= '<a href="/">Go to Startpage</a>';
+            $contentHtml .= '<a href="' . BASE_PATH . '/">Go to Startpage</a>';
         }
     }
 
@@ -111,14 +111,7 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
         return '<h1>No theme template found.</h1>';
     }
 
-    // Relative Path Calculation for Portability
-    $trimmedPath = trim($contextPath, '/');
-    $relativeBase = './';
-    if ($trimmedPath !== '') {
-        $depth = count(explode('/', $trimmedPath));
-        $relativeBase = str_repeat('../', $depth);
-    }
-    $themeUrl = $relativeBase . 'themes/' . $themeName . '/';
+    $themeUrl = BASE_PATH . '/themes/' . $themeName . '/';
 
     ob_start();
     include $templateFile;
@@ -130,9 +123,9 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
     foreach ($navLinks as $link) {
         $linkText = !empty($link['link_text']) ? $link['link_text'] : $link['title'];
         $linkPath = $link['path'];
-        // Prepend relativeBase for internal links (starting with /)
+        // Prepend BASE_PATH for internal links
         if (str_starts_with($linkPath, '/')) {
-            $linkPath = $relativeBase . ltrim($linkPath, '/');
+            $linkPath = BASE_PATH . $linkPath;
         }
         $navLinksHtml .= '<li><a href="' . htmlspecialchars($linkPath) . '">' . htmlspecialchars($linkText) . '</a></li>';
     }
@@ -160,7 +153,10 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
         AssetManager::requireIconify();
     }
 
-    $assetsHead = AssetManager::getStyles() . AssetManager::getScripts('head') . "\n" . $customCss . "\n" . $customHtmlHead . "\n" . $customJsHead;
+    // Inject BASE_PATH into the frontend so JS can use it
+    $pwBasePathScript = "<script>window.PW_BASE_PATH = '" . addslashes(BASE_PATH) . "';</script>";
+
+    $assetsHead = $pwBasePathScript . "\n" . AssetManager::getStyles() . AssetManager::getScripts('head') . "\n" . $customCss . "\n" . $customHtmlHead . "\n" . $customJsHead;
 
     // SEO Meta Tags Generation
     $seoTags = [];
@@ -168,7 +164,7 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
     if (!empty($config['wiki_favicon'])) {
         $faviconUrl = $config['wiki_favicon'];
         if (str_starts_with($faviconUrl, '/')) {
-            $faviconUrl = $relativeBase . ltrim($faviconUrl, '/');
+            $faviconUrl = BASE_PATH . $faviconUrl;
         }
         $seoTags[] = '<link rel="icon" href="' . htmlspecialchars($faviconUrl) . '">';
     }
@@ -285,15 +281,16 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
         'description'       => htmlspecialchars($description),
         'wiki_description'  => htmlspecialchars($config['wiki_description'] ?? ''),
         'wiki_name'         => htmlspecialchars($wikiName),
-        'wiki_logo'         => htmlspecialchars(str_starts_with($config['wiki_logo'] ?? '', '/') ? $relativeBase . ltrim($config['wiki_logo'], '/') : ($config['wiki_logo'] ?? '')),
-        'wiki_favicon'      => htmlspecialchars($faviconUrl),
+        'wiki_logo'         => htmlspecialchars(str_starts_with($config['wiki_logo'] ?? '', '/') ? BASE_PATH . $config['wiki_logo'] : ($config['wiki_logo'] ?? '')),
+        'wiki_favicon'      => htmlspecialchars($faviconUrl ?? ''),
         'author'            => htmlspecialchars($author),
         'nav_links'         => $navLinksHtml,
         'context_path'      => htmlspecialchars($contextPath),
         'current_year'      => date('Y'),
         'current_theme'     => htmlspecialchars($themeName),
-        'base_url'          => htmlspecialchars($relativeBase),
+        'base_url'          => htmlspecialchars(BASE_PATH . '/'),
         'theme_url'         => htmlspecialchars($themeUrl),
+        'pw_base_path'      => htmlspecialchars(BASE_PATH),
         'show_left_sidebar'  => !($pageData['Settings']['hide_left_sidebar']  ?? false),
         'show_right_sidebar' => !($pageData['Settings']['hide_right_sidebar'] ?? false),
     ];

@@ -41,7 +41,7 @@ echo '<nav class="pw-prevnext-nav" aria-label="Page navigation">';
 if ($neighbors['prev']) {
     $prevPath = '/' . trim($neighbors['prev']['path'], '/');
     $prevName = $neighbors['prev']['name'];
-    echo '<a href="' . htmlspecialchars($prevPath) . '" class="pw-prevnext-btn pw-prev">';
+    echo '<a href="' . htmlspecialchars(BASE_PATH . $prevPath) . '" class="pw-prevnext-btn pw-prev">';
     echo '<div class="pw-prevnext-label"><iconify-icon icon="mdi:chevron-left"></iconify-icon> ' . __('editor.prev') . '</div>';
     echo '<div class="pw-prevnext-title">' . htmlspecialchars($prevName) . '</div>';
     echo '</a>';
@@ -54,7 +54,7 @@ if ($neighbors['prev']) {
 if ($neighbors['next']) {
     $nextPath = '/' . trim($neighbors['next']['path'], '/');
     $nextName = $neighbors['next']['name'];
-    echo '<a href="' . htmlspecialchars($nextPath) . '" class="pw-prevnext-btn pw-next">';
+    echo '<a href="' . htmlspecialchars(BASE_PATH . $nextPath) . '" class="pw-prevnext-btn pw-next">';
     echo '<div class="pw-prevnext-label">' . __('editor.next') . ' <iconify-icon icon="mdi:chevron-right"></iconify-icon></div>';
     echo '<div class="pw-prevnext-title">' . htmlspecialchars($nextName) . '</div>';
     echo '</a>';

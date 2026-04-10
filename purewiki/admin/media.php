@@ -35,7 +35,7 @@ require_once __DIR__ . '/layout_head.php';
             $backUrl = $_GET['from'] ?? '/dashboard';
             if (!str_starts_with($backUrl, '/')) $backUrl = '/dashboard';
             ?>
-            <button class="pw-btn" onclick="window.location.href='<?php echo htmlspecialchars($backUrl, ENT_QUOTES); ?>'"><iconify-icon icon="mdi:arrow-left"></iconify-icon> <?php echo __('common.back'); ?></button>
+            <button class="pw-btn" onclick="window.location.href=window.PW_BASE_PATH + '<?php echo htmlspecialchars($backUrl, ENT_QUOTES); ?>'"><iconify-icon icon="mdi:arrow-left"></iconify-icon> <?php echo __('common.back'); ?></button>
         </div>
     </header>
 
@@ -318,7 +318,7 @@ require_once __DIR__ . '/layout_head.php';
                     const url = (`/pages/${publicPath}/${file.name}`).replace(/\/\/+/g, '/');
 
                     if (file.type === 'image') {
-                        preview.innerHTML = `<img src="${url}">`;
+                        preview.innerHTML = `<img src="${(window.PW_BASE_PATH || '') + url}">`;
 
                         // Container for badges
                         const badgeContainer = document.createElement('div');
@@ -348,7 +348,7 @@ require_once __DIR__ . '/layout_head.php';
                     }
                     else preview.innerHTML = `<iconify-icon icon="${file.icon}" class="pw-media-icon-preview"></iconify-icon>`;
 
-                    block.onclick = () => window.open(url, '_blank');
+                    block.onclick = () => window.open((window.PW_BASE_PATH || '') + url, '_blank');
                     menuBtn.onclick = (e) => {
                         e.stopPropagation();
                         showContextMenu(e, url, file.name);
@@ -378,7 +378,7 @@ require_once __DIR__ . '/layout_head.php';
                 });
 
                 addItem(__('media.copy_public_link'), 'mdi:link', () => {
-                    const publicUrl = window.location.origin + url;
+                    const publicUrl = window.location.origin + (window.PW_BASE_PATH || '') + url;
                     navigator.clipboard.writeText(publicUrl).then(() => notify(__('media.copied'), 'info'));
                 });
 
@@ -389,7 +389,7 @@ require_once __DIR__ . '/layout_head.php';
                 if (['jpg', 'jpeg', 'png', 'webp'].includes(ext)) {
                     addItem(__('media.resize_crop'), 'mdi:crop-free', () => {
                         if (typeof openImageEditor === 'function') {
-                            openImageEditor(url, currentPath, filename);
+                            openImageEditor((window.PW_BASE_PATH || '') + url, currentPath, filename);
                         } else {
                             notify(__('media.image_editor_not_loaded'), 'error');
                         }

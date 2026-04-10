@@ -45,8 +45,23 @@ class ExtendedImage {
         const imageEl = blockContent.querySelector('img');
         const captionEl = blockContent.querySelector('.pw-image-caption');
 
+        let savedUrl = this.data.url;
+        if (imageEl) {
+            let rawSrc = imageEl.getAttribute('src');
+            const basePath = window.PW_BASE_PATH || '';
+            // If the browser returned an absolute URL, strip the origin
+            if (rawSrc && rawSrc.startsWith(window.location.origin)) {
+                rawSrc = rawSrc.replace(window.location.origin, '');
+            }
+            if (basePath && rawSrc && rawSrc.startsWith(basePath + '/')) {
+                savedUrl = rawSrc.substring(basePath.length);
+            } else if (rawSrc) {
+                savedUrl = rawSrc;
+            }
+        }
+
         return {
-            url: imageEl ? imageEl.src.replace(window.location.origin, '') : this.data.url,
+            url: savedUrl,
             caption: captionEl ? captionEl.textContent : this.data.caption,
             showCaption: this.data.showCaption
         };
@@ -82,7 +97,12 @@ class ExtendedImage {
         this.wrapper.innerHTML = '';
 
         const img = document.createElement('img');
-        img.src = this.data.url;
+        const basePath = window.PW_BASE_PATH || '';
+        let displayUrl = this.data.url;
+        if (displayUrl && displayUrl.startsWith('/') && !displayUrl.startsWith('//')) {
+            displayUrl = basePath + displayUrl;
+        }
+        img.src = displayUrl;
         img.style.cssText = 'max-width: 100%; display: block; border-radius: 4px;';
 
         const bottomRow = document.createElement('div');

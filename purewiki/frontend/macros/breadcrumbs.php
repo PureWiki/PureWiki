@@ -26,7 +26,7 @@ if (isset($config) && isset($config['breadcrumbs_show_start_page'])) {
 }
 
 if ($showHome) {
-    echo '<li><a href="/">Home</a></li>';
+    echo '<li><a href="' . BASE_PATH . '/">Home</a></li>';
 }
 
 $currentUrl = '';
@@ -63,7 +63,7 @@ foreach ($parts as $part) {
         $currentLevel = [];
     }
 
-    echo '<li><a href="' . htmlspecialchars($currentUrl) . '">' . htmlspecialchars($title) . '</a></li>';
+    echo '<li><a href="' . htmlspecialchars(BASE_PATH . $currentUrl) . '">' . htmlspecialchars($title) . '</a></li>';
 }
 
 echo '</ul>';
