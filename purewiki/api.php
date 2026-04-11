@@ -1,5 +1,4 @@
-<?php define('PUREWIKI', true);
-require_once __DIR__ . "/core/exception.php";
+<?php
 /**
  * PureWiki - API Router
  *
@@ -11,6 +10,10 @@ require_once __DIR__ . "/core/exception.php";
  * @copyright (c) 2026 by Oliver Weinhold
  * @license   GNU AGPLv3
  */
+
+define('PUREWIKI', true);
+
+require_once __DIR__ . "/core/exception.php";
 
 header('Content-Type: application/json');
 
