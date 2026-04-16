@@ -582,7 +582,8 @@
         "toc_end_level": "End Level (H1-H6):",
         "toc_preview": "In-Editor Preview:",
         "toc_no_headings": "No headings found for the selected range.",
-        "toc_error_extract": "TOC Plugin: Failed to extract headings"
+        "toc_error_extract": "TOC Plugin: Failed to extract headings",
+        "hidden_block": "Hidden"
     },
     "setup": {
         "page_title": "PureWiki – Setup",

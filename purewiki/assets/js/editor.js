@@ -242,14 +242,15 @@ function initEditorJS(blocksData) {
                 ...window.PW_EDITOR_TOOLS,
                 accordion: currentGlobalConfig.editor_show_accordion !== false ? AccordionTool : { class: AccordionTool, toolbox: false },
                 grid: currentGlobalConfig.editor_show_grid !== false ? GridTool : { class: GridTool, toolbox: false },
-                paragraph: { class: Paragraph, inlineToolbar: [...commonInlineToolbar, 'textAlignInline'], sanitize: textSanitizer, tunes: ['textAlignTune'] },
-                header: { class: Header, inlineToolbar: [...commonInlineToolbar, 'textAlignInline'], config: { levels: [1, 2, 3, 4, 5, 6], defaultLevel: 2 }, sanitize: textSanitizer, tunes: ['textAlignTune'] },
+                paragraph: { class: Paragraph, inlineToolbar: [...commonInlineToolbar, 'textAlignInline'], sanitize: textSanitizer, tunes: ['textAlignTune', 'cssClassTune', 'duplicateBlockTune', 'hiddenBlockTune'] },
+                header: { class: Header, inlineToolbar: [...commonInlineToolbar, 'textAlignInline'], config: { levels: [1, 2, 3, 4, 5, 6], defaultLevel: 2 }, sanitize: textSanitizer, tunes: ['textAlignTune', 'cssClassTune', 'duplicateBlockTune', 'hiddenBlockTune'] },
                 cssClassTune: { class: CssClassTune },
                 duplicateBlockTune: { class: DuplicateBlockTune },
+                hiddenBlockTune: { class: HiddenBlockTune },
                 textAlignTune: { class: TextAlignTune },
                 textAlignInline: { class: TextAlignInlineTool },
             },
-            tunes: ['cssClassTune', 'duplicateBlockTune'],
+            tunes: ['cssClassTune', 'duplicateBlockTune', 'hiddenBlockTune'],
             onChange: () => {
                 if (window.pwEditorInitializing) return;
                 clearTimeout(autoSaveTimeout);
@@ -1002,6 +1003,7 @@ function getEditorI18nConfig() {
             blockTunes: {
                 "delete": { "Delete": __('editor.ui_delete') }, "moveUp": { "Move up": __('editor.ui_move_up') }, "moveDown": { "Move down": __('editor.ui_move_down') },
                 "cssClassTune": { "CSS Class": "CSS Class" }, "duplicateBlockTune": { "Duplicate": __('editor.tune_duplicate') },
+                "hiddenBlockTune": { "Hidden": __('plugins.hidden_block') },
                 "textAlignTune": { "Align left": __('editor.tune_text_align_left'), "Align center": __('editor.tune_text_align_center'), "Align right": __('editor.tune_text_align_right'), "Justify": __('editor.tune_text_align_justify') }
             },
             tools: {

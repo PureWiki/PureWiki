@@ -125,6 +125,7 @@ require_once __DIR__ . '/layout_head.php';
     <script src="<?php echo BASE_PATH; ?>/purewiki/editorPlugins/editor-css-class-tune.js"></script>
     <script src="<?php echo BASE_PATH; ?>/purewiki/editorPlugins/editor-duplicate-tune.js"></script>
     <script src="<?php echo BASE_PATH; ?>/purewiki/editorPlugins/editor-text-align-tune.js"></script>
+    <script src="<?php echo BASE_PATH; ?>/purewiki/editorPlugins/editor-hidden-tune.js"></script>
     <script src="<?php echo BASE_PATH; ?>/purewiki/editorPlugins/editor-accordion.js"></script>
     <script src="<?php echo BASE_PATH; ?>/purewiki/editorPlugins/editor-snippet.js"></script>
     <script src="<?php echo BASE_PATH; ?>/purewiki/editorPlugins/editor-grid.js"></script>

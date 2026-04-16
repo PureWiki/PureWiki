@@ -582,7 +582,8 @@
         "toc_end_level": "End-Ebene (H1-H6):",
         "toc_preview": "Vorschau im Editor:",
         "toc_no_headings": "Keine Überschriften im gewählten Bereich gefunden.",
-        "toc_error_extract": "Inhaltsverzeichnis: Überschriften konnten nicht extrahiert werden"
+        "toc_error_extract": "Inhaltsverzeichnis: Überschriften konnten nicht extrahiert werden",
+        "hidden_block": "Versteckt"
     },
     "setup": {
         "page_title": "PureWiki – Setup",

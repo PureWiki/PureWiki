@@ -1157,3 +1157,32 @@ input[type=number]::-webkit-outer-spin-button {
     background: rgba(56, 138, 229, 0.14) !important;
     border-radius: 3px;
 }
+
+/* Hidden Block Tune */
+.pw-block-hidden-indicator {
+    position: relative;
+    opacity: 0.4;
+    border: 2px dashed var(--pw-text-muted);
+    border-radius: 4px;
+    transition: opacity 0.2s, border-color 0.2s;
+    max-width: 1000px;
+    margin: auto;
+}
+
+.pw-block-hidden-indicator:hover {
+    opacity: 0.65;
+}
+
+.pw-block-hidden-badge {
+    display: block;
+    text-align: center;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--pw-text-muted);
+    padding: 2px 0;
+    pointer-events: none;
+    user-select: none;
+    font-family: var(--pw-font);
+}

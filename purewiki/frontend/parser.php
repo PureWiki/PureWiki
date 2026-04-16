@@ -60,6 +60,12 @@ function parseBlocksToHtml(array $blocks, string $contextPath = '/', ?array $mai
         if (!in_array($alignment, $allowedAlignments, true)) {
             $alignment = '';
         }
+
+        // Skip hidden blocks during rendering
+        if (!empty($block['tunes']['hiddenBlockTune']['hidden'])) {
+            continue;
+        }
+
         $partsBefore = count($parts);
 
         switch ($type) {
