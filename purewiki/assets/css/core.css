@@ -13,6 +13,8 @@
     /* Color Palette (Dark Default) */
     --pw-primary: #007bff;
     --pw-primary-hover: #0056b3;
+    --pw-success: #28a745;
+    --pw-warning: #ffc107;
     --pw-danger: #dc3545;
     --pw-danger-hover: #bd2130;
     --pw-bg: #101113;
@@ -50,6 +52,9 @@
     --pw-text: #111827;
     --pw-text-muted: #4b5563;
     --pw-border: #dee2e6;
+    --pw-success: #218838;
+    --pw-warning: #d97706;
+    --pw-danger: #dc3545;
 
     /* Theme-specific UI Colors */
     --pw-btn-hover: #e9ecef;
