@@ -94,7 +94,7 @@ function initDialogSystem() {
     overlay.innerHTML = `
         <div class="pw-dialog-box">
             <h3 id="pw-dialog-title" class="pw-dialog-title"></h3>
-            <p id="pw-dialog-text" class="pw-dialog-text"></p>
+            <div id="pw-dialog-text" class="pw-dialog-text"></div>
             <div id="pw-dialog-input-container" style="display: none;">
                 <input id="pw-dialog-input" class="pw-input" type="text">
             </div>
@@ -125,6 +125,7 @@ let currentDialogResolve = null;
  * 
  * @param {Object} options - Configuration options for the dialog
  * @param {string} options.title - Title of the dialog
+ * @param {string} [options.html] - HTML content inside the dialog
  * @param {string} [options.text] - Text inside the dialog
  * @param {string} [options.type='alert'] - Type of dialog: 'alert', 'confirm', or 'prompt'
  * @param {string} [options.confirmText='OK'] - Confirmation Text
@@ -152,7 +153,10 @@ function openDialog(options) {
 
         titleEl.textContent = options.title || 'Dialog';
 
-        if (options.text) {
+        if (options.html) {
+            textEl.innerHTML = options.html;
+            textEl.style.display = 'block';
+        } else if (options.text) {
             textEl.textContent = options.text;
             textEl.style.display = 'block';
         } else {

@@ -352,6 +352,8 @@ body {
     margin: 0;
     font-size: 14px;
     color: var(--pw-text-muted);
+    max-height: 60vh;
+    overflow-y: auto;
 }
 
 .pw-dialog-actions {
