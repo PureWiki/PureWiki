@@ -1236,3 +1236,51 @@ body {
         flex: 1 1 calc(50% - 8px);
     }
 }
+
+.pw-sidebar-bottom {
+    flex-shrink: 0;
+    padding: 10px 0;
+    border-top: 1px solid var(--pw-border);
+    margin-top: auto;
+}
+
+.pw-sidebar-trash-btn {
+    width: 100%;
+    padding: 6px 10px;
+    justify-content: flex-start;
+    color: var(--pw-text-muted);
+    border-color: transparent;
+    background: transparent;
+    gap: 8px;
+    transition: background-color 0.15s, color 0.15s;
+}
+
+.pw-sidebar-trash-btn:hover:not(:disabled) {
+    background-color: var(--pw-tree-hover);
+    color: var(--pw-text);
+}
+
+.pw-trash-main {
+    max-width: 100%;
+}
+
+.pw-trash-table {
+    width: 100%;
+}
+
+.pw-trash-empty-hint {
+    text-align: center;
+    padding: 40px 0;
+    color: var(--pw-text-muted);
+}
+
+.pw-btn-empty-confirm {
+    background-color: var(--pw-danger) !important;
+    border-color: var(--pw-danger) !important;
+    color: #ffffff !important;
+}
+
+.pw-btn-empty-confirm:hover:not(:disabled) {
+    background-color: var(--pw-danger-hover) !important;
+    border-color: var(--pw-danger-hover) !important;
+}

@@ -25,14 +25,13 @@ if (str_starts_with($path, '/_virtual/')) {
 $safePath = sanitizePath($path);
 $targetPath = realpath($pagesDir . '/' . $safePath);
 
-// Only deleting in Pages Directory
 if ($targetPath && isPathInDir($targetPath, $pagesDir)) {
-    deleteDirectory($targetPath);
+    moveToTrash($targetPath);
     invalidateTreeCache();
     rebuildNavLinksCache();
     invalidateSearchIndex();
     $response['success'] = true;
-    $response['message'] = 'Page deleted successfully.';
+    $response['message'] = 'Page moved to trash.';
     clearCache('/' . $safePath);
 } else {
     $response['message'] = 'Page does not exist or target out of bounds.';

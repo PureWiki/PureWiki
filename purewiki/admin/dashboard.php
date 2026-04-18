@@ -116,6 +116,13 @@ require_once __DIR__ . '/layout_head.php';
                     ?>
                 </ul>
             </div>
+            <?php if (hasRole('admin')) { ?>
+            <div class="pw-sidebar-bottom">
+                <button class="pw-btn pw-sidebar-trash-btn" onclick="window.location.href = window.PW_BASE_PATH + '/dashboard/trash'" title="<?php echo __('dashboard.trash_title'); ?>" aria-label="<?php echo __('dashboard.trash_title'); ?>">
+                    <iconify-icon icon="mdi:delete-clock-outline"></iconify-icon> <?php echo __('dashboard.trash'); ?>
+                </button>
+            </div>
+            <?php } ?>
         </aside>
 
         <!-- Main Content -->

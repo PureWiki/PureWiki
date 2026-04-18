@@ -109,6 +109,14 @@ function getPageDir(): string {
 }
 
 /**
+ * Returns the absolute path to the trash directory.
+ * @return string
+ */
+function getTrashDir(): string {
+    return getPageDir() . '/_trash';
+}
+
+/**
  * Returns the absolute path to the system-provided virtual pages directory.
  * @return string
  */
@@ -188,4 +196,25 @@ function createDirectory(string $path, int $permissions = 0755): bool {
         throw new PureWikiException("Failed to create directory: " . basename($path));
     }
     return true;
+}
+
+/**
+ * Moves a page directory into the trash, appending timestamp to avoid collisions.
+ * @param string $sourcePath Absolute path to the page directory.
+ * @return string The absolute destination path inside the trash.
+ */
+function moveToTrash(string $sourcePath): string {
+    $trashDir = getTrashDir();
+    if (!is_dir($trashDir)) {
+        createDirectory($trashDir);
+    }
+
+    $slug      = basename($sourcePath);
+    $dest      = $trashDir . DIRECTORY_SEPARATOR . $slug . '__' . time();
+
+    if (!rename($sourcePath, $dest)) {
+        throw new PureWikiException('Failed to move page to trash: ' . $slug);
+    }
+
+    return $dest;
 }

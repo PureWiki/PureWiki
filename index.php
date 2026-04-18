@@ -81,6 +81,9 @@ if (str_starts_with($path, '/dashboard/login')) {
     } elseif (str_starts_with($path, '/dashboard/settings')) {
         if (!hasRole('admin')) { header('Location: ' . BASE_PATH . '/dashboard'); exit; }
         include 'purewiki/admin/settings.php';
+    } elseif (str_starts_with($path, '/dashboard/trash')) {
+        if (!hasRole('admin')) { header('Location: ' . BASE_PATH . '/dashboard'); exit; }
+        include 'purewiki/admin/trash.php';
     } elseif (str_starts_with($path, '/dashboard/page-settings')) {
         if (!hasRole('editor')) { header('Location: ' . BASE_PATH . '/'); exit; }
         include 'purewiki/admin/pageSettings.php';

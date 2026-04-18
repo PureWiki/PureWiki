@@ -142,6 +142,11 @@ $apiRoutes = [
     'save_mail_config' => 'system/mail.php',
     'disable_mail' => 'system/mail.php',
     'send_test_mail' => 'system/mail.php',
+
+    'list_trash' => 'trash/list.php',
+    'restore_trash_item' => 'trash/restore.php',
+    'delete_trash_item' => 'trash/delete.php',
+    'empty_trash' => 'trash/empty.php',
 ];
 
 if (!isset($apiRoutes[$action])) {
@@ -159,7 +164,8 @@ $adminActions  = [
     'restore_image', 'process_image_edit', 'check_for_updates', 'get_update_requirements',
     'download_update', 'start_pre_update_backup', 'get_update_backup_status',
     'install_update', 'cleanup_update',
-    'get_mail_config', 'save_mail_config', 'disable_mail', 'send_test_mail'
+    'get_mail_config', 'save_mail_config', 'disable_mail', 'send_test_mail',
+    'list_trash', 'restore_trash_item', 'delete_trash_item', 'empty_trash',
 ];
 
 if (!in_array($action, $publicActions)) {

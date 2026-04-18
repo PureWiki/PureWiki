@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [unreleased]
 
 ### Added
+- Add trash management to restore and permanently delete pages
 - Raw HTML support for dialogs
 - Add button to show full release notes formatted in dialog
 
