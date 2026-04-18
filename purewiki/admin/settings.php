@@ -469,15 +469,17 @@ require_once __DIR__ . '/layout_head.php';
                                 <p id="pw-update-status-text"><?php echo __('settings.checking_updates'); ?></p>
                                 <div id="pw-update-meta" style="display: none; margin-top: 10px;">
                                     <div class="pw-update-version-badge"><?php echo __('settings.new_version'); ?> <span id="pw-update-new-version"></span></div>
-                                    <div id="pw-update-changelog" class="pw-update-changelog-preview"></div>
                                 </div>
                             </div>
                             <div class="pw-update-actions" style="margin-top: 15px;">
                                 <button id="pw-btn-check-updates" class="pw-btn">
                                     <iconify-icon icon="mdi:refresh"></iconify-icon> <?php echo __('settings.check_updates'); ?>
                                 </button>
-                                <a id="pw-link-changelog" class="pw-btn pw-btn-secondary" style="display: none; text-decoration: none; align-items: center; justify-content: center;" target="_blank">
-                                    <iconify-icon icon="mdi:format-list-bulleted-type"></iconify-icon> <?php echo __('settings.view_changelog'); ?>
+                                <button id="pw-btn-view-releasenotes" class="pw-btn pw-btn-secondary" style="display: none;" type="button">
+                                    <iconify-icon icon="mdi:text-box-outline"></iconify-icon> <?php echo __('settings.view_releasenotes'); ?>
+                                </button>
+                                <a id="pw-link-changelog" href="https://github.com/PureWiki/PureWiki/releases" class="pw-btn pw-btn-secondary" style="display: none; text-decoration: none; align-items: center; justify-content: center;" target="_blank">
+                                    <iconify-icon icon="mdi:github"></iconify-icon> <?php echo __('settings.open_changelog'); ?>
                                 </a>
                                 <button id="pw-btn-start-update" class="pw-btn pw-btn-primary" style="display: none;">
                                     <iconify-icon icon="mdi:cloud-download"></iconify-icon> <?php echo __('settings.update_now'); ?>

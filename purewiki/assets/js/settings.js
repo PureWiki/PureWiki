@@ -491,6 +491,19 @@ document.addEventListener('DOMContentLoaded', () => {
             if (currentRelease) runUpdate(currentRelease);
         });
     }
+
+    const viewNotesBtn = document.getElementById('pw-btn-view-releasenotes');
+    if (viewNotesBtn) {
+        viewNotesBtn.addEventListener('click', () => {
+             if (currentRelease && currentRelease.release_notes) {
+                  openDialog({
+                      title: currentRelease.release_name || __('settings.release_notes') || 'Release Notes',
+                      html: currentRelease.release_notes,
+                      type: 'alert'
+                  });
+             }
+        });
+    }
 });
 
 /** Loads the current update status. */
@@ -505,9 +518,9 @@ async function checkForUpdates() {
     const statusText = document.getElementById('pw-update-status-text');
     const metaEl = document.getElementById('pw-update-meta');
     const newVerEl = document.getElementById('pw-update-new-version');
-    const changelogEl = document.getElementById('pw-update-changelog');
     const changelogLink = document.getElementById('pw-link-changelog');
     const startBtn = document.getElementById('pw-btn-start-update');
+    const viewNotesBtn = document.getElementById('pw-btn-view-releasenotes');
 
     const res = await apiSafe('check_for_updates', {});
     if (res && res.data) {
@@ -518,12 +531,14 @@ async function checkForUpdates() {
             const badgeColor = d.is_prerelease ? 'var(--pw-warning)' : 'var(--pw-success)';
             const badgeHtml = `<span style="background: ${badgeColor}; color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 0.8em; margin-left: 8px;">${badgeType}</span>`;
             newVerEl.innerHTML = d.latest_version + badgeHtml;
-            changelogEl.textContent = d.release_notes.substring(0, 300) + (d.release_notes.length > 300 ? '...' : '');
+            
             metaEl.style.display = 'block';
 
             if (changelogLink) {
-                changelogLink.href = d.html_url;
                 changelogLink.style.display = 'inline-flex';
+            }
+            if (viewNotesBtn) {
+                viewNotesBtn.style.display = 'inline-flex';
             }
 
             startBtn.style.display = 'inline-flex';
@@ -532,6 +547,7 @@ async function checkForUpdates() {
             statusText.textContent = __('settings.up_to_date', d.current_version);
             metaEl.style.display = 'none';
             if (changelogLink) changelogLink.style.display = 'none';
+            if (viewNotesBtn) viewNotesBtn.style.display = 'none';
             startBtn.style.display = 'none';
         }
     } else if (statusText) {

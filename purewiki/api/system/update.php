@@ -117,6 +117,11 @@ if ($action === 'check_for_updates') {
             $latestVersion = ltrim($targetRelease['tag_name'], 'v');
             $updateAvailable = compareSemVer($latestVersion, $currentVersion) > 0;
 
+            require_once realpath(__DIR__ . '/../../extern/parsedown/Parsedown.php');
+            require_once realpath(__DIR__ . '/../../extern/parsedownExtra/ParsedownExtra.php');
+            $parsedown = new ParsedownExtra();
+            $releaseNotes = $parsedown->text($targetRelease['body'] ?? '');
+
             $response['success'] = true;
             $response['data'] = [
                 'current_version' => $currentVersion,
@@ -124,7 +129,7 @@ if ($action === 'check_for_updates') {
                 'update_available' => $updateAvailable,
                 'is_prerelease' => !empty($targetRelease['prerelease']),
                 'release_name' => $targetRelease['name'] ?? $targetRelease['tag_name'],
-                'release_notes' => $targetRelease['body'] ?? '',
+                'release_notes' => $releaseNotes,
                 'published_at' => $targetRelease['published_at'] ?? '',
                 'zip_url' => $targetRelease['zipball_url'] ?? '',
                 'html_url' => $targetRelease['html_url'] ?? ''

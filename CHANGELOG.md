@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Raw HTML support for dialogs
+- Add button to show full release notes formatted in dialog
+
+### Changed
+- Modified strings in the update section
+- Changelog button link now opens the GitHub releases page
 
 ## [0.2.0-alpha.3] - 2026-04-16
 
