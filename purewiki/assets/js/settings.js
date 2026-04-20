@@ -289,7 +289,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const tabContents = document.querySelectorAll('.pw-settings-tab');
     const saveBtn = document.getElementById('pw-btn-save-settings');
     const addUserForm = document.getElementById('pw-form-add-user');
-    const clearCacheBtn = document.getElementById('pw-btn-clear-cache');
     const startBackupBtn = document.getElementById('pw-btn-start-backup');
     const bulkWebpBtn = document.getElementById('pw-btn-bulk-webp');
     const checkUpdatesBtn = document.getElementById('pw-btn-check-updates');
