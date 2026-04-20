@@ -118,7 +118,7 @@ function parseBlocksToHtml(array $blocks, string $contextPath = '/', ?array $mai
 
                     } elseif ($bType === 'markdown') {
                         $mdRaw = $b['data']['markdown'] ?? '';
-                        if ($mdRaw === '') break;
+                        if ($mdRaw === '') continue;
                         preg_match_all('/^(#{1,6})\s+(.+)$/m', $mdRaw, $mdMatches, PREG_SET_ORDER);
                         foreach ($mdMatches as $m) {
                             $hLevel = strlen($m[1]);
@@ -132,12 +132,12 @@ function parseBlocksToHtml(array $blocks, string $contextPath = '/', ?array $mai
                     } elseif ($bType === 'liveMarkdown') {
                         static $liveMarkdownCache = [];
                         $lmUrl = $b['data']['url'] ?? '';
-                        if ($lmUrl === '') break;
+                        if ($lmUrl === '') continue;
                         if (!array_key_exists($lmUrl, $liveMarkdownCache)) {
                             $liveMarkdownCache[$lmUrl] = fetchMarkdownUrl($lmUrl) ?: '';
                         }
                         $lmRaw = $liveMarkdownCache[$lmUrl];
-                        if ($lmRaw === '') break;
+                        if ($lmRaw === '') continue;
                         preg_match_all('/^(#{1,6})\s+(.+)$/m', $lmRaw, $lmMatches, PREG_SET_ORDER);
                         foreach ($lmMatches as $m) {
                             $hLevel = strlen($m[1]);
