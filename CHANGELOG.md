@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Include markdown headings in TOC generation for the final page (not supported in editor TOC preview)
 
+### Changed
+- Improve page picker sorting by including page title for better search results
+
 ## [0.2.0-alpha.4] - 2026-04-19
 
 ### Added

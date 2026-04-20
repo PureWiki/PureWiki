@@ -82,16 +82,28 @@ class PagePicker {
             p.title.toLowerCase().includes(value)
         );
 
-        // Sort: exact matches first, then prefix matches, then includes
+        // Sort: exact path first, then exact title, then prefix path, then prefix title, then alphabetical by path
         matches.sort((a, b) => {
             const aPath = a.path.toLowerCase();
             const bPath = b.path.toLowerCase();
             const aTitle = a.title.toLowerCase();
             const bTitle = b.title.toLowerCase();
 
+            //exact path
             if (aPath === value || bPath === value) return aPath === value ? -1 : 1;
+            
+            //exact title
+            if (aTitle === value || bTitle === value) return aTitle === value ? -1 : 1;
+            
+            //prefix path
             if (aPath.startsWith(value) && !bPath.startsWith(value)) return -1;
             if (!aPath.startsWith(value) && bPath.startsWith(value)) return 1;
+            
+            //prefix title
+            if (aTitle.startsWith(value) && !bTitle.startsWith(value)) return -1;
+            if (!aTitle.startsWith(value) && bTitle.startsWith(value)) return 1;
+
+            //Alphabetical by path
             return aPath.localeCompare(bPath);
         });
 
