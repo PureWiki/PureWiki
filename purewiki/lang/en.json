@@ -604,6 +604,7 @@
         "toc_preview": "In-Editor Preview:",
         "toc_no_headings": "No headings found for the selected range.",
         "toc_error_extract": "TOC Plugin: Failed to extract headings",
+        "toc_md_hint": "Markdown headings may not appear in this preview.",
         "hidden_block": "Hidden"
     },
     "setup": {

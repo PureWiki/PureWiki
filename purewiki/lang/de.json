@@ -604,6 +604,7 @@
         "toc_preview": "Vorschau im Editor:",
         "toc_no_headings": "Keine Überschriften im gewählten Bereich gefunden.",
         "toc_error_extract": "Inhaltsverzeichnis: Überschriften konnten nicht extrahiert werden",
+        "toc_md_hint": "Markdown-Überschriften erscheinen möglicherweise nicht in dieser Vorschau.",
         "hidden_block": "Versteckt"
     },
     "setup": {

@@ -44,6 +44,21 @@ function generateAnchor(string $text): string {
     return strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $clean), '-'));
 }
 
+/** Adds IDs to header tags without existing id */
+function addHeaderAnchor(string $renderedHtml): string {
+    if ($renderedHtml === '') return '';
+
+    // Matches h1 to h6 tags without existing id
+    $pattern = '/<(h[1-6])(?![^>]*\bid=)[^>]*>(.*?)<\/\1>/si';
+
+    return preg_replace_callback($pattern, function ($match) {
+        $tag     = $match[1]; // h1 ... h6
+        $content = $match[2]; // inner HTML
+        $id      = generateAnchor(strip_tags($content));
+        return str_replace("<{$tag}", "<{$tag} id=\"" . htmlspecialchars($id, ENT_QUOTES) . "\"", $match[0]);
+    }, $renderedHtml);
+}
+
 require_once __DIR__ . '/../core/http.php';
 require_once __DIR__ . '/../core/asset_manager.php';
 require_once __DIR__ . '/../core/json.php';
@@ -90,13 +105,47 @@ function parseBlocksToHtml(array $blocks, string $contextPath = '/', ?array $mai
                 $sourceBlocks = ($mainBlocks !== null) ? $mainBlocks : $blocks;
 
                 foreach ($sourceBlocks as $b) {
-                    if (($b['type'] ?? '') === 'header') {
-                        $hData = $b['data'] ?? [];
+                    $bType = $b['type'] ?? '';
+
+                    if ($bType === 'header') {
+                        $hData  = $b['data'] ?? [];
                         $hLevel = (int)($hData['level'] ?? 2);
                         if ($hLevel >= $start && $hLevel <= $end) {
-                            $hText = htmlspecialchars_decode($hData['text'] ?? '', ENT_QUOTES);
+                            $hText  = htmlspecialchars_decode($hData['text'] ?? '', ENT_QUOTES);
                             $anchor = generateAnchor($hText);
                             $tocLines[] = '    <li class="pw-toc-level-' . $hLevel . '"><a href="#' . $anchor . '">' . $hText . '</a></li>';
+                        }
+
+                    } elseif ($bType === 'markdown') {
+                        $mdRaw = $b['data']['markdown'] ?? '';
+                        if ($mdRaw === '') break;
+                        preg_match_all('/^(#{1,6})\s+(.+)$/m', $mdRaw, $mdMatches, PREG_SET_ORDER);
+                        foreach ($mdMatches as $m) {
+                            $hLevel = strlen($m[1]);
+                            if ($hLevel >= $start && $hLevel <= $end) {
+                                $hText  = trim(strip_tags($m[2]));
+                                $anchor = generateAnchor($hText);
+                                $tocLines[] = '    <li class="pw-toc-level-' . $hLevel . '"><a href="#' . $anchor . '">' . htmlspecialchars($hText, ENT_QUOTES) . '</a></li>';
+                            }
+                        }
+
+                    } elseif ($bType === 'liveMarkdown') {
+                        static $liveMarkdownCache = [];
+                        $lmUrl = $b['data']['url'] ?? '';
+                        if ($lmUrl === '') break;
+                        if (!array_key_exists($lmUrl, $liveMarkdownCache)) {
+                            $liveMarkdownCache[$lmUrl] = fetchMarkdownUrl($lmUrl) ?: '';
+                        }
+                        $lmRaw = $liveMarkdownCache[$lmUrl];
+                        if ($lmRaw === '') break;
+                        preg_match_all('/^(#{1,6})\s+(.+)$/m', $lmRaw, $lmMatches, PREG_SET_ORDER);
+                        foreach ($lmMatches as $m) {
+                            $hLevel = strlen($m[1]);
+                            if ($hLevel >= $start && $hLevel <= $end) {
+                                $hText  = trim(strip_tags($m[2]));
+                                $anchor = generateAnchor($hText);
+                                $tocLines[] = '    <li class="pw-toc-level-' . $hLevel . '"><a href="#' . $anchor . '">' . htmlspecialchars($hText, ENT_QUOTES) . '</a></li>';
+                            }
                         }
                     }
                 }
@@ -226,7 +275,9 @@ function parseBlocksToHtml(array $blocks, string $contextPath = '/', ?array $mai
 
             case 'markdown':
                 $mdText = $data['markdown'] ?? '';
-                $parts[] = prefixInternalLinks(renderMarkdown($mdText));
+                // Use addHeaderAnchor function as ids are not added to headers by parsedown as for version 1.8.0
+                // TODO: Remove this function when parsedown supports adding ids to headers
+                $parts[] = addHeaderAnchor(prefixInternalLinks(renderMarkdown($mdText)));
                 break;
 
             case 'liveMarkdown':
@@ -265,7 +316,9 @@ function parseBlocksToHtml(array $blocks, string $contextPath = '/', ?array $mai
                                 $fetchedContent = implode("\n", $section);
                             }
                         }
-                        $parts[] = renderMarkdown($fetchedContent);
+                        // Use addHeaderAnchor function as ids are not added to headers by parsedown as for version 1.8.0
+                        // TODO: Remove this function when parsedown supports adding ids to headers
+                        $parts[] = addHeaderAnchor(renderMarkdown($fetchedContent));
                     } else {
                         $parts[] = '<div class="pw-livemd-error-msg" style="color: var(--pw-text-muted); font-style: italic; padding: 10px; border: 1px dashed var(--pw-border); border-radius: 4px;">Content not available at the moment</div>';
                     }

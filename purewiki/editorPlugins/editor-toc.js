@@ -128,6 +128,13 @@ class TableOfContentsTool {
             `;
             this.previewContainer.appendChild(item);
         });
+
+        const note = document.createElement('div');
+        note.style.cssText = 'font-size:0.75em; color:var(--pw-text-muted); margin-top:10px; font-style:italic;';
+        note.textContent = typeof __ === 'function'
+            ? __('plugins.toc_md_hint')
+            : 'Markdown headings may not appear in this preview.';
+        this.previewContainer.appendChild(note);
     }
 
     async _getHeadings() {
