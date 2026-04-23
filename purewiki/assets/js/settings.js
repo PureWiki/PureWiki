@@ -323,7 +323,7 @@ document.addEventListener('DOMContentLoaded', () => {
             cacheLifetime.style.opacity = cacheToggle.checked ? '1' : '0.5';
         };
         cacheToggle.addEventListener('change', updateCacheState);
-        setTimeout(updateCacheState, 500); // Small delay to ensure API values are applied
+        updateCacheState();
     }
 
     // History Settings Toggle
@@ -335,7 +335,7 @@ document.addEventListener('DOMContentLoaded', () => {
             historyMax.style.opacity = historyToggle.checked ? '1' : '0.5';
         };
         historyToggle.addEventListener('change', updateHistoryState);
-        setTimeout(updateHistoryState, 500); // Small delay to ensure API values are applied
+        updateHistoryState();
     }
 
     if (bulkWebpBtn) {
