@@ -513,7 +513,7 @@ async function loadPageHistory() {
                 </div>
                 ${authorHtml}
             `;
-            btn.addEventListener('click', () => restorePageVersion(v.file, `${dateStr}, ${timeStr}`));
+            btn.addEventListener('click', () => restorePageVersion(v.file));
             menu.appendChild(btn);
         });
     } else {
