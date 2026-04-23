@@ -586,6 +586,16 @@ async function runUpdate(release) {
     document.getElementById('pw-btn-check-updates').disabled = true;
     document.getElementById('pw-btn-start-update').disabled = true;
 
+    let isUpdating = true;
+    // Block page reload while update is running
+    const blockUnload = (e) => {
+        if (!isUpdating) return;
+        e.preventDefault();
+        e.returnValue = 'update';
+        return 'update';
+    };
+    window.addEventListener('beforeunload', blockUnload);
+
     try {
         // Check Requirements
         setProgress(10, __('settings.checking_requirements'), __('settings.checking_requirements_desc'));
@@ -631,14 +641,18 @@ async function runUpdate(release) {
         notify(__('settings.update_successful'), 'success');
 
         setTimeout(() => {
+            isUpdating = false;
+            window.removeEventListener('beforeunload', blockUnload);
             window.location.reload();
         }, 3000);
 
     } catch (err) {
+        isUpdating = false;
         overlay.style.display = 'none';
         document.getElementById('pw-update-container').style.opacity = '1';
         document.getElementById('pw-btn-check-updates').disabled = false;
         document.getElementById('pw-btn-start-update').disabled = false;
+        window.removeEventListener('beforeunload', blockUnload);
 
         openDialog({
             title: __('settings.update_failed'),
