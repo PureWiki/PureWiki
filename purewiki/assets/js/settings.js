@@ -12,6 +12,10 @@
 
 let currentRelease = null;
 
+// Constants for polling backup status
+const UPDATE_BACKUP_POLL_ATTEMPTS = 60; //max attempts until timeout (pre-update backup)
+const BACKUP_POLL_INTERVAL_MS = 5000; //check every x milliseconds
+
 const settingsFields = {
     'wiki_name':     'pw-setting-wiki-name',
     'wiki_logo':     'pw-setting-wiki-logo',
@@ -380,7 +384,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Start polling if not already active
                 if (!statusInterval) {
-                    statusInterval = setInterval(checkBackupStatus, 5000);
+                    statusInterval = setInterval(checkBackupStatus, BACKUP_POLL_INTERVAL_MS);
                 }
             } else {
                 // Stop polling when leaving the backup tab
@@ -602,11 +606,11 @@ async function runUpdate(release) {
                 const status = await apiSafe('get_update_backup_status', {}, { silent: true });
                 if (status && !status.running) {
                     resolve();
-                } else if (attempts > 60) { // 5 minutes timeout
+                } else if (attempts > UPDATE_BACKUP_POLL_ATTEMPTS) {
                     reject(new Error(__('settings.backup_timeout')));
                 } else {
                     attempts++;
-                    setTimeout(check, 5000);
+                    setTimeout(check, BACKUP_POLL_INTERVAL_MS);
                 }
             };
             check();
