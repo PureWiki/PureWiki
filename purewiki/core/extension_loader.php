@@ -141,6 +141,14 @@ class ExtensionLoader {
     }
 
     /**
+     * Returns the public URL to an extensions folder.
+     * @param string $id Extension ID (same as folder name)
+     */
+    public static function getUrl(string $id): string {
+        return (defined('BASE_PATH') ? BASE_PATH : '') . '/extensions/' . $id;
+    }
+
+    /**
      * Returns the full registry of all found extensions.
      */
     public static function getRegistry(): array {
