@@ -134,6 +134,14 @@ require_once __DIR__ . '/layout_head.php';
                             <span class="pw-tree-label"><iconify-icon icon="mdi:information-outline" class="pw-icon-left"></iconify-icon> <?php echo __('settings.status'); ?></span>
                         </div>
                     </li>
+                    <li class="pw-tree-node">
+                        <div class="pw-tree-item" data-settings-tab="extensions">
+                            <span class="pw-tree-label">
+                                <iconify-icon icon="mdi:puzzle-outline" class="pw-icon-left"></iconify-icon>
+                                <?php echo __('settings.extensions_tab'); ?>
+                            </span>
+                        </div>
+                    </li>
                 </ul>
             </div>
         </aside>
@@ -498,6 +506,18 @@ require_once __DIR__ . '/layout_head.php';
                     </div>
                 </div>
             </div>
+
+            <!-- Extensions Tab Content -->
+            <div id="pw-tab-extensions" class="pw-settings-tab" style="display: none;">
+                <h2><?php echo __('settings.extensions_title'); ?></h2>
+                <div class="pw-settings-panel">
+                    <p class="pw-hint"><?php echo __('settings.extensions_desc'); ?></p>
+
+                    <div id="pw-extensions-list" style="display: flex; flex-direction: column; gap: 15px; margin-top: 15px;">
+                        <div><?php echo __('common.loading'); ?></div>
+                    </div>
+                </div>
+            </div>
         </main>
     </div>
 
@@ -560,6 +580,34 @@ require_once __DIR__ . '/layout_head.php';
                 <span style="font-size: 0.9em; font-weight: 600;" data-field="ratio"></span>
             </div>
             <div style="font-size: 0.8em; color: var(--pw-text-muted); margin-top: 4px;" data-field="summary"></div>
+        </div>
+    </template>
+
+    <template id="tpl-extension-card">
+        <div class="pw-extension-card" style="border: 1px solid var(--pw-border); border-radius: 8px; padding: 15px; background: var(--pw-bg);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                <div>
+                    <h3 style="margin: 0 0 5px 0; display: flex; align-items: center; gap: 8px;">
+                        <span data-field="name"></span>
+                        <span class="pw-badge" data-field="status-badge" style="font-size: 0.75em; padding: 2px 6px; border-radius: 4px;"></span>
+                    </h3>
+                    <div style="font-size: 0.85em; color: var(--pw-text-muted);">
+                        v<span data-field="version"></span> | <?php echo __('settings.by'); ?> <span data-field="author"></span>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <button class="pw-btn pw-btn-sm pw-btn-ext-toggle" data-action="toggle"></button>
+                    <button class="pw-btn pw-btn-danger pw-btn-sm pw-btn-ext-uninstall" data-action="uninstall" title="<?php echo __('common.delete'); ?>">
+                        <iconify-icon icon="mdi:delete-outline"></iconify-icon>
+                    </button>
+                </div>
+            </div>
+            <p style="margin: 0 0 10px 0; font-size: 0.9em;" data-field="description"></p>
+            <div style="font-size: 0.85em;">
+                <a href="#" data-field="url" target="_blank" style="color: var(--pw-primary); text-decoration: none;">
+                    <iconify-icon icon="mdi:open-in-new"></iconify-icon> <?php echo __('settings.visit_website'); ?>
+                </a>
+            </div>
         </div>
     </template>
 

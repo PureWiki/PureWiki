@@ -518,7 +518,12 @@
         "mail_disable_btn": "Yes, disable mail",
         "mail_disabled_success": "Mail disabled and configuration deleted.",
         "test_mail_missing": "Please enter an email address for the test.",
-        "test_mail_sent": "Test mail sent successfully."
+        "test_mail_sent": "Test mail sent successfully.",
+        "extensions_tab": "Extensions",
+        "extensions_title": "Extensions",
+        "extensions_desc": "Manage installed extensions. You can activate, deactivate, or uninstall extensions here.",
+        "visit_website": "Visit Website",
+        "by": "by"
     },
     "plugins": {
         "accordion": "Accordion",

@@ -518,7 +518,12 @@
         "mail_disable_btn": "Ja, deaktivieren",
         "mail_disabled_success": "Mail-Funktionalität deaktiviert und Konfiguration gelöscht.",
         "test_mail_missing": "Bitte geben Sie eine Ziel-E-Mail-Adresse für den Test ein.",
-        "test_mail_sent": "Test-E-Mail erfolgreich gesendet."
+        "test_mail_sent": "Test-E-Mail erfolgreich gesendet.",
+        "extensions_tab": "Erweiterungen",
+        "extensions_title": "Erweiterungen",
+        "extensions_desc": "Verwalte installierte Erweiterungen. Hier lassen sich Erweiterungen aktivieren, deaktivieren oder deinstallieren.",
+        "visit_website": "Website besuchen",
+        "by": "von"
     },
     "plugins": {
         "accordion": "Akkordeon",
