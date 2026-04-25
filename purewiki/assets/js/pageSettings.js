@@ -71,6 +71,21 @@ async function loadPageSettings(targetPath) {
         }
     }
 
+    // Auto-load values for extension fields (must have class "pw-ext-input" and name attribute matching the key in Settings)
+    const extInputs = document.querySelectorAll('.pw-ext-input');
+    extInputs.forEach(input => {
+        if (!input.name) return;
+        let val = getNestedObjProp(currentPageData, 'Settings.' + input.name);
+        if (val === undefined) val = input.type === 'checkbox' ? false : '';
+        
+        if (input.type === 'checkbox') {
+            input.checked = !!val;
+            input.dispatchEvent(new Event('change'));
+        } else {
+            input.value = val;
+        }
+    });
+
     // Restore prevnext scope radio buttons
     const scopeVal = getNestedObjProp(currentPageData, 'Settings.prevnext_scope') || 'siblings';
     document.querySelectorAll('input[name="ps-prevnext-scope"]').forEach(r => r.checked = (r.value === scopeVal));
@@ -97,6 +112,13 @@ async function savePageSettings(targetPath) {
         if (!el) continue;
         params[field.key] = el.type === 'checkbox' ? (el.checked ? '1' : '0') : el.value.trim();
     }
+
+    // Auto-save values for extension fields
+    const extInputs = document.querySelectorAll('.pw-ext-input');
+    extInputs.forEach(input => {
+        if (!input.name) return;
+        params[input.name] = input.type === 'checkbox' ? (input.checked ? '1' : '0') : input.value.trim();
+    });
 
     // Append selected prevnext scope radio value
     const checkedRadio = document.querySelector('input[name="ps-prevnext-scope"]:checked');
