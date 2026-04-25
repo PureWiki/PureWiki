@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Added
+**Extension System**: 
+- Introduced a hook-based API for custom plugins without modifying core files.
+- Added support for extensions to inject CSS/JS assets, manipulate frontend HTML, and register custom Editor.js blocks.
+- Extensions can add custom fields to Page Settings and Global Setting.
+- Added API routing support allowing extensions to create secure backend endpoints.
+- Added Extension Manager in the Admin Dashboard to activate, deactivate, and uninstall extensions.
+- Provided an official `example-extension` repository: [https://github.com/purewiki/example-extension](https://github.com/purewiki/example-extension)
+
 ## [0.2.0-alpha.5] - 2026-04-23
 
 ### Added
