@@ -523,7 +523,16 @@
         "extensions_title": "Erweiterungen",
         "extensions_desc": "Verwalte installierte Erweiterungen. Hier lassen sich Erweiterungen aktivieren, deaktivieren oder deinstallieren.",
         "visit_website": "Website besuchen",
-        "by": "von"
+        "by": "von",
+        "ext_enabled": "Aktiviert",
+        "ext_disabled": "Deaktiviert",
+        "ext_enable": "Aktivieren",
+        "ext_disable": "Deaktivieren",
+        "ext_uninstall_title": "Deinstallieren: %s",
+        "ext_uninstall_confirm": "Möchten Sie \"%s\" wirklich dauerhaft deinstallieren? Dadurch werden alle Dateien und Einstellungen gelöscht.",
+        "ext_uninstalled": "Erweiterung erfolgreich deinstalliert.",
+        "error_load_extensions": "Fehler beim Laden der Erweiterungen.",
+        "no_extensions_found": "Keine Erweiterungen im Verzeichnis /extensions/ gefunden."
     },
     "plugins": {
         "accordion": "Akkordeon",
