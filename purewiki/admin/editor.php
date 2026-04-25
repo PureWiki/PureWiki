@@ -131,6 +131,18 @@ require_once __DIR__ . '/layout_head.php';
     <script src="<?php echo BASE_PATH; ?>/purewiki/editorPlugins/editor-grid.js"></script>
     <script src="<?php echo BASE_PATH; ?>/purewiki/editorPlugins/editor-block.js"></script>
 
+<?php if (class_exists('ExtensionLoader')):
+    foreach (ExtensionLoader::getAll() as $extId):
+        $meta = ExtensionLoader::getMeta($extId);
+        foreach ($meta['editor_plugins'] ?? [] as $plugin):
+            $pluginPath = BASE_PATH . '/extensions/' . $extId . '/editorPlugins/' . basename($plugin);
+            echo '    <script src="' . htmlspecialchars($pluginPath) . '"></script>' . "\n";
+        endforeach;
+    endforeach;
+    $extTools = ExtensionLoader::applyFilter('editor.tools', []);
+    $extTunes = ExtensionLoader::applyFilter('editor.tunes', []);
+    echo '<script>window.PW_EXT_EDITOR_TOOLS=' . json_encode($extTools) . ';window.PW_EXT_EDITOR_TUNES=' . json_encode($extTunes) . ';</script>' . "\n";
+endif; ?>
     <!-- Core Scripts -->
     <?php echo getLanguageScript(); ?>
     <script src="<?php echo BASE_PATH; ?>/purewiki/assets/js/i18n.js"></script>

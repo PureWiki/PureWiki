@@ -36,29 +36,69 @@ function getDashboardLanguage(): string {
  */
 function loadLanguage(?string $lang = null): array {
     static $cache = [];
+    static $extCache = [];
 
     $lang = $lang ?? getDashboardLanguage();
 
-    if (isset($cache[$lang])) {
-        return $cache[$lang];
+    if (!isset($cache[$lang])) {
+        $langDir = realpath(__DIR__ . '/../lang') ?: __DIR__ . '/../lang';
+        $file = $langDir . '/' . $lang . '.json';
+
+        // Fallback to English if requested language file missing
+        if (!file_exists($file)) {
+            $file = $langDir . '/en.json';
+        }
+
+        if (!file_exists($file)) {
+            $cache[$lang] = [];
+        } else {
+            $data = readJson($file, []);
+            $cache[$lang] = is_array($data) ? $data : [];
+        }
+        $extCache[$lang] = [];
     }
 
-    $langDir = realpath(__DIR__ . '/../lang') ?: __DIR__ . '/../lang';
+    // Merge extension translations
+    if (isset($GLOBALS['PW_EXT_TRANSLATIONS'])) {
+        foreach ($GLOBALS['PW_EXT_TRANSLATIONS'] as $extId => $extData) {
+            if (!isset($extCache[$lang][$extId])) {
+                if (!isset($cache[$lang]['ext'])) {
+                    $cache[$lang]['ext'] = [];
+                }
+                $cache[$lang]['ext'][$extId] = $extData;
+                $extCache[$lang][$extId] = true;
+            }
+        }
+    }
+
+    return $cache[$lang];
+}
+
+/**
+ * Loads extension translations
+ * Translation Structure: ext.<extensionId>.<key>
+ *
+ * @param string $extensionId The ID of the extension.
+ * @param string $langDir Path to the extensions lang directory.
+ */
+function loadExtensionTranslations(string $extensionId, string $langDir): void {
+    $lang = getDashboardLanguage();
     $file = $langDir . '/' . $lang . '.json';
 
-    // Fallback to English if requested language file missing
+    // Fallback to English
     if (!file_exists($file)) {
         $file = $langDir . '/en.json';
     }
 
-    if (!file_exists($file)) {
-        $cache[$lang] = [];
-        return [];
+    if (file_exists($file)) {
+        $data = readJson($file, []);
+        if (is_array($data)) {
+            if (!isset($GLOBALS['PW_EXT_TRANSLATIONS'])) {
+                $GLOBALS['PW_EXT_TRANSLATIONS'] = [];
+            }
+            $GLOBALS['PW_EXT_TRANSLATIONS'][$extensionId] = $data;
+        }
     }
-
-    $data = readJson($file, []);
-    $cache[$lang] = is_array($data) ? $data : [];
-    return $cache[$lang];
 }
 
 /**

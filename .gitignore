@@ -8,6 +8,9 @@
 /themes/*
 !/themes/default/
 
+# Extensions
+/extensions/*
+
 # Logs
 *.log
 

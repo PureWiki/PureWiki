@@ -518,7 +518,21 @@
         "mail_disable_btn": "Yes, disable mail",
         "mail_disabled_success": "Mail disabled and configuration deleted.",
         "test_mail_missing": "Please enter an email address for the test.",
-        "test_mail_sent": "Test mail sent successfully."
+        "test_mail_sent": "Test mail sent successfully.",
+        "extensions_tab": "Extensions",
+        "extensions_title": "Extensions",
+        "extensions_desc": "Manage installed extensions. You can activate, deactivate, or uninstall extensions here.",
+        "visit_website": "Visit Website",
+        "by": "by",
+        "ext_enabled": "Enabled",
+        "ext_disabled": "Disabled",
+        "ext_enable": "Enable",
+        "ext_disable": "Disable",
+        "ext_uninstall_title": "Uninstall %s",
+        "ext_uninstall_confirm": "Are you sure you want to permanently uninstall \"%s\"? This will delete all its files and configuration.",
+        "ext_uninstalled": "Extension uninstalled successfully.",
+        "error_load_extensions": "Failed to load extensions.",
+        "no_extensions_found": "No extensions found in the extensions/ directory."
     },
     "plugins": {
         "accordion": "Accordion",

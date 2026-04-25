@@ -146,6 +146,14 @@ function getCacheDir(): string {
 }
 
 /**
+ * Returns the absolute path to the extensions directory.
+ * @return string
+ */
+function getExtensionsDir(): string {
+    return realpath(__DIR__ . '/../../extensions') ?: __DIR__ . '/../../extensions';
+}
+
+/**
  * Gets the actual path to the Backups directory.
  * @return string
  */

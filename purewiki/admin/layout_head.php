@@ -55,4 +55,8 @@ if (isset($extraCss)) {
     }
     ?>
     <script>window.PW_BASE_PATH = '<?php echo addslashes(BASE_PATH); ?>';</script>
+<?php if (class_exists('ExtensionLoader')):
+        ExtensionLoader::doAction('admin.head_css');
+        ExtensionLoader::doAction('admin.head_js');
+    endif; ?>
 </head>

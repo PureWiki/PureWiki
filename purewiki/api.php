@@ -60,6 +60,9 @@ require_once __DIR__ . '/core/i18n.php';
 require_once __DIR__ . '/core/misc.php';
 require_once __DIR__ . '/core/mail.php';
 require_once __DIR__ . '/core/http.php';
+require_once __DIR__ . '/core/extension_loader.php';
+
+ExtensionLoader::boot();
 
 startAuth();
 
@@ -147,7 +150,14 @@ $apiRoutes = [
     'restore_trash_item' => 'trash/restore.php',
     'delete_trash_item' => 'trash/delete.php',
     'empty_trash' => 'trash/empty.php',
+
+    'list_extensions'    => 'extensions/list.php',
+    'toggle_extension'   => 'extensions/toggle.php',
+    'uninstall_extension'=> 'extensions/uninstall.php',
+    'get_extension_info' => 'extensions/info.php',
 ];
+
+$apiRoutes = ExtensionLoader::applyFilter('api.routes', $apiRoutes);
 
 if (!isset($apiRoutes[$action])) {
     echo json_encode(['success' => false, 'message' => 'Invalid action specified.']);
@@ -166,7 +176,11 @@ $adminActions  = [
     'install_update', 'cleanup_update',
     'get_mail_config', 'save_mail_config', 'disable_mail', 'send_test_mail',
     'list_trash', 'restore_trash_item', 'delete_trash_item', 'empty_trash',
+    'list_extensions', 'toggle_extension', 'uninstall_extension', 'get_extension_info',
 ];
+
+$adminActions = ExtensionLoader::applyFilter('api.admin_actions', $adminActions);
+$publicActions = ExtensionLoader::applyFilter('api.public_actions', $publicActions);
 
 if (!in_array($action, $publicActions)) {
     if (!isLoggedIn()) {
@@ -188,7 +202,14 @@ if (!in_array($action, $publicActions)) {
     }
 }
 
-$routeFile = __DIR__ . '/api/' . $apiRoutes[$action];
+$routeTarget = $apiRoutes[$action];
+$routeFile = __DIR__ . '/api/' . $routeTarget;
+
+// Allow extensions to provide absolute paths
+if (!file_exists($routeFile) && file_exists($routeTarget)) {
+    $routeFile = $routeTarget;
+}
+
 if (file_exists($routeFile)) {
     require_once $routeFile;
 } else {
