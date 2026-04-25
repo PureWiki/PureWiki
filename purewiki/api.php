@@ -202,7 +202,14 @@ if (!in_array($action, $publicActions)) {
     }
 }
 
-$routeFile = __DIR__ . '/api/' . $apiRoutes[$action];
+$routeTarget = $apiRoutes[$action];
+$routeFile = __DIR__ . '/api/' . $routeTarget;
+
+// Allow extensions to provide absolute paths
+if (!file_exists($routeFile) && file_exists($routeTarget)) {
+    $routeFile = $routeTarget;
+}
+
 if (file_exists($routeFile)) {
     require_once $routeFile;
 } else {
