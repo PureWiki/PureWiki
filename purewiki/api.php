@@ -150,7 +150,14 @@ $apiRoutes = [
     'restore_trash_item' => 'trash/restore.php',
     'delete_trash_item' => 'trash/delete.php',
     'empty_trash' => 'trash/empty.php',
+
+    'list_extensions'    => 'extensions/list.php',
+    'toggle_extension'   => 'extensions/toggle.php',
+    'uninstall_extension'=> 'extensions/uninstall.php',
+    'get_extension_info' => 'extensions/info.php',
 ];
+
+$apiRoutes = ExtensionLoader::applyFilter('api.routes', $apiRoutes);
 
 if (!isset($apiRoutes[$action])) {
     echo json_encode(['success' => false, 'message' => 'Invalid action specified.']);
@@ -169,7 +176,11 @@ $adminActions  = [
     'install_update', 'cleanup_update',
     'get_mail_config', 'save_mail_config', 'disable_mail', 'send_test_mail',
     'list_trash', 'restore_trash_item', 'delete_trash_item', 'empty_trash',
+    'list_extensions', 'toggle_extension', 'uninstall_extension', 'get_extension_info',
 ];
+
+$adminActions = ExtensionLoader::applyFilter('api.admin_actions', $adminActions);
+$publicActions = ExtensionLoader::applyFilter('api.public_actions', $publicActions);
 
 if (!in_array($action, $publicActions)) {
     if (!isLoggedIn()) {
