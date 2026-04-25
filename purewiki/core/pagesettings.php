@@ -68,5 +68,10 @@ function applyPageSettings(array $data, array $postData): array {
     if (isset($postData['prevnext_scope'])) {
         $data['Settings']['prevnext_scope'] = basename($postData['prevnext_scope']);
     }
+
+    if (class_exists('ExtensionLoader')) {
+        $data = ExtensionLoader::applyFilter('page_settings.save', $data, ['post' => $postData]);
+    }
+
     return $data;
 }
