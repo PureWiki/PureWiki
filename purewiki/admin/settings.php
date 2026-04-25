@@ -16,6 +16,9 @@ require_once __DIR__ . '/../core/i18n.php';
 require_once __DIR__ . '/../core/asset_manager.php';
 require_once __DIR__ . '/../core/misc.php';
 
+// Extension Tabs
+$extensionTabs = ExtensionLoader::applyFilter('settings.tabs', []);
+
 // Settings Helpers
 
 /**
@@ -142,6 +145,18 @@ require_once __DIR__ . '/layout_head.php';
                             </span>
                         </div>
                     </li>
+
+                    <!-- Extension Tabs -->
+                    <?php foreach ($extensionTabs as $tab): ?>
+                        <li class="pw-tree-node">
+                            <div class="pw-tree-item" data-settings-tab="<?php echo htmlspecialchars($tab['id']); ?>">
+                                <span class="pw-tree-label">
+                                    <iconify-icon icon="<?php echo htmlspecialchars($tab['icon'] ?? 'mdi:puzzle-outline'); ?>" class="pw-icon-left"></iconify-icon>
+                                    <?php echo htmlspecialchars($tab['label']); ?>
+                                </span>
+                            </div>
+                        </li>
+                    <?php endforeach; ?>
                 </ul>
             </div>
         </aside>
@@ -518,6 +533,17 @@ require_once __DIR__ . '/layout_head.php';
                     </div>
                 </div>
             </div>
+
+            <!-- Extension Registered Tabs (Content) -->
+            <?php foreach ($extensionTabs as $tab): ?>
+                <div id="pw-tab-<?php echo htmlspecialchars($tab['id']); ?>" class="pw-settings-tab" style="display: none;">
+                    <?php 
+                    if (isset($tab['file']) && file_exists($tab['file'])) {
+                        include $tab['file'];
+                    }
+                    ?>
+                </div>
+            <?php endforeach; ?>
         </main>
     </div>
 
