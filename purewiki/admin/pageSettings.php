@@ -147,7 +147,7 @@ require_once __DIR__ . '/layout_head.php';
 
                 <?php
                 if (class_exists('ExtensionLoader')) {
-                    ExtensionLoader::doAction('page_settings.fields', ['path' => $pagePath]);
+                    echo ExtensionLoader::applyFilter('page_settings.fields', '', ['path' => $pagePath]);
                 }
                 ?>
             </div>
