@@ -67,6 +67,15 @@ function parseBlocksToHtml(array $blocks, string $contextPath = '/', ?array $mai
     $parts = [];
 
     foreach ($blocks as $block) {
+        if (class_exists('ExtensionLoader')) {
+            $block = ExtensionLoader::applyFilter('parser.block', $block, ['contextPath' => $contextPath]);
+        }
+
+        if (isset($block['_rendered'])) {
+            $parts[] = $block['_rendered'];
+            continue;
+        }
+
         $type = $block['type'] ?? '';
         $data = $block['data'] ?? [];
         $cssClass  = trim($block['tunes']['cssClassTune']['cssClass'] ?? '');

@@ -233,6 +233,15 @@ function initEditorJS(blocksData) {
 
         window.PW_EDITOR_I18N_CONFIG = getEditorI18nConfig();
 
+        // Resolve extension tool, PHP passes class names as strings, resolve to window globals.
+        const extToolsRaw = window.PW_EXT_EDITOR_TOOLS || {};
+        const extTools = {};
+        for (const [key, cfg] of Object.entries(extToolsRaw)) {
+            const cls = typeof cfg.class === 'string' ? window[cfg.class] : cfg.class;
+            if (cls) extTools[key] = { ...cfg, class: cls };
+        }
+        const extTunes = Array.isArray(window.PW_EXT_EDITOR_TUNES) ? window.PW_EXT_EDITOR_TUNES : [];
+
         currentEditorJsInstance = new EditorJS({
             holder: 'pw-editorjs',
             data: { blocks: blocksData },
@@ -240,6 +249,7 @@ function initEditorJS(blocksData) {
             i18n: window.PW_EDITOR_I18N_CONFIG,
             tools: {
                 ...window.PW_EDITOR_TOOLS,
+                ...extTools,
                 accordion: currentGlobalConfig.editor_show_accordion !== false ? AccordionTool : { class: AccordionTool, toolbox: false },
                 grid: currentGlobalConfig.editor_show_grid !== false ? GridTool : { class: GridTool, toolbox: false },
                 paragraph: { class: Paragraph, inlineToolbar: [...commonInlineToolbar, 'textAlignInline'], sanitize: textSanitizer, tunes: ['textAlignTune', 'cssClassTune', 'duplicateBlockTune', 'hiddenBlockTune'] },
@@ -250,7 +260,7 @@ function initEditorJS(blocksData) {
                 textAlignTune: { class: TextAlignTune },
                 textAlignInline: { class: TextAlignInlineTool },
             },
-            tunes: ['cssClassTune', 'duplicateBlockTune', 'hiddenBlockTune'],
+            tunes: ['cssClassTune', 'duplicateBlockTune', 'hiddenBlockTune', ...extTunes],
             onChange: () => {
                 if (window.pwEditorInitializing) return;
                 clearTimeout(autoSaveTimeout);

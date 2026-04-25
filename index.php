@@ -39,6 +39,9 @@ $path = explode('?', $path)[0];
 require_once __DIR__ . '/purewiki/core/exception.php';
 require_once __DIR__ . '/purewiki/core/auth.php';
 require_once __DIR__ . '/purewiki/core/config.php';
+require_once __DIR__ . '/purewiki/core/extension_loader.php';
+
+ExtensionLoader::boot();
 
 // Setup Redirect Logic
 $isSetupAction = str_starts_with($path, '/setup') || (str_starts_with($path, '/purewiki/api.php') && ($_REQUEST['action'] ?? '') === 'setup_wiki');

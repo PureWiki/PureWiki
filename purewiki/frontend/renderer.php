@@ -158,6 +158,13 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
 
     $assetsHead = $pwBasePathScript . "\n" . AssetManager::getStyles() . AssetManager::getScripts('head') . "\n" . $customCss . "\n" . $customHtmlHead . "\n" . $customJsHead;
 
+    if (class_exists('ExtensionLoader')) {
+        ob_start();
+        ExtensionLoader::doAction('frontend.head_css');
+        ExtensionLoader::doAction('frontend.head_js');
+        $assetsHead .= ob_get_clean();
+    }
+
     // SEO Meta Tags Generation
     $seoTags = [];
 
@@ -254,6 +261,12 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
 
     $assetsFooter = AssetManager::getScripts('footer') . "\n" . $customHtmlFooter . "\n" . $customJsFooter;
 
+    if (class_exists('ExtensionLoader')) {
+        ob_start();
+        ExtensionLoader::doAction('frontend.footer_js');
+        $assetsFooter .= ob_get_clean();
+    }
+
     $finalOutput = $themeTemplate;
 
     // Resolve Macros first
@@ -305,6 +318,10 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
 
     // In-Page Admin Menu
     injectAdminMenu($finalOutput, $config, $contextPath);
+
+    if (class_exists('ExtensionLoader')) {
+        $finalOutput = ExtensionLoader::applyFilter('renderer.html', $finalOutput, ['path' => $contextPath, 'page' => $pageData]);
+    }
 
     return $finalOutput;
 }
