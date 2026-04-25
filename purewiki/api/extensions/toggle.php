@@ -30,5 +30,9 @@ if (!setExtensionEnabled($id, $enabled)) {
     throw new PureWikiException('Failed to save extension state.');
 }
 
+// Invalidate cache so extension changes are reflected in pages
+require_once __DIR__ . '/../../core/cache.php';
+clearAllCache();
+
 $response['success'] = true;
 $response['enabled'] = $enabled;
