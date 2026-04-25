@@ -195,6 +195,13 @@ class ExtensionLoader {
      * @param array  $meta   Parsed meta data.
      */
     private static function bootExtension(string $id, string $extDir, array $meta): void {
+        // Register extension translations if available
+        $langDir = $extDir . DIRECTORY_SEPARATOR . 'lang';
+        if (is_dir($langDir)) {
+            require_once __DIR__ . '/i18n.php';
+            loadExtensionTranslations($id, $langDir);
+        }
+
         $entryFile = $extDir . DIRECTORY_SEPARATOR . 'extension.php';
         if (!file_exists($entryFile)) {
             error_log("ExtensionLoader: Missing extension.php for '{$id}'.");
