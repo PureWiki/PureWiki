@@ -70,7 +70,8 @@ function getGlobalConfig(bool $forceReload = false): array {
         'editor_show_grid' => true,
         'dev_debug_output' => false,
         'allowed_file_extensions' => 'jpg, jpeg, png, gif, svg, webp, pdf, mp4, webm, zip, csv, txt',
-        'allow_prerelease_updates' => false
+        'allow_prerelease_updates' => false,
+        'extensions'              => []
     ];
 
     try {
@@ -142,4 +143,49 @@ function isSetupCompleted(): bool {
     }
 
     return $status = ($setupFlag && $hasUsers);
+}
+
+/**
+ * Returns the per-extension settings stored in config/extensions/<id>.json.
+ * Returns an empty array if the file does not exist yet.
+ * 
+ * @param string $id Extension ID
+ */
+function getExtensionSettings(string $id): array {
+    $path = getConfigDir() . '/extensions/' . $id . '.json';
+    if (!file_exists($path)) return [];
+    try {
+        $data = readJsonFile($path);
+        return is_array($data) ? $data : [];
+    } catch (PureWikiException $e) {
+        return [];
+    }
+}
+
+/**
+ * Persists per-extension settings to config/extensions/<id>.json.
+ * @param string $id   Extension ID
+ * @param array  $data Settings to store
+ */
+function saveExtensionSettings(string $id, array $data): bool {
+    $dir = getConfigDir() . '/extensions';
+    if (!is_dir($dir)) createDirectory($dir);
+    return writeJsonFile($dir . '/' . $id . '.json', $data);
+}
+
+/**
+ * Enable/disable an extension by updating the 'extensions' key in config.json.
+ * @param string $id      Extension ID.
+ * @param bool   $enabled True to enable, false to disable.
+ */
+function setExtensionEnabled(string $id, bool $enabled): bool {
+    $config  = getGlobalConfig();
+    $states  = $config['extensions'] ?? [];
+
+    if (!isset($states[$id]) || !is_array($states[$id])) {
+        $states[$id] = [];
+    }
+    $states[$id]['enabled'] = $enabled;
+
+    return saveGlobalConfig(['extensions' => $states]);
 }
