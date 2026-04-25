@@ -34,6 +34,7 @@ PureWiki is a lightweight, high-performance, and file-based wiki system built wi
 - **Drafts & History**: Automatically saves drafts and maintains a full version history of your pages.
 - **Built-in Search**: Fast and simple full-text search capability.
 - **Themes**: Ready-to-use theme, easy to create your own themes.
+- **Extensions**: Extension API to add custom features, Editor.js plugins, settings, and API routes without altering the core codebase.
 - **Integrated Updates**: Backup and update your wiki directly from the dashboard via GitHub releases.
 
 ## Installation
@@ -91,6 +92,7 @@ Access the administration area at `yourdomain.com/dashboard`. Here, authorized u
 - `/config/` - System configuration and user data.
 - `/cache/` - Frontend cache directory (includes search index).
 - `/purewiki/` - The core application logic (PHP, Admin Dashboard, Editor JS, API).
+- `/extensions/` - Directory for custom extensions and plugins.
 - `/themes/` - Frontend layouts and styling.
 - `/backups/` - System backups.
 
