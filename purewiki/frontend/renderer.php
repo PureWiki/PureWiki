@@ -37,6 +37,7 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
     $description = '';
     $author = '';
     $pageLayout = 'page';
+    $tagsHtml = '';
     $pageData = [];
 
     // Load global config
@@ -78,6 +79,13 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
             $rawLayout  = $pageData['Settings']['Layout'] ?? '';
             if ($rawLayout !== '') {
                 $pageLayout = pathinfo($rawLayout, PATHINFO_FILENAME);
+            }
+            if (!empty($pageData['Tags']) && is_array($pageData['Tags'])) {
+                $tagsHtml = '<ul class="pw-tag-list">';
+                foreach ($pageData['Tags'] as $tag) {
+                    $tagsHtml .= '<li class="pw-tag">' . htmlspecialchars((string) $tag) . '</li>';
+                }
+                $tagsHtml .= '</ul>';
             }
     } else {
         // Fallback if _404 is missing
@@ -306,6 +314,7 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
         'pw_base_path'      => htmlspecialchars(BASE_PATH),
         'show_left_sidebar'  => !($pageData['Settings']['hide_left_sidebar']  ?? false),
         'show_right_sidebar' => !($pageData['Settings']['hide_right_sidebar'] ?? false),
+        'tags'               => $tagsHtml,
     ];
 
     // Resolve conditions (if / else / endif)
