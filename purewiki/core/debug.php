@@ -26,7 +26,21 @@ function isDebugMode(): bool {
 
 /**
  * Writes a structured debug entry to the log file
- * Only active when dev_debug_output is enabled in the global config
+ * Only active when dev_debug_output is enabled in the global config.
+ * 
+ * Example Usage:
+ * 
+ * Simple Info Message:
+ *    pw_debug('User logged in successfully', null, 'INFO', 'auth');
+ * 
+ * Warning with Context Array (like from Extension):
+ *    pw_debug('Failed to get ext page content', ['timeout' => 5], 'WARN', 'ext:example-extension');
+ * 
+ * Error Logging:
+ *    pw_debug('Get page settings error', ['page' => 'Home'], 'ERROR', 'get_page');
+ * 
+ * Verbose Debugging (default level):
+ *    pw_debug('Calculated layout dimensions', $dims, 'DEBUG', 'renderer');
  *
  * @param string      $message	Description of the event
  * @param mixed       $context Optional context data (array or scalar)
