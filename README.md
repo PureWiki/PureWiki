@@ -95,6 +95,7 @@ Access the administration area at `yourdomain.com/dashboard`. Here, authorized u
 - `/extensions/` - Directory for custom extensions and plugins.
 - `/themes/` - Frontend layouts and styling.
 - `/backups/` - System backups.
+- `/logs/` - Debug logs (if dev_debug_output is enabled).
 
 ## License
 
