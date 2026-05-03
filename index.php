@@ -39,6 +39,7 @@ $path = explode('?', $path)[0];
 require_once __DIR__ . '/purewiki/core/exception.php';
 require_once __DIR__ . '/purewiki/core/auth.php';
 require_once __DIR__ . '/purewiki/core/config.php';
+require_once __DIR__ . '/purewiki/core/debug.php';
 require_once __DIR__ . '/purewiki/core/extension_loader.php';
 
 ExtensionLoader::boot();
@@ -111,6 +112,7 @@ if (str_starts_with($path, '/dashboard/login')) {
         $cacheFile = __DIR__ . '/cache/' . md5($path) . '.html';
         // Serve from cache if valid
         if (file_exists($cacheFile) && (time() - filemtime($cacheFile)) < $cacheLifetime) {
+            pw_debug('Cache hit', ['path' => $path], 'INFO', 'cache');
             readfile($cacheFile);
             exit;
         }

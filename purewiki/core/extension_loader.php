@@ -172,6 +172,7 @@ class ExtensionLoader {
 
         $meta = json_decode($raw, true);
         if (!is_array($meta)) {
+            pw_debug("Invalid meta.json in '{$dirName}'", null, 'ERROR', 'ext-loader');
             error_log("ExtensionLoader: Invalid meta.json in '{$dirName}' (JSON parse error).");
             return null;
         }
@@ -179,6 +180,7 @@ class ExtensionLoader {
         // ID in meta must match folder name and pass the regex.
         $id = $meta['id'] ?? '';
         if (!preg_match('/^[a-z0-9\-]+$/', $id) || $id !== $dirName) {
+            pw_debug("ID mismatch in '{$dirName}/meta.json'", ['got' => $id], 'ERROR', 'ext-loader');
             error_log("ExtensionLoader: ID mismatch or invalid ID in '{$dirName}/meta.json' (got '{$id}').");
             return null;
         }
@@ -186,6 +188,7 @@ class ExtensionLoader {
         // Required fields.
         foreach (['id', 'name', 'version', 'author'] as $field) {
             if (empty($meta[$field])) {
+                pw_debug("Missing field '{$field}' in '{$dirName}/meta.json'", null, 'ERROR', 'ext-loader');
                 error_log("ExtensionLoader: Missing required field '{$field}' in '{$dirName}/meta.json'.");
                 return null;
             }
@@ -212,6 +215,7 @@ class ExtensionLoader {
 
         $entryFile = $extDir . DIRECTORY_SEPARATOR . 'extension.php';
         if (!file_exists($entryFile)) {
+            pw_debug("Missing extension.php for '{$id}'", null, 'ERROR', 'ext-loader');
             error_log("ExtensionLoader: Missing extension.php for '{$id}'.");
             return;
         }
@@ -219,13 +223,14 @@ class ExtensionLoader {
         try {
             require_once $entryFile;
             self::$loadedExtensions[] = $id;
+            pw_debug("Extension '{$id}' loaded", ['version' => $meta['version'] ?? '?'], 'DEBUG', 'ext-loader');
         } catch (\Throwable $e) {
-            error_log("ExtensionLoader: Failed to boot '{$id}': " . $e->getMessage());
-
-            $config = getGlobalConfig();
-            if (!empty($config['dev_debug_output'])) {
-                trigger_error("ExtensionLoader [{$id}]: " . $e->getMessage(), E_USER_WARNING);
-            }
+            error_log("ExtensionLoader: Failed to load '{$id}': " . $e->getMessage());
+            pw_debug("Failed to load '{$id}'", [
+                'message' => $e->getMessage(),
+                'file'    => $e->getFile(),
+                'line'    => $e->getLine(),
+            ], 'ERROR', 'ext-loader');
         }
     }
 }

@@ -40,6 +40,9 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
     $tagsHtml = '';
     $pageData = [];
 
+    // Log page render time if debug mode is enabled
+    $renderStart = isDebugMode() ? microtime(true) : 0.0;
+
     // Load global config
     $config    = getGlobalConfig();
     $wikiName  = $config['wiki_name']     ?? 'PureWiki';
@@ -116,6 +119,7 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
     }
 
     if (!$templateFile) {
+        pw_debug('No theme template found', ['theme' => $themeName, 'layout' => $pageLayout], 'WARN', 'renderer');
         return '<h1>No theme template found.</h1>';
     }
 
@@ -330,6 +334,15 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
 
     if (class_exists('ExtensionLoader')) {
         $finalOutput = ExtensionLoader::applyFilter('renderer.html', $finalOutput, ['path' => $contextPath, 'page' => $pageData]);
+    }
+
+    if (isDebugMode()) {
+        $elapsed = round((microtime(true) - $renderStart) * 1000, 2);
+        pw_debug('Page rendered', [
+            'path'     => $contextPath,
+            'template' => basename($templateFile),
+            'duration' => $elapsed . 'ms',
+        ], 'INFO', 'renderer');
     }
 
     return $finalOutput;
