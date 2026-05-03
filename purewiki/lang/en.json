@@ -532,7 +532,16 @@
         "ext_uninstall_confirm": "Are you sure you want to permanently uninstall \"%s\"? This will delete all its files and configuration.",
         "ext_uninstalled": "Extension uninstalled successfully.",
         "error_load_extensions": "Failed to load extensions.",
-        "no_extensions_found": "No extensions found in the extensions/ directory."
+        "no_extensions_found": "No extensions found in the extensions/ directory.",
+        "debug_log_viewer": "Debug Log",
+        "debug_log_viewer_desc": "View of the debug log.",
+        "debug_log_refresh": "Refresh Log",
+        "debug_log_clear": "Clear Log",
+        "debug_log_lines": "Lines to show",
+        "debug_log_empty": "Log is empty.",
+        "debug_log_cleared": "Log cleared.",
+        "debug_log_size": "Log size",
+        "debug_log_clear_confirm": "Clear the debug log? This cannot be undone."
     },
     "plugins": {
         "accordion": "Accordion",

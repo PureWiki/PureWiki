@@ -447,6 +447,37 @@ require_once __DIR__ . '/layout_head.php';
                     renderToggle('pw-setting-dev-debug-output', __('settings.dev_debug_output'), __('settings.dev_debug_output_desc'));
                     ?>
                 </div>
+
+                <?php if (!empty(getGlobalConfig()['dev_debug_output'])): ?>
+                <div class="pw-settings-panel" id="pw-debug-log-viewer">
+                    <h3 class="pw-settings-heading">
+                        <iconify-icon icon="mdi:bug-outline" class="pw-icon-left"></iconify-icon>
+                        <?php echo __('settings.debug_log_viewer'); ?>
+                    </h3>
+                    <p class="pw-hint"><?php echo __('settings.debug_log_viewer_desc'); ?></p>
+
+                    <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px; flex-wrap: wrap;">
+                        <select id="pw-debug-log-lines" class="pw-input pw-w-sm">
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                            <option value="200" selected>200</option>
+                            <option value="500">500</option>
+                        </select>
+                        <span class="pw-hint" style="margin: 0;"><?php echo __('settings.debug_log_lines'); ?></span>
+                        <button id="pw-debug-log-refresh" class="pw-btn pw-btn-secondary" type="button">
+                            <iconify-icon icon="mdi:refresh" class="pw-icon-left"></iconify-icon>
+                            <?php echo __('settings.debug_log_refresh'); ?>
+                        </button>
+                        <button id="pw-debug-log-clear" class="pw-btn pw-btn-danger" type="button">
+                            <iconify-icon icon="mdi:delete-outline" class="pw-icon-left"></iconify-icon>
+                            <?php echo __('settings.debug_log_clear'); ?>
+                        </button>
+                        <span id="pw-debug-log-size-info" class="pw-hint" style="margin: 0; margin-left: auto;"></span>
+                    </div>
+
+                    <pre id="pw-debug-log-output" class="pw-debug-log-box"><?php echo __('settings.debug_log_empty'); ?></pre>
+                </div>
+                <?php endif; ?>
             </div>
 
             <!-- Status Tab Content -->

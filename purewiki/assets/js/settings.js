@@ -986,3 +986,91 @@ async function uninstallExtension(id, name) {
         }
     }
 }
+
+/** Debug Log Viewer Logic */
+function formatDebugLogBytes(bytes) {
+    if (bytes < 1024) return bytes + ' B';
+    return (bytes / 1024).toFixed(1) + ' KB';
+}
+
+function colorizeDebugLog(text) {
+    return text
+        .split('\n')
+        .map(function (line) {
+            var escaped = line
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+            if (/\[ERROR\]/.test(line)) return '<span class="pw-log-error">' + escaped + '</span>';
+            if (/\[WARN\s*\]/.test(line)) return '<span class="pw-log-warn">' + escaped + '</span>';
+            if (/\[INFO\s*\]/.test(line)) return '<span class="pw-log-info">' + escaped + '</span>';
+            if (/\[DEBUG\]/.test(line)) return '<span class="pw-log-debug">' + escaped + '</span>';
+            return escaped;
+        })
+        .join('\n');
+}
+
+async function loadDebugLog() {
+    const output = document.getElementById('pw-debug-log-output');
+    const select = document.getElementById('pw-debug-log-lines');
+    const sizeInfo = document.getElementById('pw-debug-log-size-info');
+    
+    if (!output || !select || !sizeInfo) return;
+
+    var lines = parseInt(select.value, 10) || 200;
+    try {
+        var data = await apiCall('get_debug_log', { lines: lines });
+        if (window.PW_DEBUG) console.log('[debug-log] loaded', data);
+        if (!data.success) return;
+        var entries = data.log || [];
+        output.innerHTML = entries.length
+            ? colorizeDebugLog(entries.join('\n'))
+            : __('settings.debug_log_empty');
+        output.scrollTop = output.scrollHeight;
+        if (data.size !== undefined) {
+            sizeInfo.textContent = __('settings.debug_log_size') + ': ' + formatDebugLogBytes(data.size);
+        }
+    } catch (e) {
+        if (window.PW_DEBUG) console.error('[debug-log] loadLog error', e);
+    }
+}
+
+async function clearDebugLog() {
+    const output = document.getElementById('pw-debug-log-output');
+    const sizeInfo = document.getElementById('pw-debug-log-size-info');
+    
+    if (!output || !sizeInfo) return;
+
+    var confirmed = await openDialog({
+        title: __('settings.debug_log_clear'),
+        text:  __('settings.debug_log_clear_confirm'),
+        type: 'confirm'
+    });
+    if (!confirmed) return;
+    
+    try {
+        var data = await apiCall('clear_debug_log', {});
+        if (window.PW_DEBUG) console.log('[debug-log] cleared', data);
+        if (!data.success) return;
+        output.innerHTML = __('settings.debug_log_empty');
+        sizeInfo.textContent = __('settings.debug_log_size') + ': 0 B';
+        notify(__('settings.debug_log_cleared'), 'success');
+    } catch (e) {
+        if (window.PW_DEBUG) console.error('[debug-log] clearLog error', e);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const refresh = document.getElementById('pw-debug-log-refresh');
+    const clear = document.getElementById('pw-debug-log-clear');
+    const select = document.getElementById('pw-debug-log-lines');
+
+    if (refresh) refresh.addEventListener('click', loadDebugLog);
+    if (clear) clear.addEventListener('click', clearDebugLog);
+    if (select) select.addEventListener('change', loadDebugLog);
+
+    // Initial load if log viewer exists
+    if (document.getElementById('pw-debug-log-output')) {
+        loadDebugLog();
+    }
+});

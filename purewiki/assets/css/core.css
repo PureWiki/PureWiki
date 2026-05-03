@@ -989,6 +989,30 @@ body {
     margin-bottom: 6px;
 }
 
+.pw-media-dropzone-text {
+    color: var(--pw-text-muted);
+    font-size: 0.9rem;
+}
+
+/* Debug Log Viewer */
+.pw-debug-log-box {
+    color: var(--pw-text);
+    font-family: monospace;
+    line-height: 1.6;
+    overflow-y: auto;
+    max-height: 400px;
+    padding: 12px;
+    border-radius: 6px;
+    border: 1px solid var(--pw-border);
+    white-space: pre-wrap;
+    word-break: break-all;
+    margin: 0;
+}
+.pw-log-debug { color: var(--pw-text-muted); }
+.pw-log-info  { color: var(--pw-primary); }
+.pw-log-warn  { color: var(--pw-warning, #f0a500); }
+.pw-log-error { color: var(--pw-danger); font-weight: 600; }
+
 .pw-hint {
     color: var(--pw-text-muted);
     font-size: 0.85em;
