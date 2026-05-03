@@ -23,6 +23,15 @@ set_exception_handler(function($exception) {
         header('Content-Type: application/json');
     }
 
+    if (function_exists('pw_debug')) {
+        pw_debug('Unhandled exception', [
+            'message' => $exception->getMessage(),
+            'file'    => $exception->getFile(),
+            'line'    => $exception->getLine(),
+            'trace'   => $exception->getTraceAsString(),
+        ], 'ERROR', 'api');
+    }
+
     $response = [
         'success' => false,
         'message' => $exception->getMessage(),
@@ -49,6 +58,7 @@ require_once __DIR__ . '/version.php';
 require_once __DIR__ . '/core/json.php';
 require_once __DIR__ . '/core/fs.php';
 require_once __DIR__ . '/core/config.php';
+require_once __DIR__ . '/core/debug.php';
 require_once __DIR__ . '/core/cache.php';
 require_once __DIR__ . '/core/tree.php';
 require_once __DIR__ . '/core/nav.php';
@@ -151,6 +161,9 @@ $apiRoutes = [
     'delete_trash_item' => 'trash/delete.php',
     'empty_trash' => 'trash/empty.php',
 
+    'get_debug_log'      => 'system/debug.php',
+    'clear_debug_log'    => 'system/debug.php',
+
     'list_extensions'    => 'extensions/list.php',
     'toggle_extension'   => 'extensions/toggle.php',
     'uninstall_extension'=> 'extensions/uninstall.php',
@@ -177,6 +190,7 @@ $adminActions  = [
     'get_mail_config', 'save_mail_config', 'disable_mail', 'send_test_mail',
     'list_trash', 'restore_trash_item', 'delete_trash_item', 'empty_trash',
     'list_extensions', 'toggle_extension', 'uninstall_extension', 'get_extension_info',
+    'get_debug_log', 'clear_debug_log',
 ];
 
 $adminActions = ExtensionLoader::applyFilter('api.admin_actions', $adminActions);
@@ -214,6 +228,15 @@ if (file_exists($routeFile)) {
     require_once $routeFile;
 } else {
     $response['message'] = 'Action file not found.';
+}
+
+if (isDebugMode()) {
+    $logLevel = ($response['success'] ?? false) ? 'INFO' : 'ERROR';
+    $logCtx   = ['success' => $response['success'] ?? false];
+    if (!($response['success'] ?? false) && !empty($response['message'])) {
+        $logCtx['message'] = $response['message'];
+    }
+    pw_debug("Action: {$action}", $logCtx, $logLevel, 'api');
 }
 
 echo json_encode($response);
