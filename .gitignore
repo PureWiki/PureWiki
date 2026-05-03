@@ -13,6 +13,7 @@
 
 # Logs
 *.log
+/purewiki/logs/
 
 # IDE
 .vscode/
