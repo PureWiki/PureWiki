@@ -39,6 +39,8 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
     $pageLayout = 'page';
     $tagsHtml = '';
     $pageData = [];
+    $seoTags = [];
+    $faviconUrl = '';
 
     // Log page render time if debug mode is enabled
     $renderStart = isDebugMode() ? microtime(true) : 0.0;
@@ -178,8 +180,6 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
     }
 
     // SEO Meta Tags Generation
-    $seoTags = [];
-
     if (!empty($config['wiki_favicon'])) {
         $faviconUrl = $config['wiki_favicon'];
         if (str_starts_with($faviconUrl, '/')) {
@@ -254,7 +254,7 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
         if (!empty($rawModified)) {
             $schemaData['dateModified'] = date('c', strtotime($rawModified));
         }
-        if (!empty($imageUrl)) {
+        if (isset($imageUrl) && !empty($imageUrl)) {
             $schemaData['image'] = $imageUrl;
         }
         $seoTags[] = '<script type="application/ld+json">' . json_encode($schemaData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . '</script>';
@@ -460,8 +460,11 @@ function resolveMacros(string $html, array $data = []): string {
 
         if (file_exists($macroFile)) {
             ob_start();
-            $data['macroParam'] = $macroParam;
-            extract($data);
+            $contextPath = $data['contextPath'] ?? '';
+            $wikiName    = $data['wikiName'] ?? '';
+            $pageData    = $data['pageData'] ?? [];
+            $config      = $data['config'] ?? [];
+
             include $macroFile;
             return ob_get_clean();
         }
