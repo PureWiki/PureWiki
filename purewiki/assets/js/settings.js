@@ -15,6 +15,7 @@ let currentRelease = null;
 // Constants for polling backup status
 const UPDATE_BACKUP_POLL_ATTEMPTS = 60; //max attempts until timeout (pre-update backup)
 const BACKUP_POLL_INTERVAL_MS = 5000; //check every x milliseconds
+const PASSWORD_MASK = '********'; //mask string for password fields 
 
 const settingsFields = {
     'wiki_name':     'pw-setting-wiki-name',
@@ -129,7 +130,7 @@ async function loadMailSettings() {
         }
         const pwEl = document.getElementById('pw-setting-mail-password');
         if(pwEl) {
-            pwEl.value = result.data.mail_password ? '********' : '';
+            pwEl.value = result.data.mail_password ? PASSWORD_MASK : '';
         }
 
         toggleMailGroup(document.getElementById('pw-setting-mail-enable').checked);
@@ -150,7 +151,7 @@ async function saveMailSettings() {
         }
     }
     const pwEl = document.getElementById('pw-setting-mail-password');
-    if (pwEl && pwEl.value && pwEl.value !== '********') {
+    if (pwEl && pwEl.value && pwEl.value !== PASSWORD_MASK) {
         config.mail_password = pwEl.value;
     }
 
@@ -160,7 +161,7 @@ async function saveMailSettings() {
         notify(__('settings.save_success'), 'success');
         const pwEl = document.getElementById('pw-setting-mail-password');
         if(pwEl && pwEl.value) {
-            pwEl.value = '********';
+            pwEl.value = PASSWORD_MASK;
         }
     }
 }
