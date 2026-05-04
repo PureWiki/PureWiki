@@ -124,11 +124,18 @@ function getVirtualPagesDir(): string {
     return realpath(__DIR__ . '/../data/pages') ?: __DIR__ . '/../data/pages';
 }
 
-/** Returns the absolute path to the global config directory. */
+/** 
+ * Returns the absolute path to the global config directory. 
+ * @return string
+*/
 function getConfigDir(): string {
     return realpath(__DIR__ . '/../../config') ?: __DIR__ . '/../../config';
 }
 
+/**
+ * Returns the absolute path to the snippets directory.
+ * @return string
+ */
 function getSnippetsDir(): string {
     return getPageDir() . '/_snippets';
 }
