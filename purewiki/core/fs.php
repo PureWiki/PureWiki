@@ -58,7 +58,7 @@ function isTrulyWritable($dir) {
 function isLockActive(string $lockFile, int $ttl = 3600): bool {
     if (file_exists($lockFile)) {
         if (time() - filemtime($lockFile) > $ttl) {
-            unlink($lockFile);
+            @unlink($lockFile);
             return false;
         }
         return true;
