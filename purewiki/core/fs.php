@@ -26,7 +26,12 @@ function deleteDirectory($dir) {
         return true;
     }
 
-    foreach (scandir($dir) as $item) {
+    $items = scandir($dir);
+    if ($items === false) {
+        throw new PureWikiException("Failed to read directory for deletion: " . basename($dir));
+    }
+
+    foreach ($items as $item) {
         if ($item == '.' || $item == '..') continue;
         deleteDirectory($dir . DIRECTORY_SEPARATOR . $item); // Throws if an inner call fails
     }
@@ -78,10 +83,14 @@ function copyDirectory(string $src, string $dst, array $ignoreDirs = [], array $
     if (!is_dir($src)) return false;
     if (!is_dir($dst)) createDirectory($dst);
 
-    $dir = opendir($src);
-    if (!$dir) return false;
+    $dir = @opendir($src);
+    if (!$dir) {
+        if (function_exists('pw_debug')) {
+            pw_debug("copyDirectory: Failed to open directory '$src'", 'fs');
+        }
+        return false;
+    }
 
-    $success = true;
     while (($file = readdir($dir)) !== false) {
         if ($file === '.' || $file === '..') continue;
 
@@ -90,14 +99,20 @@ function copyDirectory(string $src, string $dst, array $ignoreDirs = [], array $
 
         if (is_dir($srcPath)) {
             if (in_array($file, $ignoreDirs)) continue;
-            if (!copyDirectory($srcPath, $dstPath, $ignoreDirs, $ignoreFiles)) $success = false;
+            if (!copyDirectory($srcPath, $dstPath, $ignoreDirs, $ignoreFiles)) {
+                closedir($dir);
+                return false;
+            }
         } else {
             if (in_array($file, $ignoreFiles)) continue;
-            if (!copy($srcPath, $dstPath)) $success = false;
+            if (!copy($srcPath, $dstPath)) {
+                closedir($dir);
+                return false;
+            }
         }
     }
     closedir($dir);
-    return $success;
+    return true;
 }
 
 /**
@@ -180,8 +195,10 @@ function isPathInDir(?string $path, string $baseDir): bool {
     if (!$path || !($realBase = realpath($baseDir))) return false;
     $realBase = rtrim(str_replace('\\', '/', $realBase), '/') . '/';
 
-    while (!file_exists($path) && dirname($path) !== $path) {
+    $iterations = 0;
+    while (!file_exists($path) && dirname($path) !== $path && $iterations < 100) {
         $path = dirname($path);
+        $iterations++;
     }
 
     if (!($realPath = realpath($path))) return false;
@@ -198,9 +215,11 @@ function isPathInDir(?string $path, string $baseDir): bool {
 function sanitizePath($path) {
     if (empty($path)) return '';
     $path = str_replace('\\', '/', $path);
+    $isAbsolute = str_starts_with($path, '/');
     $parts = explode('/', $path);
     $safeParts = array_filter($parts, fn($p) => $p !== '' && $p !== '.' && $p !== '..');
-    return implode('/', $safeParts);
+    $result = implode('/', $safeParts);
+    return $isAbsolute ? '/' . $result : $result;
 }
 
 /**
