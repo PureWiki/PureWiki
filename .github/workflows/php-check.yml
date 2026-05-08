@@ -1,0 +1,45 @@
+# This GitHub Action lints PHP syntax and checks for deprecated functions
+# across all supported PHP versions when a commit is pushed or a PR is opened.
+
+name: PHP Code Check
+
+on:
+  push:
+    paths:
+      - '**.php'
+  pull_request:
+    paths:
+      - '**.php'
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php-version: ['8.1', '8.2', '8.3', '8.4', '8.5'] 
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          tools: parallel-lint
+          coverage: none
+
+      - name: Check PHP Syntax
+        run: parallel-lint --exclude extern .
+
+      - name: Install PHP_CodeSniffer & PHPCompatibility
+        run: |
+          composer global require "dealerdirect/phpcodesniffer-composer-installer"
+          composer global require "phpcsstandards/php_codesniffer"
+          composer global require "phpcompatibility/php-compatibility"
+
+      - name: Check for Deprecated Functions
+        run: |
+          export PATH="$(composer global config bin-dir --absolute):$PATH"
+          phpcs -p . --standard=PHPCompatibility --extensions=php --ignore=*/extern/* --testVersion=${{ matrix.php-version }}
