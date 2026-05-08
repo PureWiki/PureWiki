@@ -42,4 +42,4 @@ jobs:
       - name: Check for Deprecated Functions
         run: |
           export PATH="$(composer global config bin-dir --absolute):$PATH"
-          phpcs -p . --standard=PHPCompatibility --extensions=php --ignore=*/extern/* --runtime-set testVersion ${{ matrix.php-version }}
+          phpcs -p -n . --standard=PHPCompatibility --extensions=php --ignore=*/extern/* --runtime-set testVersion ${{ matrix.php-version }}
