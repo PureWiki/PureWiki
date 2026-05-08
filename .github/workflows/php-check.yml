@@ -35,6 +35,7 @@ jobs:
 
       - name: Install PHP_CodeSniffer & PHPCompatibility
         run: |
+          composer global config allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
           composer global require "dealerdirect/phpcodesniffer-composer-installer"
           composer global require "phpcsstandards/php_codesniffer"
           composer global require "phpcompatibility/php-compatibility"
