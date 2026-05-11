@@ -13,6 +13,8 @@
 
 defined('PUREWIKI') || die('Direct access denied.');
 
+require_once __DIR__ . '/../../core/i18n_pages.php';
+
 $path = $_POST['path'] ?? '';
 if (!$path) {
     $response['message'] = 'Path is required.';
@@ -23,8 +25,9 @@ $safePath = sanitizePath($path);
 $targetDir = $safePath ? realpath($pagesDir . '/' . $safePath) : $pagesDir;
 
 if ($targetDir && isPathInDir($targetDir, $pagesDir) && is_dir($targetDir)) {
-    $draftPath = $targetDir . '/page.draft.json';
-    $publishPath = $targetDir . '/page.json';
+    $lang = $_POST['lang'] ?? '';
+    $draftPath = $targetDir . '/' . getPageFilename($lang, true);
+    $publishPath = $targetDir . '/' . getPageFilename($lang, false);
 
     if (file_exists($draftPath)) {
         if (file_exists($publishPath)) {
@@ -40,10 +43,16 @@ if ($targetDir && isPathInDir($targetDir, $pagesDir) && is_dir($targetDir)) {
                 if ($oldData && !empty($oldData['DateModified'])) {
                     $dateCode = date('YmdHis', strtotime($oldData['DateModified']));
                 }
-                copy($publishPath, $historyDir . '/page.' . $dateCode . '.json');
+                $historyFilename = 'page.' . ($lang ? $lang . '.' : '') . $dateCode . '.json';
+                copy($publishPath, $historyDir . '/' . $historyFilename);
 
                 // Prune history: keep max configured entries, delete oldest
-                $histFiles = glob($historyDir . '/page.*.json');
+                $histFiles = glob($historyDir . '/page.' . ($lang ? $lang . '.' : '') . '*.json');
+                if (!$lang) {
+                    $histFiles = array_filter($histFiles, function($f) {
+                        return preg_match('/page\.\d+\.json$/', basename($f));
+                    });
+                }
                 if (count($histFiles) > $maxVersions) {
                     sort($histFiles); // oldest first (filenames contain timestamps)
                     $toDelete = array_slice($histFiles, 0, count($histFiles) - $maxVersions);

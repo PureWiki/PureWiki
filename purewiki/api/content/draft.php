@@ -13,6 +13,7 @@
 
 defined('PUREWIKI') || die('Direct access denied.');
 
+require_once __DIR__ . '/../../core/i18n_pages.php';
 
 if ($action === 'save_draft') {
     $path = $_POST['path'] ?? '';
@@ -43,11 +44,22 @@ if ($action === 'save_draft') {
     }
 
     if ($targetDir) {
-        $draftPath = $targetDir . '/page.draft.json';
-        $publishPath = $targetDir . '/page.json';
-
+        $lang = $_POST['lang'] ?? '';
+        $draftPath = $targetDir . '/' . getPageFilename($lang, true);
+        $publishPath = $targetDir . '/' . getPageFilename($lang, false);
 
         $pageData = ['pagetitle' => '', 'blocks' => []];
+        
+        if (!file_exists($draftPath) && !file_exists($publishPath) && $lang !== '') {
+            $defaultPublish = $targetDir . '/page.json';
+            $defaultDraft   = $targetDir . '/page.draft.json';
+            $source = file_exists($defaultPublish) ? $defaultPublish
+                    : (file_exists($defaultDraft) ? $defaultDraft : null);
+            if ($source) {
+                $sourceData = readJson($source, []);
+                $pageData = array_merge($pageData, $sourceData);
+            }
+        }
         
         if (file_exists($draftPath)) {
             $existingData = readJson($draftPath, null);
@@ -116,7 +128,8 @@ if ($action === 'save_draft') {
     $targetDir = $safePath ? realpath($pagesDir . '/' . $safePath) : $pagesDir;
 
     if ($targetDir && isPathInDir($targetDir, $pagesDir) && is_dir($targetDir)) {
-        $draftPath = $targetDir . '/page.draft.json';
+        $lang = $_POST['lang'] ?? '';
+        $draftPath = $targetDir . '/' . getPageFilename($lang, true);
         if (file_exists($draftPath)) {
             if (unlink($draftPath)) {
                 $response['success'] = true;

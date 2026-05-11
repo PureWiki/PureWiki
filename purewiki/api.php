@@ -103,6 +103,7 @@ $apiRoutes = [
     'delete_snippet' => 'snippets/delete.php',
 
     'get_page' => 'content/read.php',
+    'get_page_langs' => 'content/read.php',
     'save_draft' => 'content/draft.php',
     'delete_draft' => 'content/draft.php',
     'publish_page' => 'content/publish.php',

@@ -27,10 +27,15 @@ if ($action === 'get_page_history') {
         $versions = [];
 
         if (is_dir($historyDir)) {
-            $files = glob($historyDir . '/page.*.json');
+            $lang = $_POST['lang'] ?? '';
+            $globPattern = $historyDir . '/page.' . ($lang ? $lang . '.' : '') . '*.json';
+            $files = glob($globPattern);
+            
+            $regex = '/^page\.' . ($lang ? preg_quote($lang) . '\.' : '') . '(\d{14})\.json$/';
+            
             foreach ($files as $file) {
                 $basename = basename($file);
-                if (preg_match('/^page\.(\d{14})\.json$/', $basename, $m)) {
+                if (preg_match($regex, $basename, $m)) {
                     $dt = DateTime::createFromFormat('YmdHis', $m[1]);
                     if ($dt) {
                         $author = '';
@@ -75,9 +80,15 @@ if ($action === 'get_page_history') {
 
     if ($targetDir && isPathInDir($targetDir, $pagesDir) && is_dir($targetDir)) {
         $historyFile = $targetDir . '/_history/' . $safeFile;
+        $lang = $_POST['lang'] ?? '';
+        
+        $regex = '/^page\.' . ($lang ? preg_quote($lang) . '\.' : '') . '\d{14}\.json$/';
 
-        if (file_exists($historyFile) && preg_match('/^page\.\d{14}\.json$/', $safeFile)) {
-            $draftPath = $targetDir . '/page.draft.json';
+        if (file_exists($historyFile) && preg_match($regex, $safeFile)) {
+            if (!function_exists('getPageFilename')) {
+                require_once __DIR__ . '/../../core/i18n_pages.php';
+            }
+            $draftPath = $targetDir . '/' . getPageFilename($lang, true);
             if (copy($historyFile, $draftPath)) {
                 $response['success'] = true;
                 $response['message'] = 'Version restored as draft.';

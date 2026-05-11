@@ -32,6 +32,36 @@ require_once __DIR__ . '/layout_head.php';
             <span id="pw-editor-draft-badge" class="pw-draft-badge" style="display: none;"><?php echo __('editor.draft_badge'); ?></span>
         </div>
         <div class="pw-edit-header-center">
+            <?php 
+            $config = getGlobalConfig();
+            if (!empty($config['i18n_enabled'])): 
+                $defLang = $config['i18n_default_lang'] ?? 'de';
+                $suppLangs = $config['i18n_supported_langs'] ?? [];
+            ?>
+            <div class="pw-lang-switcher pw-history-dropdown" id="pw-lang-switcher-container" style="margin-right: 1rem;">
+                <button id="pw-btn-lang" class="pw-btn" title="<?php echo __('editor.language'); ?>" aria-label="<?php echo __('editor.language'); ?>">
+                    <iconify-icon icon="mdi:translate"></iconify-icon>
+                    <span id="pw-lang-label" data-lang="" style="font-weight: 600; min-width: 20px; text-align: center; display: inline-block;">
+                        <?php echo htmlspecialchars($defLang); ?>
+                    </span>
+                    <iconify-icon icon="mdi:chevron-down" style="margin-left: 2px;"></iconify-icon>
+                </button>
+                <div id="pw-lang-menu" class="pw-history-menu" style="min-width: 140px;">
+                    <button class="pw-history-item pw-lang-option" data-lang="">
+                        <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                            <span>Default (<?php echo htmlspecialchars($defLang); ?>)</span>
+                        </div>
+                    </button>
+                    <?php foreach ($suppLangs as $sl): ?>
+                    <button class="pw-history-item pw-lang-option" data-lang="<?php echo htmlspecialchars($sl); ?>">
+                        <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                            <span><?php echo htmlspecialchars($sl); ?></span>
+                        </div>
+                    </button>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+            <?php endif; ?>
             <div class="pw-history-dropdown" id="pw-history-dropdown">
                 <button id="pw-btn-history" class="pw-btn" title="<?php echo __('editor.page_settings'); ?>" aria-label="<?php echo __('editor.page_settings'); ?>">
                     <iconify-icon icon="mdi:history"></iconify-icon>

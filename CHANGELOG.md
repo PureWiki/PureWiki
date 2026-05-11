@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Added multilingual (i18n) support for pages, routing, and search indexing
+
 ### Changed
 - Improved error handling and path security in core filesystem operations
 

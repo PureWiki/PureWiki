@@ -239,6 +239,7 @@ require_once __DIR__ . '/layout_head.php';
             <p><strong><?php echo __('dashboard.modified'); ?>:</strong> <span data-field="modified"></span></p>
             <p><strong><?php echo __('dashboard.description'); ?>:</strong> <span data-field="description"></span></p>
             <p><strong><?php echo __('editor.tags_label'); ?>:</strong> <span data-field="tags"></span></p>
+            <p><strong><?php echo __('dashboard.translations'); ?>:</strong> <span data-field="translations"></span></p>
         </div>
     </template>
 

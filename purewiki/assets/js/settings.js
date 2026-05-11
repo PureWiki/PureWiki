@@ -69,7 +69,10 @@ const settingsFields = {
     'mail_username': 'pw-setting-mail-username',
     'mail_encryption': 'pw-setting-mail-encryption',
     'mail_from_address': 'pw-setting-mail-from-address',
-    'mail_from_name': 'pw-setting-mail-from-name'
+    'mail_from_name': 'pw-setting-mail-from-name',
+    'i18n_enabled':  'pw-setting-i18n-enabled',
+    'i18n_default_lang': 'pw-setting-i18n-default-lang',
+    'i18n_supported_langs': 'pw-setting-i18n-supported-langs'
 };
 
 /** Loads the current configuration and populates the form fields. */
@@ -84,6 +87,9 @@ async function loadSettings() {
             if (el && result.data[key] !== undefined) {
                 if (el.type === 'checkbox') {
                     el.checked = result.data[key] === true || result.data[key] === 'true';
+                    el.dispatchEvent(new Event('change'));
+                } else if (key === 'i18n_supported_langs') {
+                    el.value = JSON.stringify(Array.isArray(result.data[key]) ? result.data[key] : []);
                     el.dispatchEvent(new Event('change'));
                 } else {
                     el.value = result.data[key];
@@ -100,6 +106,12 @@ async function saveSettings() {
         if (el) {
             if (el.type === 'checkbox') {
                 config[key] = el.checked;
+            } else if (key === 'i18n_supported_langs') {
+                try {
+                    config[key] = el.value ? JSON.parse(el.value) : [];
+                } catch(e) {
+                    config[key] = [];
+                }
             } else {
                 config[key] = el.value;
             }
@@ -352,6 +364,73 @@ document.addEventListener('DOMContentLoaded', () => {
                 startWebpPolling();
             }
         });
+    }
+
+    // i18n Settings Logic
+    const i18nInput = document.getElementById('pw-setting-i18n-supported-langs');
+    const i18nList = document.getElementById('pw-i18n-lang-list');
+    const i18nNewLang = document.getElementById('pw-i18n-new-lang');
+    const i18nAddBtn = document.getElementById('pw-btn-add-lang');
+    const i18nToggle = document.getElementById('pw-setting-i18n-enabled');
+    const i18nGroup = document.getElementById('pw-setting-i18n-group');
+    const i18nDefault = document.getElementById('pw-setting-i18n-default-lang');
+
+    if (i18nInput && i18nList && i18nAddBtn) {
+        const renderLangs = () => {
+            i18nList.innerHTML = '';
+            let langs = [];
+            try { langs = JSON.parse(i18nInput.value); } catch(e) {}
+            if (!Array.isArray(langs)) langs = [];
+
+            langs.forEach(lang => {
+                const badge = document.createElement('span');
+                badge.className = 'pw-lang-badge';
+                badge.innerHTML = escapeHtml(lang) + ' <iconify-icon icon="mdi:close" title="Entfernen"></iconify-icon>';
+                badge.querySelector('iconify-icon').addEventListener('click', () => {
+                    const newLangs = langs.filter(l => l !== lang);
+                    i18nInput.value = JSON.stringify(newLangs);
+                    renderLangs();
+                });
+                i18nList.appendChild(badge);
+            });
+        };
+
+        i18nInput.addEventListener('change', renderLangs);
+
+        const addLang = () => {
+            const val = i18nNewLang.value.trim().toLowerCase();
+            if (val) {
+                let langs = [];
+                try { langs = JSON.parse(i18nInput.value); } catch(e) {}
+                if (!langs.includes(val)) {
+                    langs.push(val);
+                    i18nInput.value = JSON.stringify(langs);
+                    renderLangs();
+                }
+                i18nNewLang.value = '';
+            }
+        };
+
+        i18nAddBtn.addEventListener('click', addLang);
+        i18nNewLang.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addLang();
+            }
+        });
+
+        if (i18nToggle) {
+            const updateI18nState = () => {
+                const disabled = !i18nToggle.checked;
+                i18nGroup.style.opacity = disabled ? '0.5' : '1';
+                i18nNewLang.disabled = disabled;
+                i18nAddBtn.disabled = disabled;
+                i18nDefault.disabled = disabled;
+                i18nDefault.style.opacity = disabled ? '0.5' : '1';
+            };
+            i18nToggle.addEventListener('change', updateI18nState);
+            updateI18nState();
+        }
     }
 
     tabs.forEach(tab => {

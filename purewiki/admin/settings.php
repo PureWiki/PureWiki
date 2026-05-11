@@ -190,6 +190,23 @@ require_once __DIR__ . '/layout_head.php';
                     ?>
 
                     <hr class="pw-separator">
+                    <h3 class="pw-settings-heading"><?php echo __('settings.i18n_title'); ?></h3>
+                    <?php
+                    renderToggle('pw-setting-i18n-enabled', __('settings.i18n_enabled'), __('settings.i18n_enabled_desc'));
+                    renderInput('pw-setting-i18n-default-lang', __('settings.i18n_default_lang'), __('settings.i18n_default_lang_desc'), 'text', 'pw-input pw-w-sm', 'de');
+                    ?>
+                    <div class="pw-setting-field" id="pw-setting-i18n-group">
+                        <label class="pw-setting-label"><?php echo __('settings.i18n_supported_langs'); ?></label>
+                        <p class="pw-setting-description"><?php echo __('settings.i18n_supported_langs_desc'); ?></p>
+                        <input type="hidden" id="pw-setting-i18n-supported-langs">
+                        <div id="pw-i18n-lang-list" style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px;"></div>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="text" id="pw-i18n-new-lang" class="pw-input pw-w-sm" placeholder="e.g. en" maxlength="5">
+                            <button type="button" id="pw-btn-add-lang" class="pw-btn pw-btn-secondary"><iconify-icon icon="mdi:plus"></iconify-icon> <?php echo __('common.add') ?? 'Hinzufügen'; ?></button>
+                        </div>
+                    </div>
+
+                    <hr class="pw-separator">
                     <h3 class="pw-settings-heading"><?php echo __('settings.caching'); ?></h3>
                     <?php
                     $clearCacheBtn = '<div style="margin-top: 15px;"><button id="pw-btn-clear-cache" class="pw-btn pw-btn-secondary" type="button"><iconify-icon icon="mdi:delete-sweep" class="pw-icon-left"></iconify-icon> '.__('settings.clear_cache').'</button></div>';

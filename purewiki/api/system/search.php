@@ -17,6 +17,7 @@ if ($action === 'search') {
     $response['message'] = '';
     
     $qParam = $_POST['q'] ?? $_GET['q'] ?? '';
+    $langParam = $_POST['lang'] ?? $_GET['lang'] ?? '';
     
     // Extraction from malformed URIs
     if ($qParam === '' && !empty($_SERVER['REQUEST_URI'])) {
@@ -26,6 +27,7 @@ if ($action === 'search') {
     }
     
     $query = trim($qParam);
+    $lang = trim($langParam);
     
     // Format check for Link Autocomplete
     $format = $_POST['format'] ?? $_GET['format'] ?? '';
@@ -44,9 +46,19 @@ if ($action === 'search') {
     $config = getGlobalConfig();
     $maxResults = (int)($config['search_max_results'] ?? 10);
     $index = getSearchIndex();
+    
+    // Determine the correct search set based on language
+    $searchSet = [];
+    if (isset($index['']) || isset($index[$lang])) {
+        // grouped by language
+        $searchSet = $index[$lang] ?? ($index[''] ?? []);
+    } else {
+        $searchSet = $index;
+    }
+
     $scored = [];
 
-    foreach ($index as $entry) {
+    foreach ($searchSet as $entry) {
         $score = 0;
 
         if (stripos($entry['title'], $query) !== false) $score += 100;

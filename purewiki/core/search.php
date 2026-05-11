@@ -23,8 +23,25 @@ require_once __DIR__ . '/cache.php';
  */
 function buildSearchIndex(): array {
     $pagesDir = getPageDir();
+    
+    // Check if i18n is enabled
+    $config = getGlobalConfig();
+    $i18nEnabled = !empty($config['i18n_enabled']);
+    $langs = ['']; // Always index default language
+    if ($i18nEnabled) {
+        require_once __DIR__ . '/i18n_pages.php';
+        $supported = getSupportedPageLangs();
+        foreach ($supported as $l) {
+            $langs[] = $l;
+        }
+    }
+
     $index = [];
-    _collectSearchEntries($pagesDir, $pagesDir, $index);
+    foreach ($langs as $lang) {
+        $index[$lang] = [];
+    }
+
+    _collectSearchEntries($pagesDir, $pagesDir, $index, $langs);
 
     $cacheDir = getCacheDir();
     if (!is_dir($cacheDir)) {
@@ -41,26 +58,36 @@ function buildSearchIndex(): array {
  * @param string $dir Current directory to scan.
  * @param string $pagesDir Root pages directory for relative path calculation.
  * @param array &$index Reference to the index array.
+ * @param array $langs Array of language codes to index.
  */
-function _collectSearchEntries(string $dir, string $pagesDir, array &$index): void {
-    $jsonPath = $dir . DIRECTORY_SEPARATOR . 'page.json';
-    if (file_exists($jsonPath)) {
-        $data = readJson($jsonPath, null);
-        if (is_array($data)) {
-            $relativePath = '/' . ltrim(str_replace(str_replace('\\', '/', $pagesDir), '', str_replace('\\', '/', $dir)), '/');
-            $relativePath = '/' . ltrim($relativePath, '/');
+function _collectSearchEntries(string $dir, string $pagesDir, array &$index, array $langs = ['']): void {
+    foreach ($langs as $lang) {
+        $filename = $lang === '' ? 'page.json' : 'page.' . $lang . '.json';
+        $jsonPath = $dir . DIRECTORY_SEPARATOR . $filename;
+        if (file_exists($jsonPath)) {
+            $data = readJson($jsonPath, null);
+            if (is_array($data)) {
+                $relativePath = '/' . ltrim(str_replace(str_replace('\\', '/', $pagesDir), '', str_replace('\\', '/', $dir)), '/');
+                $relativePath = '/' . ltrim($relativePath, '/');
 
-            $textParts = [];
-            if (!empty($data['blocks'])) {
-                _extractBlockText($data['blocks'], $textParts);
+                $textParts = [];
+                if (!empty($data['blocks'])) {
+                    _extractBlockText($data['blocks'], $textParts);
+                }
+
+                // Append language prefix to the path for search results
+                $urlPath = $relativePath;
+                if ($lang !== '') {
+                    $urlPath = '/' . $lang . ($relativePath === '/' ? '' : $relativePath);
+                }
+
+                $index[$lang][] = [
+                    'path'        => $urlPath,
+                    'title'       => $data['pagetitle'] ?? basename($dir),
+                    'description' => $data['Description'] ?? '',
+                    'content'     => implode(' ', $textParts)
+                ];
             }
-
-            $index[] = [
-                'path'        => $relativePath,
-                'title'       => $data['pagetitle'] ?? basename($dir),
-                'description' => $data['Description'] ?? '',
-                'content'     => implode(' ', $textParts)
-            ];
         }
     }
 
@@ -71,7 +98,7 @@ function _collectSearchEntries(string $dir, string $pagesDir, array &$index): vo
 
         $fullPath = $dir . DIRECTORY_SEPARATOR . $item;
         if (is_dir($fullPath)) {
-            _collectSearchEntries($fullPath, $pagesDir, $index);
+            _collectSearchEntries($fullPath, $pagesDir, $index, $langs);
         }
     }
 }

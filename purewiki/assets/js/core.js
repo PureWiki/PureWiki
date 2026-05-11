@@ -532,6 +532,8 @@ function bindSidebarTreeItems(treeItems, mainActions, mainContent, btnAdd, btnDe
                             info.querySelector('[data-field="modified"]').textContent = modified;
                             info.querySelector('[data-field="description"]').textContent = desc;
                             info.querySelector('[data-field="tags"]').textContent = (Array.isArray(d.Tags) && d.Tags.length > 0) ? d.Tags.join(', ') : '—';
+                            const translations = (Array.isArray(result.available_langs) ? result.available_langs : []).filter(l => l !== '');
+                            info.querySelector('[data-field="translations"]').textContent = translations.length > 0 ? translations.join(', ') : '—';
                             if (result.is_draft) {
                                 info.querySelector('[data-field="draft-badge"]').style.display = 'inline-block';
                             }

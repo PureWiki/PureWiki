@@ -103,13 +103,36 @@ if (str_starts_with($path, '/dashboard/login')) {
     // Frontend Handling
     require_once __DIR__ . '/purewiki/frontend/renderer.php';
     
+    require_once __DIR__ . '/purewiki/core/i18n_pages.php';
     $config = getGlobalConfig();
+    $i18nEnabled = !empty($config['i18n_enabled']);
+    $currentLang = '';
+
+    if ($i18nEnabled) {
+        $currentLang = detectLangFromPath($path);
+        if ($currentLang !== '') {
+            $defaultLang = $config['i18n_default_lang'] ?? 'en';
+            if ($currentLang === $defaultLang) {
+                // Redirect default language prefix to clean URL and prevent 404 on default language
+                $cleanPath = stripLangPrefix($path, $currentLang);
+                if ($cleanPath === '') $cleanPath = '/';
+                header('Location: ' . BASE_PATH . $cleanPath, true, 301);
+                exit;
+            }
+            $path = stripLangPrefix($path, $currentLang);
+            if ($path === '') $path = '/';
+        }
+    }
+
+    define('CURRENT_LANG', $currentLang);
     $cacheEnabled = !empty($config['enable_cache']);
     $cacheLifetime = (int)($config['cache_lifetime'] ?? 3600);
     $cacheFile = '';
 
     if ($cacheEnabled && !isLoggedIn()) {
-        $cacheFile = __DIR__ . '/cache/' . md5($path) . '.html';
+        $cacheLang = defined('CURRENT_LANG') ? CURRENT_LANG : '';
+        $cacheKey  = $cacheLang ? $cacheLang . ':' . $path : $path;
+        $cacheFile = __DIR__ . '/cache/' . md5($cacheKey) . '.html';
         // Serve from cache if valid
         if (file_exists($cacheFile) && (time() - filemtime($cacheFile)) < $cacheLifetime) {
             pw_debug('Cache hit', ['path' => $path], 'INFO', 'cache');
@@ -130,11 +153,14 @@ if (str_starts_with($path, '/dashboard/login')) {
         $cacheEnabled = false; // Disable cache for preview
     }
 
-    $filename = 'page.json';
+    $lang = defined('CURRENT_LANG') ? CURRENT_LANG : '';
+    $filename = getPageFilename($lang, false);
+
     if ($isPreview) {
-        $draftFile = rtrim($pagesDir, '/') . '/' . (empty($safePath) ? '' : ltrim($safePath, '/') . '/') . 'page.draft.json';
+        $draftFilename = getPageFilename($lang, true);
+        $draftFile = rtrim($pagesDir, '/') . '/' . (empty($safePath) ? '' : ltrim($safePath, '/') . '/') . $draftFilename;
         if (file_exists($draftFile)) {
-            $filename = 'page.draft.json';
+            $filename = $draftFilename;
         }
     }
 
@@ -145,6 +171,17 @@ if (str_starts_with($path, '/dashboard/login')) {
     } else {
         $pageJsonPath = rtrim($pagesDir, '/') . '/' . ltrim($safePath, '/') . '/' . $filename;
         $fallbackTitle = basename($safePath);
+    }
+
+    if ($lang !== '' && !file_exists($pageJsonPath)) {
+        $filename = 'page.json';
+        if ($isPreview) {
+            $defaultDraftFile = rtrim($pagesDir, '/') . '/' . (empty($safePath) ? '' : ltrim($safePath, '/') . '/') . 'page.draft.json';
+            if (file_exists($defaultDraftFile)) {
+                $filename = 'page.draft.json';
+            }
+        }
+        $pageJsonPath = rtrim($pagesDir, '/') . '/' . (empty($safePath) ? '' : ltrim($safePath, '/') . '/') . $filename;
     }
     
     // Check for redirects before rendering (except in preview mode)

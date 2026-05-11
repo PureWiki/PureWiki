@@ -20,17 +20,33 @@ require_once __DIR__ . '/fs.php';
  * If null, the entire cache directory is purged.
  *
  * @param string|null $path The page path to clear, or null for all.
+ * @param string|null $lang The language to clear, or null for all languages.
  */
-function clearCache(?string $path = null): void {
+function clearCache(?string $path = null, ?string $lang = null): void {
     $cacheDir = getCacheDir();
     if (!is_dir($cacheDir)) return;
 
     if ($path !== null) {
-        $file = $cacheDir . '/' . md5($path) . '.html';
-        if (file_exists($file)) {
-            if (!unlink($file)) {
-                // Surface I/O errors immediately to avoid serving stale content
-                throw new PureWikiException("Failed to delete cache file for page.");
+        $keys = [];
+        if ($lang !== null) {
+            $keys[] = $lang ? $lang . ':' . $path : $path;
+        } else {
+            $keys[] = $path;
+            require_once __DIR__ . '/config.php';
+            $config = getGlobalConfig();
+            if (!empty($config['i18n_enabled']) && !empty($config['i18n_supported_langs'])) {
+                foreach ($config['i18n_supported_langs'] as $l) {
+                    $keys[] = $l . ':' . $path;
+                }
+            }
+        }
+
+        foreach ($keys as $key) {
+            $file = $cacheDir . '/' . md5($key) . '.html';
+            if (file_exists($file)) {
+                if (!unlink($file)) {
+                    throw new PureWikiException("Failed to delete cache file for page.");
+                }
             }
         }
     } else {

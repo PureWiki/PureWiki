@@ -167,8 +167,8 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
         AssetManager::requireIconify();
     }
 
-    // Inject BASE_PATH into the frontend so JS can use it
-    $pwBasePathScript = "<script>window.PW_BASE_PATH = '" . addslashes(BASE_PATH) . "';</script>";
+    // Inject BASE_PATH and CURRENT_LANG into the frontend so JS can use it
+    $pwBasePathScript = "<script>window.PW_BASE_PATH = '" . addslashes(BASE_PATH) . "'; window.PW_CURRENT_LANG = '" . addslashes(defined('CURRENT_LANG') ? CURRENT_LANG : '') . "';</script>";
 
     $assetsHead = $pwBasePathScript . "\n" . AssetManager::getStyles() . AssetManager::getScripts('head') . "\n" . $customCss . "\n" . $customHtmlHead . "\n" . $customJsHead;
 
@@ -198,6 +198,29 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
 
     if (!empty($config['seo_auto_canonical'])) {
         $seoTags[] = '<link rel="canonical" href="' . htmlspecialchars($currentUrl) . '">';
+    }
+
+    if (!empty($config['i18n_enabled'])) {
+        require_once __DIR__ . '/../core/i18n_pages.php';
+        $supportedLangs = getSupportedPageLangs();
+        if (!empty($supportedLangs)) {
+            $defaultLang = getDefaultPageLang();
+            
+            $baseUrlLang = rtrim($protocol . $host . BASE_PATH, '/');
+            $cleanContextPath = ltrim($contextPath, '/');
+            $pathAppend = ($cleanContextPath !== '') ? '/' . $cleanContextPath : '';
+
+            $xDefaultUrl = $baseUrlLang . $pathAppend;
+            if ($xDefaultUrl === '') $xDefaultUrl = '/';
+            
+            $seoTags[] = '<link rel="alternate" hreflang="x-default" href="' . htmlspecialchars($xDefaultUrl) . '">';
+            $seoTags[] = '<link rel="alternate" hreflang="' . htmlspecialchars($defaultLang) . '" href="' . htmlspecialchars($xDefaultUrl) . '">';
+
+            foreach ($supportedLangs as $lang) {
+                $langUrl = $baseUrlLang . '/' . $lang . $pathAppend;
+                $seoTags[] = '<link rel="alternate" hreflang="' . htmlspecialchars($lang) . '" href="' . htmlspecialchars($langUrl) . '">';
+            }
+        }
     }
 
     if (!empty($config['seo_auto_opengraph'])) {

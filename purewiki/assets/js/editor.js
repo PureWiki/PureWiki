@@ -22,7 +22,12 @@ window.pwEditorInitializing = true;
 let lockHeartbeatInterval = null;
 let lockedPagePath = null;
 let isSavingDraft = false;
+let currentLang = '';
 
+document.addEventListener('DOMContentLoaded', () => {
+    const langLabel = document.getElementById('pw-lang-label');
+    if (langLabel) currentLang = langLabel.getAttribute('data-lang') || '';
+});
 
 /** Cleans empty properties */
 function cleanEmptyProps(obj) {
@@ -119,10 +124,14 @@ async function openEditor(pagePath) {
         currentGlobalConfig = configResult.data;
     }
 
-    const result = await apiSafe('get_page', { path: pagePath }, { silent: true });
+    const result = await apiSafe('get_page', { path: pagePath, lang: currentLang }, { silent: true });
     if (result && result.data) {
         currentPageData = result.data;
         updateEditorButtons(result.is_draft);
+
+        if (result.available_langs) {
+            updateLanguageDropdownIndicators(result.available_langs);
+        }
 
         titleEl.textContent = result.data.pagetitle || pagePath.split('/').pop() || __('editor.untitled');
         titleEl.setAttribute('data-path', pagePath);
@@ -219,7 +228,7 @@ function initEditorJS(blocksData) {
             link: {
                 class: LinkAutocomplete,
                 config: {
-                    endpoint: (window.PW_BASE_PATH || '') + '/purewiki/api.php?action=search&format=link-autocomplete&',
+                    endpoint: (window.PW_BASE_PATH || '') + '/purewiki/api.php?action=search&format=link-autocomplete&lang=' + encodeURIComponent(currentLang) + '&',
                     queryParam: 'q',
                 }
             },
@@ -277,7 +286,8 @@ function initEditorJS(blocksData) {
                             const titleEl = document.getElementById('pw-editor-title');
                             const path = titleEl ? titleEl.getAttribute('data-path') : null;
                             if (path) {
-                                await apiSafe('delete_draft', { path }, { silent: true });
+                                await apiSafe('delete_draft', { path, lang: currentLang }, { silent: true });
+                                isNewPage = false;
                             }
                         }
                         hasUnsavedChanges = false;
@@ -432,7 +442,7 @@ async function saveCurrentDraft(isAutoSave = false, redirectAfterSave = false) {
     const outputData = await currentEditorJsInstance.save();
     const title = titleEl.textContent !== 'Loading...' && !titleEl.querySelector('input') ? titleEl.textContent : null;
 
-    const params = { path };
+    const params = { path, lang: currentLang };
     if (title) params.title = title;
     params.blocks = JSON.stringify(outputData.blocks);
 
@@ -466,7 +476,7 @@ async function publishPage() {
     const saved = await saveCurrentDraft();
     if (!saved) return;
 
-    const result = await apiSafe('publish_page', { path });
+    const result = await apiSafe('publish_page', { path, lang: currentLang });
 
     if (result) {
         updateEditorButtons(false);
@@ -499,7 +509,7 @@ async function loadPageHistory() {
 
     menu.innerHTML = '<div class="pw-history-empty">' + __('common.loading') + '</div>';
 
-    const result = await apiSafe('get_page_history', { path }, { silent: true });
+    const result = await apiSafe('get_page_history', { path, lang: currentLang }, { silent: true });
     menu.innerHTML = '';
 
     if (result && result.data && result.data.length > 0) {
@@ -552,7 +562,7 @@ async function restorePageVersion(file) {
     });
     if (!confirmed) return;
 
-    const result = await apiSafe('restore_page_version', { path, file });
+    const result = await apiSafe('restore_page_version', { path, file, lang: currentLang });
     if (result) {
         notify(__('editor.version_restored'), 'success');
         await openEditor(path);
@@ -577,7 +587,7 @@ async function deleteDraft() {
 
     if (!confirmed) return;
 
-    const result = await apiSafe('delete_draft', { path });
+    const result = await apiSafe('delete_draft', { path, lang: currentLang });
 
     if (result) {
         if (isNewPage) {
@@ -603,6 +613,103 @@ function initEditorInteractions() {
     bindEditorHistoryMenu();
     bindEditorShortcuts();
     bindTitleInlineEditing();
+    bindLanguageSwitcher();
+}
+
+/** Language switcher logic */
+function bindLanguageSwitcher() {
+    const btnLang = document.getElementById('pw-btn-lang');
+    const langMenu = document.getElementById('pw-lang-menu');
+    const langLabel = document.getElementById('pw-lang-label');
+    const options = document.querySelectorAll('.pw-lang-option');
+    if (!btnLang || !langMenu) return;
+
+    btnLang.addEventListener('click', (e) => {
+        e.stopPropagation();
+        langMenu.classList.toggle('pw-show');
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!btnLang.contains(e.target) && !langMenu.contains(e.target)) {
+            langMenu.classList.remove('pw-show');
+        }
+    });
+
+    options.forEach(opt => {
+        opt.addEventListener('click', async (e) => {
+            const newLang = opt.getAttribute('data-lang');
+            if (newLang === currentLang) {
+                langMenu.classList.remove('pw-show');
+                return;
+            }
+
+            const titleEl = document.getElementById('pw-editor-title');
+            const path = titleEl ? titleEl.getAttribute('data-path') : null;
+            if (!path) return;
+
+            if (hasUnsavedChanges) {
+                await saveCurrentDraft(true);
+            }
+
+            const langResult = await apiSafe('get_page_langs', { path: path }, { silent: true });
+            let hasContent = false;
+            if (langResult && langResult.success && langResult.available[newLang]) {
+                hasContent = langResult.available[newLang].has_draft || langResult.available[newLang].has_published;
+            }
+
+            const oldLang = currentLang;
+            currentLang = newLang;
+
+            if (!hasContent) {
+                const confirmed = await openDialog({
+                    title: __('editor.create_language_version'),
+                text: __('editor.create_language_confirm', currentLang) ,
+                type: 'confirm',
+                confirmText: __('common.yes'),
+                cancelText: __('common.no')
+            });
+            if (confirmed) {
+                await apiSafe('save_draft', { path: path, lang: currentLang, blocks: '[]' }, { silent: true });
+            } else {
+                currentLang = oldLang;
+                return;
+            }
+        }
+        
+        langLabel.setAttribute('data-lang', currentLang);
+        langLabel.textContent = opt.querySelector('span').textContent;
+        langMenu.classList.remove('pw-show');
+
+        await openEditor(path);
+    });
+    });
+}
+
+function updateLanguageDropdownIndicators(availableLangs) {
+    const options = document.querySelectorAll('.pw-lang-option');
+    options.forEach(opt => {
+        const lang = opt.getAttribute('data-lang');
+        
+        let indicator = opt.querySelector('.pw-lang-indicator');
+        if (!indicator) {
+            indicator = document.createElement('span');
+            indicator.className = 'pw-lang-indicator';
+            indicator.style.display = 'inline-block';
+            indicator.style.width = '6px';
+            indicator.style.height = '6px';
+            indicator.style.borderRadius = '50%';
+            indicator.style.marginLeft = '8px';
+            opt.querySelector('div').appendChild(indicator);
+        }
+        
+        if (availableLangs.includes(lang)) {
+            indicator.style.backgroundColor = 'var(--pw-primary)';
+            indicator.title = __('editor.lang_available') || 'Available';
+        } else {
+            indicator.style.backgroundColor = 'transparent';
+            indicator.title = '';
+        }
+    });
 }
 
 /** Back button logic. */
@@ -628,7 +735,7 @@ function bindEditorBackButton() {
                     const titleEl = document.getElementById('pw-editor-title');
                     const path = titleEl ? titleEl.getAttribute('data-path') : null;
                     if (path) {
-                        await apiSafe('delete_draft', { path }, { silent: true });
+                        await apiSafe('delete_draft', { path, lang: currentLang }, { silent: true });
                     }
                 }
             }
