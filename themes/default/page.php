@@ -33,5 +33,6 @@ echo '</aside>';
 echo '{{ endif }}';
 echo '<div class="pw-sidebar-backdrop" id="pw-sidebar-backdrop"></div>';
 echo '</main>';
+echo '<div class="container pw-lang-switcher-container">{{ macro:lang_switcher }}</div>';
 echo '{{ virtual:_footer }}';
 echo file_get_contents(__DIR__ . '/elements/footer.php');

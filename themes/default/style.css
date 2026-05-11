@@ -1000,3 +1000,45 @@ html[data-theme="dark"] .pw-theme-icon-dark {
         display: none;
     }
 }
+
+/* ── Language Switcher ── */
+.pw-lang-switcher-container {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: var(--pico-spacing);
+    margin-bottom: var(--pico-spacing);
+}
+
+.pw-lang-switcher {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+}
+
+.pw-lang-switcher a {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-decoration: none;
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    background: var(--pico-card-background-color);
+    border: 1px solid var(--pico-muted-border-color);
+    color: var(--pico-muted-color);
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    line-height: 1;
+}
+
+.pw-lang-switcher a:hover {
+    color: var(--pico-primary-hover);
+    border-color: var(--pico-primary);
+}
+
+.pw-lang-switcher a.active {
+    background: var(--pico-primary);
+    color: var(--pico-primary-inverse);
+    border-color: var(--pico-primary);
+}

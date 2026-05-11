@@ -232,7 +232,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         async function performSearch(query) {
             try {
-                const res = await fetch((window.PW_BASE_PATH || '') + '/purewiki/api.php?action=search&q=' + encodeURIComponent(query));
+                const lang = window.PW_CURRENT_LANG || '';
+                const res = await fetch((window.PW_BASE_PATH || '') + '/purewiki/api.php?action=search&q=' + encodeURIComponent(query) + '&lang=' + encodeURIComponent(lang));
                 const data = await res.json();
                 if (data.success && data.results) {
                     if (data.results.length === 0) {
