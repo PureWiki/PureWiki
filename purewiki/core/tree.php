@@ -241,7 +241,7 @@ function buildAdminTree($tree) {
  * Recursively generates a nested <ul>/<li> structure from a page tree for the frontend.
  * @param array $tree The page tree array from getCachedPagesTree()
  * @param string $currentPath The current context path for active states
- * @param bool $boldHeadingsadd bold styling class to headings
+ * @param bool $boldHeadings add bold styling class to headings
  * @return string The processed HTML
  */
 function buildNavTree(array $tree, string $currentPath, bool $boldHeadings = false): string {
