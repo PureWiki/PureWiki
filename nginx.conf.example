@@ -7,6 +7,11 @@ server {
     root /var/www/purewiki;
     index index.php;
 
+    # i18n Language prefix routing
+    location ~* ^/[a-z]{2}(/|$) {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
     # URL Rewriting (PureWiki PHP Router)
     location / {
         try_files $uri $uri/ /index.php?$query_string;

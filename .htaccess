@@ -7,6 +7,11 @@ Options +FollowSymLinks -MultiViews
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
+    # i18n Language prefix routing
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^([a-z]{2})(/.*)?$ index.php [QSA,L]
+
     # If the requested file or directory exists, serve it directly.
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
