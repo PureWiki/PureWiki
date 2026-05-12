@@ -63,6 +63,63 @@ require_once __DIR__ . '/../core/http.php';
 require_once __DIR__ . '/../core/asset_manager.php';
 require_once __DIR__ . '/../core/json.php';
 
+/**
+ * Sanitizes inline HTML from Editor.js block text.
+ * Decodes all HTML entities, escapes everything, then restores only the known Editor.js tags.
+ */
+function sanitizeInlineHtml(string $text): string {
+    $decoded = html_entity_decode($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+    $html    = htmlspecialchars($decoded, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+
+    // Restore all static, attribute-free tokens in one pass
+    $search  = [];
+    $replace = [];
+
+    foreach (['b', 'strong', 'i', 'em', 'u', 's', 'del', 'sub', 'sup'] as $tag) {
+        $search[]  = '&lt;' . $tag . '&gt;';
+        $replace[] = '<' . $tag . '>';
+        $search[]  = '&lt;/' . $tag . '&gt;';
+        $replace[] = '</' . $tag . '>';
+    }
+
+    // <br> variants
+    $search[]  = '&lt;br&gt;';   $replace[] = '<br>';
+    $search[]  = '&lt;br/&gt;';  $replace[] = '<br>';
+    $search[]  = '&lt;br /&gt;'; $replace[] = '<br>';
+
+    // Closing and opening tags for attribute-capable elements
+    foreach (['code', 'mark', 'span', 'a'] as $tag) {
+        $search[]  = '&lt;/' . $tag . '&gt;';
+        $replace[] = '</' . $tag . '>';
+        $search[]  = '&lt;' . $tag . '&gt;';
+        $replace[] = '<' . $tag . '>';
+    }
+
+    $html = str_replace($search, $replace, $html);
+
+    // Restore tags that carry a class attribute
+    // Class values are already safe because whitelist enforces [a-zA-Z0-9_\- ]
+    foreach (['code', 'mark', 'span'] as $tag) {
+        $html = preg_replace(
+            '/&lt;' . $tag . '\s+class=&quot;([a-zA-Z0-9_\-\s]*)&quot;&gt;/i',
+            '<' . $tag . ' class="$1">',
+            $html
+        );
+    }
+
+    // Restore <a href="..."> with URL validation to prevent javascript: and data: URIs
+    $html = preg_replace_callback(
+        '/&lt;a\s+href=&quot;(?!javascript:|data:)((?:[^&"]|&amp;)*)&quot;(?:[^&]|&amp;|&quot;)*?&gt;/i',
+        static function (array $m): string {
+            $href = html_entity_decode($m[1], ENT_QUOTES, 'UTF-8');
+            return '<a href="' . htmlspecialchars($href, ENT_QUOTES) . '">';
+        },
+        $html
+    );
+
+    return $html;
+}
+
 function parseBlocksToHtml(array $blocks, string $contextPath = '/', ?array $mainBlocks = null): string {
     $parts = [];
 
@@ -94,14 +151,14 @@ function parseBlocksToHtml(array $blocks, string $contextPath = '/', ?array $mai
 
         switch ($type) {
             case 'paragraph':
-                $text = prefixInternalLinks(htmlspecialchars_decode($data['text'] ?? '', ENT_QUOTES));
+                $text = prefixInternalLinks(sanitizeInlineHtml($data['text'] ?? ''));
                 $parts[] = '<p>' . $text . '</p>';
                 break;
 
             case 'header':
                 $level = isset($data['level']) ? (int)$data['level'] : 2;
                 if ($level < 1 || $level > 6) $level = 2;
-                $text = prefixInternalLinks(htmlspecialchars_decode($data['text'] ?? '', ENT_QUOTES));
+                $text = prefixInternalLinks(sanitizeInlineHtml($data['text'] ?? ''));
                 $anchor = generateAnchor($text);
                 $parts[] = '<h' . $level . ' id="' . $anchor . '">' . $text . '</h' . $level . '>';
                 break;
@@ -179,8 +236,8 @@ function parseBlocksToHtml(array $blocks, string $contextPath = '/', ?array $mai
                     $html = '<' . $tag . '>';
                     foreach ($items as $item) {
                         $itemText = is_array($item)
-                            ? prefixInternalLinks(htmlspecialchars_decode($item['content'] ?? '', ENT_QUOTES))
-                            : prefixInternalLinks(htmlspecialchars_decode($item ?? '', ENT_QUOTES));
+                            ? prefixInternalLinks(sanitizeInlineHtml($item['content'] ?? ''))
+                            : prefixInternalLinks(sanitizeInlineHtml($item ?? ''));
 
                         if ($isChecklist && is_array($item)) {
                             $checked = !empty($item['meta']['checked']) ? ' checked disabled' : ' disabled';
@@ -229,7 +286,7 @@ function parseBlocksToHtml(array $blocks, string $contextPath = '/', ?array $mai
                     $tag = ($withHeadings && $i === 0) ? 'th' : 'td';
                     $cells = [];
                     foreach ($row as $cell) {
-                        $cellText = htmlspecialchars_decode($cell ?? '', ENT_QUOTES);
+                        $cellText = sanitizeInlineHtml($cell ?? '');
                         $cells[] = '    <' . $tag . '>' . $cellText . '</' . $tag . '>';
                     }
                     $tableParts[] = '  <tr>' . PHP_EOL . implode(PHP_EOL, $cells) . PHP_EOL . '  </tr>';
@@ -259,8 +316,8 @@ function parseBlocksToHtml(array $blocks, string $contextPath = '/', ?array $mai
 
             case 'callout':
                 $style    = htmlspecialchars($data['style'] ?? $data['type'] ?? 'info', ENT_QUOTES);
-                $header   = htmlspecialchars_decode($data['header'] ?? '', ENT_QUOTES);
-                $text     = prefixInternalLinks(htmlspecialchars_decode($data['text'] ?? $data['message'] ?? '', ENT_QUOTES));
+                $header   = sanitizeInlineHtml($data['header'] ?? '');
+                $text     = prefixInternalLinks(sanitizeInlineHtml($data['text'] ?? $data['message'] ?? ''));
                 $showIcon = $data['showIcon'] ?? true;
                 $iconName = htmlspecialchars($data['icon'] ?? '', ENT_QUOTES);
 
