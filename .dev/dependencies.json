@@ -11,7 +11,6 @@
     "@editorjs/list": "latest",
     "@editorjs/delimiter": "latest",
     "@editorjs/table": "latest",
-    "@editorjs/inline-code": "latest",
     "@editorjs/underline": "latest",
     "@editorjs/marker": "latest",
     "@editorjs/link-autocomplete": "latest",

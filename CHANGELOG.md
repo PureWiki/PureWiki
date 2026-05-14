@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Fixed an issue where text between angle brackets `< >` was incorrectly stripped from the rendered output by introducing a custom `sanitizeInlineHtml` function
+- Fixed a problem in the used Editor.js Inline Code Tool where applying inline code would fail if another code tag already existed in the same block
+
+### Added
+- Added custom `editor-inline-code.js` to fix the selection problem
 
 ## [0.2.0-alpha.8] - 2026-05-11
 

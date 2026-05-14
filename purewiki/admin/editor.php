@@ -138,7 +138,6 @@ require_once __DIR__ . '/layout_head.php';
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/delimiter@latest"></script>
     <script src="<?php echo BASE_PATH; ?>/purewiki/editorPlugins/editor-raw.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/table@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/inline-code@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/underline@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/marker@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/link-autocomplete@latest"></script>
@@ -160,6 +159,7 @@ require_once __DIR__ . '/layout_head.php';
     <script src="<?php echo BASE_PATH; ?>/purewiki/editorPlugins/editor-snippet.js"></script>
     <script src="<?php echo BASE_PATH; ?>/purewiki/editorPlugins/editor-grid.js"></script>
     <script src="<?php echo BASE_PATH; ?>/purewiki/editorPlugins/editor-block.js"></script>
+    <script src="<?php echo BASE_PATH; ?>/purewiki/editorPlugins/editor-inline-code.js"></script>
 
 <?php if (class_exists('ExtensionLoader')):
     foreach (ExtensionLoader::getAll() as $extId):
