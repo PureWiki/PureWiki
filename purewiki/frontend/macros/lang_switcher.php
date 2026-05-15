@@ -11,7 +11,7 @@
  */
 
 if (!function_exists('pw_render_lang_switcher')) {
-    function pw_render_lang_switcher($contextPath) {
+    function pw_render_lang_switcher($contextPath, $style = 'list') {
         $config = getGlobalConfig();
         if (empty($config['i18n_enabled'])) return '';
 
@@ -46,25 +46,45 @@ if (!function_exists('pw_render_lang_switcher')) {
         if (count($finalLangs) <= 1) return '';
 
         $baseUrl = rtrim(BASE_PATH, '/');
-        $html = '<nav class="pw-lang-switcher">';
         
-        foreach ($finalLangs as $l) {
-            $isActive = ($lang === $l);
-            $label = $l === '' ? strtoupper($default) : strtoupper($l);
-            
-            $href = $baseUrl;
-            if ($l !== '') $href .= '/' . $l;
-            if ($pagePath !== '' && $pagePath !== '/') {
-                $href .= '/' . ltrim($pagePath, '/');
+        if ($style === 'dropdown') {
+            $html = '<nav class="pw-lang-switcher dropdown">';
+            $html .= '<select id="pw-lang-select" name="pw-lang-select" onchange="window.location.href=this.value" class="pw-lang-select" aria-label="Select Language">';
+            foreach ($finalLangs as $l) {
+                $isActive = ($lang === $l);
+                $label = $l === '' ? strtoupper($default) : strtoupper($l);
+                
+                $href = $baseUrl;
+                if ($l !== '') $href .= '/' . $l;
+                if ($pagePath !== '' && $pagePath !== '/') {
+                    $href .= '/' . ltrim($pagePath, '/');
+                }
+                if ($href === '') $href = '/';
+                
+                $html .= '<option value="' . htmlspecialchars($href) . '"' . ($isActive ? ' selected' : '') . '>' . htmlspecialchars($label) . '</option>';
             }
-            if ($href === '') $href = '/';
-            
-            $html .= '<a href="' . htmlspecialchars($href) . '" class="' . ($isActive ? 'active' : '') . '">' . htmlspecialchars($label) . '</a>';
+            $html .= '</select>';
+            $html .= '</nav>';
+        } else {
+            $html = '<nav class="pw-lang-switcher">';
+            foreach ($finalLangs as $l) {
+                $isActive = ($lang === $l);
+                $label = $l === '' ? strtoupper($default) : strtoupper($l);
+                
+                $href = $baseUrl;
+                if ($l !== '') $href .= '/' . $l;
+                if ($pagePath !== '' && $pagePath !== '/') {
+                    $href .= '/' . ltrim($pagePath, '/');
+                }
+                if ($href === '') $href = '/';
+                
+                $html .= '<a href="' . htmlspecialchars($href) . '" class="' . ($isActive ? 'active' : '') . '">' . htmlspecialchars($label) . '</a>';
+            }
+            $html .= '</nav>';
         }
         
-        $html .= '</nav>';
         return $html;
     }
 }
 
-echo pw_render_lang_switcher($contextPath ?? '');
+echo pw_render_lang_switcher($contextPath ?? '', $macroParam ?? 'list');

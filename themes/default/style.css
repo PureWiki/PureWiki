@@ -1042,3 +1042,8 @@ html[data-theme="dark"] .pw-theme-icon-dark {
     color: var(--pico-primary-inverse);
     border-color: var(--pico-primary);
 }
+
+.pw-lang-select {
+    padding: 0.25rem 0.5rem;
+    margin-bottom: 0;
+}

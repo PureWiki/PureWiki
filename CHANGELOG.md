@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Added custom `editor-inline-code.js` to fix the selection problem
+- Added dropdown style to the language switcher (`{{ macro:lang_switcher | dropdown }}`)
 
 ## [0.2.0-alpha.8] - 2026-05-11
 
