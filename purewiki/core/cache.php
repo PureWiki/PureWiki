@@ -85,13 +85,22 @@ function clearUpdateCache(): void {
 }
 
 /**
- * Invalidates the cached page tree file so it will be rebuilt on the next request.
+ * Invalidates the cached page tree file for every language so it will be rebuilt on the next request.
  */
 function invalidateTreeCache(): void {
-    $cacheFile = getCacheDir() . '/pagetree.json';
-    if (file_exists($cacheFile)) {
-        if (!unlink($cacheFile)) {
-            throw new PureWikiException("Failed to delete pagetree cache file.");
+    $cacheDir = getCacheDir();
+
+    // Delete all pagetree cache files
+    foreach (glob($cacheDir . '/pagetree*.json') ?: [] as $file) {
+        if (is_file($file) && !unlink($file)) {
+            throw new PureWikiException("Failed to delete pagetree cache file: " . basename($file));
+        }
+    }
+
+    // Delete all navlinks cache files
+    foreach (glob($cacheDir . '/navlinks*.json') ?: [] as $file) {
+        if (is_file($file) && !unlink($file)) {
+            throw new PureWikiException("Failed to delete navlinks cache file: " . basename($file));
         }
     }
     invalidateSnippetCache();

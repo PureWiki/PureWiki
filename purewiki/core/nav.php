@@ -17,25 +17,36 @@ require_once __DIR__ . '/cache.php';
 /**
  * Rebuilds the nav links cache using the cached page tree index.
  * Writes the result to cache/navlinks.json.
+ * 
+ * @param string $lang The language code to use.
  */
-function rebuildNavLinksCache(): void {
+function rebuildNavLinksCache(string $lang = ''): void {
     require_once __DIR__ . '/tree.php';
+    if (!function_exists('getPageFilename')) {
+        require_once __DIR__ . '/i18n_pages.php';
+    }
+    
     $pagesDir = getPageDir();
 
     // Rely on the pre-built page tree here instead of rescanning
     // the filesystem to avoid an N+1 performance cliff when checking `page.json`.
-    $tree = getCachedPagesTree($pagesDir);
+    $tree = getCachedPagesTree($pagesDir, '', $lang);
 
     $links = [];
-    _extractNavLinksFromTree($tree, $links);
+    _extractNavLinksFromTree($tree, $links, $lang);
 
     // Also check the root Startpage, as it's not a node in the tree structure
-    $rootJsonPath = $pagesDir . '/page.json';
+    $jsonFile = getPageFilename($lang, false);
+    $rootJsonPath = $pagesDir . '/' . $jsonFile;
+    if ($lang !== '' && !file_exists($rootJsonPath)) {
+        $rootJsonPath = $pagesDir . '/page.json';
+    }
+
     if (file_exists($rootJsonPath)) {
         $rootData = readJson($rootJsonPath, null);
         if (is_array($rootData) && !empty($rootData['Settings']['include_in_navbar'])) {
             $links[] = [
-                'path'      => '/',
+                'path'      => $lang !== '' ? '/' . $lang . '/' : '/',
                 'title'     => $rootData['pagetitle'] ?? 'Startpage',
                 'link_text' => $rootData['Settings']['navbar_link_text'] ?? '',
                 'order'     => $rootData['Order'] ?? 0
@@ -62,34 +73,43 @@ function rebuildNavLinksCache(): void {
         require_once __DIR__ . '/fs.php';
         createDirectory($cacheDir);
     }
-    writeJsonFile($cacheDir . '/navlinks.json', $clean);
+
+    $cacheFilename = $lang !== '' ? 'navlinks.' . $lang . '.json' : 'navlinks.json';
+    writeJsonFile($cacheDir . '/' . $cacheFilename, $clean);
 }
 
 /**
  * Recursively collects pages with include_in_navbar enabled from the cached tree.
  */
-function _extractNavLinksFromTree(array $tree, array &$links): void {
+function _extractNavLinksFromTree(array $tree, array &$links, string $lang = ''): void {
     foreach ($tree as $node) {
         if (!empty($node['include_in_navbar'])) {
+            $pathPrefix = $lang !== '' ? '/' . $lang : '';
             $links[] = [
-                'path'      => '/' . ltrim($node['path'], '/'),
+                'path'      => rtrim($pathPrefix . '/' . ltrim($node['path'], '/'), '/'),
                 'title'     => $node['name'],
                 'link_text' => $node['navbar_link_text'] ?? '',
                 'order'     => $node['order'] ?? 999
             ];
         }
         if (!empty($node['children'])) {
-            _extractNavLinksFromTree($node['children'], $links);
+            _extractNavLinksFromTree($node['children'], $links, $lang);
         }
     }
 }
 
 /**
  * Returns the nav links array from cache, or rebuilds if missing.
+ * @param string $lang The language code to use.
  * @return array List of nav link entries [path, title, link_text].
  */
-function getNavLinks(): array {
-    $cacheFile = getCacheDir() . '/navlinks.json';
+function getNavLinks(string $lang = ''): array {
+    if ($lang === '' && defined('CURRENT_LANG')) {
+        $lang = CURRENT_LANG;
+    }
+
+    $cacheFilename = $lang !== '' ? 'navlinks.' . $lang . '.json' : 'navlinks.json';
+    $cacheFile = getCacheDir() . '/' . $cacheFilename;
 
     if (file_exists($cacheFile)) {
         $data = readJson($cacheFile, null);
@@ -97,7 +117,7 @@ function getNavLinks(): array {
     }
 
     // Rebuild and return
-    rebuildNavLinksCache();
+    rebuildNavLinksCache($lang);
     if (file_exists($cacheFile)) {
         return readJson($cacheFile, []);
     }

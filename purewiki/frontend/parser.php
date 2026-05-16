@@ -25,15 +25,18 @@ function renderMarkdown(string $text): string {
     return $pd->text($text);
 }
 
-/** Adds BASE_PATH to internal href elements in an HTML string. */
+/** Adds BASE_PATH and CURRENT_LANG to internal href elements */
 function prefixInternalLinks(string $html): string {
-    if (BASE_PATH === '') {
+    $langPrefix = (defined('CURRENT_LANG') && CURRENT_LANG !== '') ? '/' . CURRENT_LANG : '';
+    $prefix = BASE_PATH . $langPrefix;
+
+    if ($prefix === '') {
         return $html;
     }
     return preg_replace_callback(
         '/\bhref=(["\'])(\/)(?!\/)([^"\']*)\1/i',
-        function ($m) {
-            return 'href=' . $m[1] . BASE_PATH . '/' . $m[3] . $m[1];
+        function ($m) use ($prefix) {
+            return 'href=' . $m[1] . $prefix . '/' . $m[3] . $m[1];
         },
         $html
     );
@@ -400,7 +403,8 @@ function parseBlocksToHtml(array $blocks, string $contextPath = '/', ?array $mai
 
                 if (file_exists($targetDir) && is_dir($targetDir)) {
                     if (function_exists('getCachedPagesTree')) {
-                        $tree = getCachedPagesTree($targetDir, trim($startPath, '/\\'));
+                        $pageLang = defined('CURRENT_LANG') ? CURRENT_LANG : '';
+                        $tree = getCachedPagesTree($targetDir, trim($startPath, '/\\'), $pageLang);
                         if (function_exists('buildNavTree')) {
                             $parts[] = buildNavTree($tree, $contextPath, $boldHeadings);
                         }
@@ -559,7 +563,16 @@ function renderPageInclude(string $path, string $contextPath): string {
             $targetFile = $defaultPath;
         }
     } else {
-        $candidate = realpath($pagesDir . $path . '/page.json');
+        $currentLang = defined('CURRENT_LANG') ? CURRENT_LANG : '';
+        if ($currentLang !== '' && function_exists('getPageFilename')) {
+            // Try the localized file first, the fall back to default
+            $candidate = realpath($pagesDir . $path . '/' . getPageFilename($currentLang));
+            if (!$candidate || !str_starts_with($candidate, $pagesDir)) {
+                $candidate = realpath($pagesDir . $path . '/page.json');
+            }
+        } else {
+            $candidate = realpath($pagesDir . $path . '/page.json');
+        }
         // Must be inside pagesDir
         if ($candidate && str_starts_with($candidate, $pagesDir)) {
             $targetFile = $candidate;
@@ -602,7 +615,16 @@ function renderSnippet(string $snippetName, string $contextPath): string {
 
     // Resolve full file path
     $pagesDir = getPageDir();
-    $targetFile = realpath($pagesDir . '/_snippets/' . $snippetName . '/page.json');
+    $currentLang = defined('CURRENT_LANG') ? CURRENT_LANG : '';
+    if ($currentLang !== '' && function_exists('getPageFilename')) {
+        $targetFile = realpath($pagesDir . '/_snippets/' . $snippetName . '/' . getPageFilename($currentLang));
+        // Fall back to default if localized snippet does not exist
+        if (!$targetFile || !str_starts_with($targetFile, $pagesDir)) {
+            $targetFile = realpath($pagesDir . '/_snippets/' . $snippetName . '/page.json');
+        }
+    } else {
+        $targetFile = realpath($pagesDir . '/_snippets/' . $snippetName . '/page.json');
+    }
 
     $html = '';
     // Must be inside pagesDir

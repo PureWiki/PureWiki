@@ -15,6 +15,15 @@ defined('PUREWIKI') || die('Direct access denied.');
 // $contextPath is available via extract() in renderer.php
 $path = $contextPath ?? '/';
 $parts = array_filter(explode('/', $path));
+if (!function_exists('getCachedPagesTree')) {
+    require_once __DIR__ . '/../../core/tree.php';
+}
+require_once __DIR__ . '/../../core/fs.php';
+require_once __DIR__ . '/../../core/misc.php';
+
+$lang     = defined('CURRENT_LANG') ? CURRENT_LANG : '';
+$pagesDir = getPageDir();
+$langPrefix = $lang !== '' ? '/' . $lang : '';
 
 echo '<nav aria-label="breadcrumb">';
 echo '<ul>';
@@ -26,19 +35,26 @@ if (isset($config) && isset($config['breadcrumbs_show_start_page'])) {
 }
 
 if ($showHome) {
-    echo '<li><a href="' . BASE_PATH . '/">Home</a></li>';
+    $homeLabel = 'Home';
+    if ($lang !== '' && function_exists('getPageFilename')) {
+        $homeLangFile    = $pagesDir . '/' . getPageFilename($lang);
+        $homeDefaultFile = $pagesDir . '/page.json';
+        $homeData = null;
+        if (file_exists($homeLangFile)) {
+            $homeData = readJson($homeLangFile, null);
+        } elseif (file_exists($homeDefaultFile)) {
+            $homeData = readJson($homeDefaultFile, null);
+        }
+        if (!empty($homeData['pagetitle'])) {
+            $homeLabel = $homeData['pagetitle'];
+        }
+    }
+    echo '<li><a href="' . htmlspecialchars(BASE_PATH . $langPrefix . '/') . '">' . htmlspecialchars($homeLabel) . '</a></li>';
 }
 
 $currentUrl = '';
 
-if (!function_exists('getCachedPagesTree')) {
-    require_once __DIR__ . '/../../core/tree.php';
-}
-require_once __DIR__ . '/../../core/fs.php';
-require_once __DIR__ . '/../../core/misc.php';
-
-$pagesDir = getPageDir();
-$tree = getCachedPagesTree($pagesDir);
+$tree = getCachedPagesTree($pagesDir, '', $lang);
 $currentLevel = $tree;
 
 foreach ($parts as $part) {
@@ -63,7 +79,7 @@ foreach ($parts as $part) {
         $currentLevel = [];
     }
 
-    echo '<li><a href="' . htmlspecialchars(BASE_PATH . $currentUrl) . '">' . htmlspecialchars($title) . '</a></li>';
+    echo '<li><a href="' . htmlspecialchars(BASE_PATH . $langPrefix . $currentUrl) . '">' . htmlspecialchars($title) . '</a></li>';
 }
 
 echo '</ul>';

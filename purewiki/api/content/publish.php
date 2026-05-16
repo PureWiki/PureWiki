@@ -70,7 +70,14 @@ if ($targetDir && isPathInDir($targetDir, $pagesDir) && is_dir($targetDir)) {
             // page tree (without draft flags) is used for the navbar.
             invalidateTreeCache();
             invalidateSearchIndex();
-            rebuildNavLinksCache();
+
+            // Rebuild nav links for all configured languages
+            rebuildNavLinksCache(''); // default language
+            $config = getGlobalConfig();
+            // rebuild nav links for all configured languages
+            foreach ($config['i18n_supported_langs'] ?? [] as $supportedLang) {
+                rebuildNavLinksCache($supportedLang);
+            }
 
             $response['success'] = true;
             $response['message'] = 'Page published successfully.';

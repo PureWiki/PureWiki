@@ -16,7 +16,11 @@ require_once __DIR__ . '/cache.php';
 require_once __DIR__ . '/json.php';
 
 /** Builds a hierarchical tree of the pages directory. */
-function getPagesTree($dir, $basePath = '') {
+function getPagesTree($dir, $basePath = '', $lang = '') {
+    if (!function_exists('getPageFilename')) {
+        require_once __DIR__ . '/i18n_pages.php';
+    }
+
     $tree = [];
     if (!is_dir($dir)) return $tree;
 
@@ -36,9 +40,20 @@ function getPagesTree($dir, $basePath = '') {
             $includeInNavbar = false;
             $navbarLinkText = '';
 
-            $jsonPath = $path . DIRECTORY_SEPARATOR . 'page.json';
-            $draftPath = $path . DIRECTORY_SEPARATOR . 'page.draft.json';
+            $jsonFile = getPageFilename($lang, false);
+            $draftJsonFile = getPageFilename($lang, true);
+
+            $jsonPath = $path . DIRECTORY_SEPARATOR . $jsonFile;
+            $draftPath = $path . DIRECTORY_SEPARATOR . $draftJsonFile;
             
+            // Fallback to default if translated file does not exist
+            if ($lang !== '' && !file_exists($jsonPath) && !file_exists($draftPath)) {
+                $jsonFile = 'page.json';
+                $draftJsonFile = 'page.draft.json';
+                $jsonPath = $path . DIRECTORY_SEPARATOR . $jsonFile;
+                $draftPath = $path . DIRECTORY_SEPARATOR . $draftJsonFile;
+            }
+
             // Prioritize page.json, then page.draft.json
             $data = null;
             if (file_exists($jsonPath)) {
@@ -79,7 +94,7 @@ function getPagesTree($dir, $basePath = '') {
                 'hide_in_treeview' => $hideInTreeview,
                 'include_in_navbar' => $includeInNavbar,
                 'navbar_link_text' => $navbarLinkText,
-                'children' => getPagesTree($path, $relativePath)
+                'children' => getPagesTree($path, $relativePath, $lang)
             ];
             $tree[] = $node;
         }
@@ -104,10 +119,12 @@ function getPagesTree($dir, $basePath = '') {
  *
  * @param string $dir The pages directory path to scan.
  * @param string $basePath The base path for relative URLs.
+ * @param string $lang The language code to use for building tree.
  * @return array The cached folder structure array.
  */
-function getCachedPagesTree($dir, $basePath = '') {
-    $cacheFile = getCacheDir() . '/pagetree.json';
+function getCachedPagesTree($dir, $basePath = '', $lang = '') {
+    $cacheFilename = $lang !== '' ? 'pagetree.' . $lang . '.json' : 'pagetree.json';
+    $cacheFile = getCacheDir() . '/' . $cacheFilename;
     $tree = null;
 
     if (file_exists($cacheFile)) {
@@ -120,7 +137,7 @@ function getCachedPagesTree($dir, $basePath = '') {
     if ($tree === null) {
         // Cache miss — rebuild from filesystem (full tree)
         $rootDir = getPageDir();
-        $tree = stripDraftInfo(getPagesTree($rootDir, ''));
+        $tree = stripDraftInfo(getPagesTree($rootDir, '', $lang));
 
         // Write cache
         $cacheDir = getCacheDir();
@@ -242,12 +259,16 @@ function buildAdminTree($tree) {
  * @param array $tree The page tree array from getCachedPagesTree()
  * @param string $currentPath The current context path for active states
  * @param bool $boldHeadings add bold styling class to headings
+ * @param string $langPrefix language prefix for links
  * @return string The processed HTML
  */
-function buildNavTree(array $tree, string $currentPath, bool $boldHeadings = false): string {
+function buildNavTree(array $tree, string $currentPath, bool $boldHeadings = false, string $langPrefix = ''): string {
     if (empty($tree)) return '';
     $currentPath = '/' . trim($currentPath, '/');
     if ($currentPath === '/') $currentPath = '';
+    if ($langPrefix === '') {
+        $langPrefix = (defined('CURRENT_LANG') && CURRENT_LANG !== '') ? '/' . CURRENT_LANG : '';
+    }
 
     $html = '';
     $hasItems = false;
@@ -276,10 +297,10 @@ function buildNavTree(array $tree, string $currentPath, bool $boldHeadings = fal
             $html .= '<span class="pw-toggle"></span>';
         }
 
-        $html .= '<a href="' . htmlspecialchars(BASE_PATH . $nodePath) . '">' . htmlspecialchars($node['name']) . '</a>';
+        $html .= '<a href="' . htmlspecialchars(BASE_PATH . $langPrefix . $nodePath) . '">' . htmlspecialchars($node['name']) . '</a>';
 
         if (!empty($node['children'])) {
-            $html .= buildNavTree($node['children'], $currentPath, false);
+            $html .= buildNavTree($node['children'], $currentPath, false, $langPrefix);
         }
 
         $html .= '</li>';
@@ -294,14 +315,15 @@ function buildNavTree(array $tree, string $currentPath, bool $boldHeadings = fal
  * 
  * @param string $currentPath The relative path of the current page.
  * @param bool $includeHigherLevels If true, traverses up hierarchy.
+ * @param string $lang The language code for tree cache.
  * @return array ['prev' => [path, name], 'next' => [path, name]]
  */
-function getPageNeighbors(string $currentPath, bool $includeHigherLevels = false): array {
+function getPageNeighbors(string $currentPath, bool $includeHigherLevels = false, string $lang = ''): array {
     $currentPath = '/' . trim($currentPath, '/');
     if ($currentPath === '/') $currentPath = '';
 
     $rootDir = getPageDir();
-    $tree = getCachedPagesTree($rootDir);
+    $tree = getCachedPagesTree($rootDir, '', $lang);
     $tree = filterHiddenPages($tree);
 
     if ($includeHigherLevels) {

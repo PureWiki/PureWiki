@@ -29,17 +29,21 @@ $includeHigherLevels = ($scope === 'hierarchy');
 require_once __DIR__ . '/../../core/tree.php';
 require_once __DIR__ . '/../../core/i18n.php';
 
-$neighbors = getPageNeighbors($path, $includeHigherLevels);
+$lang = defined('CURRENT_LANG') ? CURRENT_LANG : '';
+$neighbors = getPageNeighbors($path, $includeHigherLevels, $lang);
 
 if (!$neighbors['prev'] && !$neighbors['next']) {
     return;
 }
 
+$langPrefix = $lang !== '' ? '/' . $lang : '';
+
 echo '<nav class="pw-prevnext-nav" aria-label="Page navigation">';
 
 // Previous Button
 if ($neighbors['prev']) {
-    $prevPath = '/' . trim($neighbors['prev']['path'], '/');
+    $prevPath = rtrim($langPrefix . '/' . trim($neighbors['prev']['path'], '/'), '/');
+    if ($prevPath === '') $prevPath = '/';
     $prevName = $neighbors['prev']['name'];
     echo '<a href="' . htmlspecialchars(BASE_PATH . $prevPath) . '" class="pw-prevnext-btn pw-prev">';
     echo '<div class="pw-prevnext-label"><iconify-icon icon="mdi:chevron-left"></iconify-icon> ' . __('editor.prev') . '</div>';
@@ -52,7 +56,8 @@ if ($neighbors['prev']) {
 
 // Next Button
 if ($neighbors['next']) {
-    $nextPath = '/' . trim($neighbors['next']['path'], '/');
+    $nextPath = rtrim($langPrefix . '/' . trim($neighbors['next']['path'], '/'), '/');
+    if ($nextPath === '') $nextPath = '/';
     $nextName = $neighbors['next']['name'];
     echo '<a href="' . htmlspecialchars(BASE_PATH . $nextPath) . '" class="pw-prevnext-btn pw-next">';
     echo '<div class="pw-prevnext-label">' . __('editor.next') . ' <iconify-icon icon="mdi:chevron-right"></iconify-icon></div>';
