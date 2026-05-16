@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixed language-aware navigation: treeview, prev/next, breadcrumbs, page includes, and snippets now correctly respect the active language
 
+### Added
+- Added `router.php` to support the PHP built-in development server with correct URL rewriting and asset handling
+
 ## [0.2.0-alpha.9] - 2026-05-15
 
 ### Fixed
