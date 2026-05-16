@@ -441,16 +441,27 @@ function resolveVirtualPages(string $html, array $parentPageData, string $contex
             return '';
         }
 
+        $lang = defined('CURRENT_LANG') ? CURRENT_LANG : '';
+        $filename = getPageFilename($lang);
+        $defaultFilename = 'page.json';
+
         // Check for override in /pages/_virtual/
-        $overridePath = $pagesDir . '/_virtual/' . $pageName . '/page.json';
+        $overridePath = $pagesDir . '/_virtual/' . $pageName . '/' . $filename;
+        $overrideFallback = $pagesDir . '/_virtual/' . $pageName . '/' . $defaultFilename;
+        
         // Fallback to system default in /purewiki/data/pages/_virtual/
-        $defaultPath  = getVirtualPagesDir() . '/_virtual/' . $pageName . '/page.json';
+        $defaultPath = getVirtualPagesDir() . '/_virtual/' . $pageName . '/' . $filename;
+        $defaultFallback = getVirtualPagesDir() . '/_virtual/' . $pageName . '/' . $defaultFilename;
 
         $virtualJson = null;
         if (file_exists($overridePath)) {
             $virtualJson = $overridePath;
+        } elseif ($lang !== '' && file_exists($overrideFallback)) {
+            $virtualJson = $overrideFallback;
         } elseif (file_exists($defaultPath)) {
             $virtualJson = $defaultPath;
+        } elseif ($lang !== '' && file_exists($defaultFallback)) {
+            $virtualJson = $defaultFallback;
         }
 
         if ($virtualJson) {
