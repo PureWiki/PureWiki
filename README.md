@@ -14,6 +14,9 @@ PureWiki is a lightweight, high-performance, and file-based wiki system built wi
 
 - [Features](#features)
 - [Installation](#installation)
+  - [Requirements](#requirements)
+  - [Setup Steps](#setup-steps)
+  - [Local Development](#local-development)
 - [Configuration](#configuration)
 - [Usage](#usage)
 - [File Structure](#file-structure)
@@ -60,6 +63,16 @@ PureWiki is designed to be easy to install and run on any standard PHP web-hosti
 3. **Run Setup**: Navigate to your domain in a web browser (e.g., `https://yourdomain.com`). You will be automatically redirected to the setup page.
 4. **Follow the Setup**: The setup page will guide you through creating your first admin account and setting your wiki's basic configuration.
 5. **Login**: Once complete, you will be redirected to the admin dashboard, always reachable at `https://yourdomain.com/dashboard`.
+
+### Local Development
+
+For quick local testing without a full web server (like Apache or Nginx), you can use the built-in PHP development server. Run the following command in the project root:
+
+```bash
+php -S localhost:8000 router.php
+```
+
+The `router.php` script replicates the necessary `.htaccess` rewrite rules and ensures that sub-pages, assets, and language prefixes work correctly.
 
 ## Configuration
 
