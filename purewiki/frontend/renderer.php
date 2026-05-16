@@ -336,7 +336,7 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
         'context_path'      => htmlspecialchars($contextPath),
         'current_year'      => date('Y'),
         'current_theme'     => htmlspecialchars($themeName),
-        'base_url'          => htmlspecialchars(BASE_PATH . '/'),
+        'base_url'          => htmlspecialchars(BASE_PATH . ((defined('CURRENT_LANG') && CURRENT_LANG !== '') ? '/' . CURRENT_LANG . '/' : '/')),
         'theme_url'         => htmlspecialchars($themeUrl),
         'pw_base_path'      => htmlspecialchars(BASE_PATH),
         'show_left_sidebar'  => !($pageData['Settings']['hide_left_sidebar']  ?? false),
