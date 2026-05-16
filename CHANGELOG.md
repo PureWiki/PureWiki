@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed virtual pages (e.g. footer/sidebars) always loading the default language version instead of the active language
 - Fixed `base_url` (logo link) always pointing to the global root instead of the active language start page
 
+### Changed
+- Updated PHPMailer from 7.0.2 to 7.1.0
+
 ## [0.2.0-alpha.10] - 2026-05-16
 
 ### Fixed
