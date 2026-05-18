@@ -103,8 +103,16 @@ if ($action === 'search') {
     if ($isAutocomplete) {
         $items = [];
         foreach ($scored as &$r) {
+            // Search index stores paths with language prefix (like /de/page)
+            // For Autocomplete the prefix must be removed because the parser adds it at render time
+            $hrefPath = $r['path'];
+            if ($lang !== '' && str_starts_with($hrefPath, '/' . $lang . '/')) {
+                $hrefPath = substr($hrefPath, strlen('/' . $lang));
+            } elseif ($lang !== '' && $hrefPath === '/' . $lang) {
+                $hrefPath = '/';
+            }
             $items[] = [
-                'href' => $r['path'],
+                'href' => $hrefPath,
                 'name' => $r['title'],
                 'description' => strip_tags($r['excerpt'])
             ];
