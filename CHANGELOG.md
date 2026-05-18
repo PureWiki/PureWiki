@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Page Settings now support multilingual pages. A language switcher in the header allows switching between different languages
+
 ### Fixed
 - Fixed virtual pages (e.g. footer/sidebars) always loading the default language version instead of the active language
 - Fixed `base_url` (logo link) always pointing to the global root instead of the active language start page

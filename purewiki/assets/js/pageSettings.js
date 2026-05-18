@@ -28,6 +28,7 @@ const pageSettings = [
 ];
 
 let currentPageData = null;
+let currentLang = '';
 
 /** Safely resolves a nested object property via dot-notation path */
 function getNestedObjProp(obj, path) {
@@ -37,7 +38,7 @@ function getNestedObjProp(obj, path) {
 /** Fetches page data from the API and populates all form fields */
 async function loadPageSettings(targetPath) {
     try {
-        const result = await apiCall('get_page', { path: targetPath });
+        const result = await apiCall('get_page', { path: targetPath, lang: currentLang });
 
         if (result && result.success && result.data) {
             currentPageData = result.data;
@@ -105,7 +106,7 @@ async function savePageSettings(targetPath) {
     const btnSave = document.getElementById('pw-btn-save-page-settings');
     if (btnSave) btnSave.disabled = true;
 
-    const params = { path: targetPath };
+    const params = { path: targetPath, lang: currentLang };
 
     for (const field of pageSettings) {
         const el = document.getElementById(field.el);
@@ -140,6 +141,48 @@ async function savePageSettings(targetPath) {
     }
 }
 
+/** Language switcher logic for Page Settings */
+function bindLangSwitcher(targetPath) {
+    const btnLang  = document.getElementById('pw-btn-lang');
+    const langMenu = document.getElementById('pw-lang-menu');
+    const langLabel = document.getElementById('pw-lang-label');
+    const options  = document.querySelectorAll('.pw-lang-option');
+    if (!btnLang || !langMenu) return;
+
+    btnLang.addEventListener('click', (e) => {
+        e.stopPropagation();
+        langMenu.classList.toggle('pw-show');
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!btnLang.contains(e.target) && !langMenu.contains(e.target)) {
+            langMenu.classList.remove('pw-show');
+        }
+    });
+
+    options.forEach(opt => {
+        opt.addEventListener('click', async () => {
+            const newLang = opt.getAttribute('data-lang');
+            if (newLang === currentLang) {
+                langMenu.classList.remove('pw-show');
+                return;
+            }
+
+            currentLang = newLang;
+
+            if (langLabel) {
+                langLabel.setAttribute('data-lang', currentLang);
+                langLabel.textContent = opt.querySelector('span').textContent;
+            }
+
+            langMenu.classList.remove('pw-show');
+
+            // load settings for the new selected language
+            await loadPageSettings(targetPath);
+        });
+    });
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     const btnBack = document.getElementById('pw-btn-back');
     const btnSave = document.getElementById('pw-btn-save-page-settings');
@@ -147,6 +190,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const urlParams    = new URLSearchParams(window.location.search);
     const targetPath   = urlParams.get('path') || '/';
     const fromLocation = urlParams.get('from') || 'dashboard';
+
+    // Initialize currentLang from the label set by PHP
+    const langLabel = document.getElementById('pw-lang-label');
+    if (langLabel) currentLang = langLabel.getAttribute('data-lang') || '';
 
     // Display the current page path in the header
     const pathLabel = document.getElementById('pw-ps-path-label');
@@ -168,11 +215,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (btnBack) {
         btnBack.addEventListener('click', () => {
-            window.location.href = fromLocation === 'editor'
-                ? (window.PW_BASE_PATH || '') + '/dashboard/edit?path=' + encodeURIComponent(targetPath)
-                : (window.PW_BASE_PATH || '') + '/dashboard';
+            if (fromLocation === 'editor') {
+                let url = (window.PW_BASE_PATH || '') + '/dashboard/edit?path=' + encodeURIComponent(targetPath);
+                if (currentLang) url += '&lang=' + encodeURIComponent(currentLang);
+                window.location.href = url;
+            } else {
+                window.location.href = (window.PW_BASE_PATH || '') + '/dashboard';
+            }
         });
     }
 
+    bindLangSwitcher(targetPath);
     await loadPageSettings(targetPath);
 });

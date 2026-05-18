@@ -18,6 +18,7 @@ require_once __DIR__ . '/../core/asset_manager.php';
 require_once __DIR__ . '/../core/misc.php';
 
 $editPath = $_GET['path'] ?? '/';
+$editLang = $_GET['lang'] ?? '';
 $pageTitle = 'PureWiki - ' . __('editor.title');
 $extraCss = [BASE_PATH . '/purewiki/assets/css/editor.css'];
 require_once __DIR__ . '/layout_head.php';
@@ -41,8 +42,14 @@ require_once __DIR__ . '/layout_head.php';
             <div class="pw-lang-switcher pw-history-dropdown" id="pw-lang-switcher-container" style="margin-right: 1rem;">
                 <button id="pw-btn-lang" class="pw-btn" title="<?php echo __('editor.language'); ?>" aria-label="<?php echo __('editor.language'); ?>">
                     <iconify-icon icon="mdi:translate"></iconify-icon>
-                    <span id="pw-lang-label" data-lang="" style="font-weight: 600; min-width: 20px; text-align: center; display: inline-block;">
-                        <?php echo htmlspecialchars($defLang); ?>
+                    <span id="pw-lang-label" data-lang="<?php echo htmlspecialchars($editLang); ?>" style="font-weight: 600; min-width: 20px; text-align: center; display: inline-block;">
+                        <?php
+                        if (empty($editLang)) {
+                            echo 'Default (' . htmlspecialchars($defLang) . ')';
+                        } else {
+                            echo htmlspecialchars($editLang);
+                        }
+                        ?>
                     </span>
                     <iconify-icon icon="mdi:chevron-down" style="margin-left: 2px;"></iconify-icon>
                 </button>

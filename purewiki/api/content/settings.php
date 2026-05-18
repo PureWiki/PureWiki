@@ -13,8 +13,10 @@
 defined('PUREWIKI') || die('Direct access denied.');
 
 require_once __DIR__ . '/../../core/pagesettings.php';
+require_once __DIR__ . '/../../core/i18n_pages.php';
 
-$path    = $_POST['path'] ?? '';
+$path     = $_POST['path'] ?? '';
+$lang     = $_POST['lang'] ?? '';
 $safePath = sanitizePath($path);
 $isVirtual = str_starts_with($safePath, '_virtual/');
 
@@ -27,8 +29,8 @@ if (!isPathInDir($targetDir, $pagesDir)) {
 }
 
 if ($targetDir) {
-    $publishPath = $targetDir . '/page.json';
-    $draftPath   = $targetDir . '/page.draft.json';
+    $publishPath = $targetDir . '/' . getPageFilename($lang, false);
+    $draftPath   = $targetDir . '/' . getPageFilename($lang, true);
 
     if (!is_dir($targetDir)) {
         createDirectory($targetDir);

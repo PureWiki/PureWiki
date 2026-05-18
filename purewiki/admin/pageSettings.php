@@ -15,8 +15,11 @@ require_once __DIR__ . '/../core/i18n.php';
 require_once __DIR__ . '/../core/asset_manager.php';
 require_once __DIR__ . '/../core/misc.php';
 
-$pagePath = $_GET['path'] ?? '/';
+$pagePath  = $_GET['path'] ?? '/';
+$pageLang  = $_GET['lang'] ?? '';
 $pageTitle = __('editor.page_settings_title') . ' - PureWiki';
+$config    = getGlobalConfig();
+$extraCss  = [BASE_PATH . '/purewiki/assets/css/editor.css'];
 require_once __DIR__ . '/layout_head.php';
 ?>
 <body class="pw-dashboard-body">
@@ -26,6 +29,40 @@ require_once __DIR__ . '/layout_head.php';
         <div class="pw-header-left">
              <h1 class="pw-site-title" id="pw-page-settings-title"><?php echo __('editor.page_settings_title'); ?></h1>
              <span id="pw-ps-path-label" style="margin-left: 15px; font-size: 0.9em; opacity: 0.7; font-family: monospace;" data-path="<?php echo htmlspecialchars($pagePath); ?>"><?php echo htmlspecialchars($pagePath); ?></span>
+        </div>
+        <div class="pw-edit-header-center">
+            <?php if (!empty($config['i18n_enabled'])):
+                $defLang   = $config['i18n_default_lang'] ?? 'de';
+                $suppLangs = $config['i18n_supported_langs'] ?? [];
+                // Determine display label for the initially selected language
+                $initLangDisplay = empty($pageLang)
+                    ? 'Default (' . $defLang . ')'
+                    : htmlspecialchars($pageLang);
+            ?>
+            <div class="pw-lang-switcher pw-history-dropdown" id="pw-lang-switcher-container" style="margin-right: 1rem;">
+                <button id="pw-btn-lang" class="pw-btn" title="<?php echo __('editor.language'); ?>" aria-label="<?php echo __('editor.language'); ?>">
+                    <iconify-icon icon="mdi:translate"></iconify-icon>
+                    <span id="pw-lang-label" data-lang="<?php echo htmlspecialchars($pageLang); ?>" style="font-weight: 600; min-width: 20px; text-align: center; display: inline-block;">
+                        <?php echo $initLangDisplay; ?>
+                    </span>
+                    <iconify-icon icon="mdi:chevron-down" style="margin-left: 2px;"></iconify-icon>
+                </button>
+                <div id="pw-lang-menu" class="pw-history-menu" style="min-width: 160px;">
+                    <button class="pw-history-item pw-lang-option" data-lang="">
+                        <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                            <span>Default (<?php echo htmlspecialchars($defLang); ?>)</span>
+                        </div>
+                    </button>
+                    <?php foreach ($suppLangs as $sl): ?>
+                    <button class="pw-history-item pw-lang-option" data-lang="<?php echo htmlspecialchars($sl); ?>">
+                        <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                            <span><?php echo htmlspecialchars($sl); ?></span>
+                        </div>
+                    </button>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+            <?php endif; ?>
         </div>
         <div class="pw-header-right">
             <button id="pw-btn-back" class="pw-btn"><iconify-icon icon="mdi:arrow-left"></iconify-icon> <?php echo __('common.back'); ?></button>

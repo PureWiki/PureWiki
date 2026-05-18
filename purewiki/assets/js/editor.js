@@ -760,7 +760,9 @@ function bindPageSettingsPanel() {
                 await saveCurrentDraft(true);
             }
 
-            window.location.href = (window.PW_BASE_PATH || '') + '/dashboard/page-settings?path=' + encodeURIComponent(path) + '&from=editor';
+            let settingsUrl = (window.PW_BASE_PATH || '') + '/dashboard/page-settings?path=' + encodeURIComponent(path) + '&from=editor';
+            if (currentLang) settingsUrl += '&lang=' + encodeURIComponent(currentLang);
+            window.location.href = settingsUrl;
         });
     }
 }
