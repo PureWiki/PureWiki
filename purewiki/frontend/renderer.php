@@ -294,7 +294,7 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
         $titleFormat
     );
 
-    $assetsFooter = AssetManager::getScripts('footer') . "\n" . $customHtmlFooter . "\n" . $customJsFooter;
+    $assetsFooter = AssetManager::getScripts('footer') . AssetManager::getInlineScripts() . "\n" . $customHtmlFooter . "\n" . $customJsFooter;
 
     if (class_exists('ExtensionLoader')) {
         ob_start();

@@ -18,6 +18,7 @@ class AssetManager {
         'head' => [],
         'footer' => []
     ];
+    private static $inlineScripts = [];
 
     /**
      * Registers a CSS stylesheet.
@@ -37,11 +38,15 @@ class AssetManager {
      * @param string $id Unique identifier for the script.
      * @param string $url URL to the JS file.
      * @param string $location Location for injection ('head' or 'footer').
+     * @param string $attr Optional attributes (like 'defer' or 'async')
      */
-    public static function addScript($id, $url, $location = 'footer') {
+    public static function addScript($id, $url, $location = 'footer', $attr = null) {
         $loc = ($location === 'head') ? 'head' : 'footer';
         if (!isset(self::$scripts[$loc][$id])) {
-            self::$scripts[$loc][$id] = $url;
+            if ($attr === null) {
+                $attr = ($loc === 'footer') ? 'defer' : 'async';
+            }
+            self::$scripts[$loc][$id] = ['url' => $url, 'attr' => $attr];
         }
     }
 
@@ -57,12 +62,34 @@ class AssetManager {
     /** Returns all registered script tags for a specific location */
     public static function getScripts($location) {
         $loc = ($location === 'head') ? 'head' : 'footer';
-        $attr = ($loc === 'footer') ? ' defer' : ' async';
         $html = '';
-        foreach (self::$scripts[$loc] as $url) {
-            $html .= '<script src="' . htmlspecialchars($url) . '"' . $attr . '></script>' . PHP_EOL;
+        foreach (self::$scripts[$loc] as $script) {
+            $attrStr = !empty($script['attr']) ? ' ' . htmlspecialchars($script['attr']) : '';
+            $html .= '<script src="' . htmlspecialchars($script['url']) . '"' . $attrStr . '></script>' . PHP_EOL;
         }
         return $html;
+    }
+
+    /**
+     * Registers an inline JavaScript snippet.
+     * Calls with the same id are ignored.
+     *
+     * @param string $id Unique identifier
+     * @param string $js Raw JavaScript code without <script> tags
+     */
+    public static function addInlineScript(string $id, string $js): void {
+        if (!isset(self::$inlineScripts[$id])) {
+            self::$inlineScripts[$id] = $js;
+        }
+    }
+
+    /**
+     * Returns all registered inline scripts as a single <script> block.
+     * Should be called at the end of the footer
+     */
+    public static function getInlineScripts(): string {
+        if (empty(self::$inlineScripts)) return '';
+        return '<script>' . PHP_EOL . implode(PHP_EOL, self::$inlineScripts) . PHP_EOL . '</script>' . PHP_EOL;
     }
 
     /** Helper to require Prism.js assets */

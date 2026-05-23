@@ -6,7 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Added `addInlineScript` and `getInlineScripts` to `AssetManager` to inject JS snippets into the footer
+
 ### Changed
+- Changed `AssetManager::addScript` to accept an optional `$attr` parameter to control script attributes (like `defer` or `async`)
 - Updated PHPMailer from 7.1.0 to 7.1.1
 
 ### Fixed
