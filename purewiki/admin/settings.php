@@ -202,7 +202,7 @@ require_once __DIR__ . '/layout_head.php';
                         <div id="pw-i18n-lang-list" style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px;"></div>
                         <div style="display: flex; gap: 8px;">
                             <input type="text" id="pw-i18n-new-lang" class="pw-input pw-w-sm" placeholder="e.g. en" maxlength="5">
-                            <button type="button" id="pw-btn-add-lang" class="pw-btn pw-btn-secondary"><iconify-icon icon="mdi:plus"></iconify-icon> <?php echo __('common.add') ?? 'Hinzufügen'; ?></button>
+                            <button type="button" id="pw-btn-add-lang" class="pw-btn pw-btn-secondary"><iconify-icon icon="mdi:plus"></iconify-icon> <?php echo __('common.add'); ?></button>
                         </div>
                     </div>
 
