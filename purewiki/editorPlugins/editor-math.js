@@ -1,7 +1,7 @@
 /**
  * PureWiki - Math Tool (KaTeX)
  *
- * Math editor block for Editor.js with live preview using KaTeX.
+ * Math editor block for Editor.js with live preview using KaTeX
  *
  * @package   PureWiki
  * @author    Oliver Weinhold <oliverweinhold.de>
@@ -37,7 +37,7 @@ class MathTool {
     }
 
     /**
-     * Renders the Math code into the preview element using KaTeX.
+     * Renders the Math code into the preview element using KaTeX
      */
     _renderPreview(code) {
         const preview = this.nodes.preview;
@@ -52,7 +52,7 @@ class MathTool {
 
         try {
             if (typeof katex === 'undefined') {
-                throw new Error("KaTeX is not loaded yet.");
+                throw new Error("KaTeX is not loaded yet, or math block is disabled.");
             }
             const html = katex.renderToString(code, {
                 displayMode: true,
@@ -135,7 +135,7 @@ class MathTool {
         previewLabel.textContent = 'Preview';
         inner.appendChild(previewLabel);
 
-        // Preview container (white background so KaTeX renders correctly)
+        // Preview container
         const preview = document.createElement('div');
         preview.classList.add('pw-math-preview');
         inner.appendChild(preview);
