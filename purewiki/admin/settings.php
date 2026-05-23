@@ -323,8 +323,6 @@ require_once __DIR__ . '/layout_head.php';
                     renderToggle('pw-setting-editor-show-liveMarkdown', __('settings.editor_show_liveMarkdown'));
                     renderToggle('pw-setting-editor-show-code', __('settings.editor_show_code'));
                     renderToggle('pw-setting-editor-show-table', __('settings.editor_show_table'));
-                    renderToggle('pw-setting-editor-show-inlineCode', __('settings.editor_show_inlineCode'));
-                    renderToggle('pw-setting-editor-show-underline', __('settings.editor_show_underline'));
                     renderToggle('pw-setting-editor-show-pagelist', __('settings.editor_show_pagelist'));
                     renderToggle('pw-setting-editor-show-toc', __('settings.editor_show_toc'));
                     renderToggle('pw-setting-editor-show-callout', __('settings.editor_show_callout'));
