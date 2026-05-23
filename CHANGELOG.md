@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Updated PHPMailer from 7.1.0 to 7.1.1
+
 ### Fixed
 - Remove lang prefix from link-autocomplete hrefs to prevent double prefixes
 
