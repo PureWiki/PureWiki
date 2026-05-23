@@ -238,6 +238,7 @@ function initEditorJS(blocksData) {
             block: currentGlobalConfig.editor_show_block !== false ? BlockTool : { class: BlockTool, toolbox: false },
             pageinclude: currentGlobalConfig.editor_show_pageinclude !== false ? PageIncludeTool : { class: PageIncludeTool, toolbox: false },
             snippet: currentGlobalConfig.editor_show_snippet !== false ? SnippetTool : { class: SnippetTool, toolbox: false },
+            math: currentGlobalConfig.editor_show_math !== false ? MathTool : { class: MathTool, toolbox: false },
         };
 
         window.PW_EDITOR_I18N_CONFIG = getEditorI18nConfig();

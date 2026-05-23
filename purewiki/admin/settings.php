@@ -333,6 +333,7 @@ require_once __DIR__ . '/layout_head.php';
                     renderToggle('pw-setting-editor-show-snippet', __('settings.editor_show_snippet'));
                     renderToggle('pw-setting-editor-show-accordion', __('settings.editor_show_accordion'));
                     renderToggle('pw-setting-editor-show-grid', __('settings.editor_show_grid'));
+                    renderToggle('pw-setting-editor-show-math', __('settings.editor_show_math'));
                     ?>
                 </div>
             </div>

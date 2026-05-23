@@ -18,6 +18,7 @@
     "@picocss/pico": "2.x",
     "iconify-icon": "2.1.0",
     "prismjs": "1.29.0",
-    "croppie": "2.6.5"
+    "croppie": "2.6.5",
+    "katex": "latest"
   }
 }

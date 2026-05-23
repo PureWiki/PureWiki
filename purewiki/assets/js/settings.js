@@ -61,6 +61,7 @@ const settingsFields = {
     'editor_show_snippet': 'pw-setting-editor-show-snippet',
     'editor_show_accordion': 'pw-setting-editor-show-accordion',
     'editor_show_grid': 'pw-setting-editor-show-grid',
+    'editor_show_math': 'pw-setting-editor-show-math',
     'dev_debug_output': 'pw-setting-dev-debug-output',
     'allow_prerelease_updates': 'pw-setting-allow-prerelease-updates',
     'mail_enable': 'pw-setting-mail-enable',

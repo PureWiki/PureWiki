@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Added `addInlineScript` and `getInlineScripts` to `AssetManager` to inject JS snippets into the footer
+- Added Math block in the editor with preview to render math formulas using KaTeX
 
 ### Changed
 - Changed `AssetManager::addScript` to accept an optional `$attr` parameter to control script attributes (like `defer` or `async`)

@@ -400,6 +400,7 @@
         "editor_show_snippet": "Snippet-Block anzeigen",
         "editor_show_accordion": "Akkordeon-Block anzeigen",
         "editor_show_grid": "Raster-Block anzeigen",
+        "editor_show_math": "Math-Block anzeigen",
         "dev_options_tab": "Dev Options",
         "dev_options_title": "Dev Options",
         "dev_debug_output": "Debug-Ausgabe in Konsole und Toasts aktivieren",
@@ -641,7 +642,9 @@
         "toc_no_headings": "Keine Überschriften im gewählten Bereich gefunden.",
         "toc_error_extract": "Inhaltsverzeichnis: Überschriften konnten nicht extrahiert werden",
         "toc_md_hint": "Markdown-Überschriften erscheinen möglicherweise nicht in dieser Vorschau.",
-        "hidden_block": "Versteckt"
+        "hidden_block": "Versteckt",
+        "math": "Formel (KaTeX)",
+        "math_placeholder": "KaTeX/Math-Code eingeben..."
     },
     "setup": {
         "page_title": "PureWiki – Setup",

@@ -21,6 +21,12 @@ $editPath = $_GET['path'] ?? '/';
 $editLang = $_GET['lang'] ?? '';
 $pageTitle = 'PureWiki - ' . __('editor.title');
 $extraCss = [BASE_PATH . '/purewiki/assets/css/editor.css'];
+$config = getGlobalConfig();
+
+// Only include KaTeX JS and CSS if Math plugin enabled in config
+if ($config['editor_show_math'] ?? true) {
+    AssetManager::requireKaTeX();
+}
 require_once __DIR__ . '/layout_head.php';
 ?>
 <body class="pw-dashboard-body">
@@ -167,6 +173,7 @@ require_once __DIR__ . '/layout_head.php';
     <script src="<?php echo BASE_PATH; ?>/purewiki/editorPlugins/editor-grid.js"></script>
     <script src="<?php echo BASE_PATH; ?>/purewiki/editorPlugins/editor-block.js"></script>
     <script src="<?php echo BASE_PATH; ?>/purewiki/editorPlugins/editor-inline-code.js"></script>
+    <script src="<?php echo BASE_PATH; ?>/purewiki/editorPlugins/editor-math.js"></script>
 
 <?php if (class_exists('ExtensionLoader')):
     foreach (ExtensionLoader::getAll() as $extId):

@@ -120,6 +120,7 @@
 }
 
 /* Raw HTML & Markdown block (textarea) dark theme */
+.pw-editor-math-textarea,
 .ce-rawtool__textarea,
 .pw-editor-markdown-textarea,
 .pw-editor-code-prism-textarea {
@@ -148,11 +149,13 @@
     padding: 0 !important;
 }
 
+.pw-editor-math-textarea:focus,
 .pw-editor-markdown-textarea:focus {
     border-color: var(--pw-primary) !important;
 }
 
 .pw-editor-markdown-title,
+.pw-editor-math-title,
 .pw-editor-livemd-title,
 .pw-editor-raw-title {
     color: var(--pw-text-muted);
@@ -213,6 +216,43 @@
     margin-top: 8px;
     width: 100%;
     box-sizing: border-box;
+}
+
+/* Math block */
+.pw-editor-math {
+    background: var(--pw-bg-panel);
+    border: 1px solid var(--pw-border);
+    border-radius: 6px;
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.pw-editor-math-sep {
+    border-top: 1px solid var(--pw-border);
+    margin: 4px 0;
+}
+.pw-editor-math-preview-label {
+    font-size: 0.75rem;
+    color: var(--pw-text-muted);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+.pw-math-preview {
+    min-height: 40px;
+    background: var(--pw-bg);
+    color: var(--pw-text);
+    border-radius: 4px;
+    padding: 12px;
+    font-size: 1rem;
+    overflow-x: auto;
+    text-align: center;
+}
+.pw-math-preview--readonly {
+    background: transparent;
+    padding: 0;
+    font-size: 0.9rem;
 }
 
 

@@ -109,4 +109,18 @@ class AssetManager {
         self::addStyle('croppie-css', 'https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.min.css');
         self::addScript('croppie-js', 'https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.min.js', 'footer');
     }
+
+    /** Helper to require KaTeX for Math block rendering */
+    public static function requireKaTeX() {
+        self::addStyle('katex-css', 'https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css');
+        self::addScript('katex-js', 'https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js', 'head', 'defer');
+        self::addInlineScript('katex-init',
+            'document.addEventListener("DOMContentLoaded",function(){' .
+            'document.querySelectorAll(".pw-math-block").forEach(function(el){' .
+            'var s=el.getAttribute("data-math")||"";' .
+            'if(!s.trim()){el.innerHTML="";return;}' .
+            'katex.render(s,el,{displayMode:true,throwOnError:false,output:"html"});' .
+            '});});'
+        );
+    }
 }

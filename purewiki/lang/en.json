@@ -400,6 +400,7 @@
         "editor_show_snippet": "Show Snippet Block",
         "editor_show_accordion": "Show Accordion Block",
         "editor_show_grid": "Show Grid Block",
+        "editor_show_math": "Show Math Block",
         "dev_options_tab": "Dev Options",
         "dev_options_title": "Dev Options",
         "dev_debug_output": "Enable Debug output in Console and Toasts",
@@ -641,7 +642,9 @@
         "toc_no_headings": "No headings found for the selected range.",
         "toc_error_extract": "TOC Plugin: Failed to extract headings",
         "toc_md_hint": "Markdown headings may not appear in this preview.",
-        "hidden_block": "Hidden"
+        "hidden_block": "Hidden",
+        "math": "Math (KaTeX)",
+        "math_placeholder": "Enter KaTeX/Math code..."
     },
     "setup": {
         "page_title": "PureWiki – Setup",

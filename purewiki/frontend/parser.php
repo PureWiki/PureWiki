@@ -508,6 +508,15 @@ function parseBlocksToHtml(array $blocks, string $contextPath = '/', ?array $mai
                 }
                 break;
 
+            case 'math':
+                AssetManager::requireKaTeX();
+                $mathCode = $data['math'] ?? '';
+                $escapedAttr = htmlspecialchars($mathCode, ENT_QUOTES);
+                $parts[] = '<div class="pw-math-block" data-math="' . $escapedAttr . '">'
+                    . '<script type="text/x-math">' . $mathCode . '</script>'
+                    . '</div>';
+                break;
+
             default:
                 break;
         }
