@@ -51,7 +51,12 @@ function injectAdminMenu(string &$html, array $config, string $contextPath) {
             } else {
                 const fd = new FormData();
                 fd.append("action", "logout");
-                await fetch("' . BASE_PATH . '/purewiki/api.php", { method: "POST", body: fd });
+                fd.append("csrf_token", "' . getCsrfToken() . '");
+                await fetch("' . BASE_PATH . '/purewiki/api.php", { 
+                    method: "POST", 
+                    headers: { "X-CSRF-Token": "' . getCsrfToken() . '" },
+                    body: fd 
+                });
             }
             window.location.href = window.PW_BASE_PATH + "/";
         }

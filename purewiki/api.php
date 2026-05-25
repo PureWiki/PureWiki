@@ -204,6 +204,14 @@ if (!in_array($action, $publicActions)) {
         exit;
     }
 
+    // CSRF Token validation
+    $token = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? $_POST['csrf_token'] ?? $_GET['csrf_token'] ?? '';
+    if (!validateCsrfToken($token)) {
+        http_response_code(403);
+        echo json_encode(['success' => false, 'message' => 'CSRF Token invalid.']);
+        exit;
+    }
+
     if (in_array($action, $adminActions) && !hasRole('admin')) {
         http_response_code(403);
         echo json_encode(['success' => false, 'message' => 'Admin role required.']);

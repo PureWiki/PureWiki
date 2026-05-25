@@ -229,7 +229,13 @@ require_once __DIR__ . '/layout_head.php';
                 for (let f of files) formData.append('files[]', f);
                 notify(__('editor.uploading_files', files.length), 'info');
                 try {
-                    const res = await (await fetch(window.PW_BASE_PATH + '/purewiki/api.php', { method: 'POST', body: formData })).json();
+                    const res = await (await fetch(window.PW_BASE_PATH + '/purewiki/api.php', { 
+                        method: 'POST', 
+                        headers: {
+                            'X-CSRF-Token': '<?php echo getCsrfToken(); ?>'
+                        },
+                        body: formData 
+                    })).json();
 
                     if (res.require_confirmation) {
                         const confirmMsg = __('media.file_exists_confirm', res.existing_files.join(', '));

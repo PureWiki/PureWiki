@@ -22,7 +22,16 @@ async function apiCall(action, params = {}) {
     for (const [key, val] of Object.entries(params)) {
         fd.append(key, val);
     }
-    const res = await fetch((window.PW_BASE_PATH || '') + '/purewiki/api.php', { method: 'POST', body: fd });
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+    const headers = {};
+    if (csrfToken) {
+        headers['X-CSRF-Token'] = csrfToken;
+    }
+    const res = await fetch((window.PW_BASE_PATH || '') + '/purewiki/api.php', { 
+        method: 'POST', 
+        headers: headers,
+        body: fd 
+    });
     return res.json();
 }
 

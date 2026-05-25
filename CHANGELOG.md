@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Remove non-functional global settings toggles for inline tools (like `inlineCode`, `underline`) and make them always enabled
 - Remove lang prefix from link-autocomplete hrefs to prevent double prefixes
+- Implement Anti-CSRF tokens for authenticated requests to prevent CSRF attacks
 
 ## [0.2.0-alpha.11] - 2026-05-18
 

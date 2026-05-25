@@ -160,6 +160,11 @@ async function openEditor(pagePath) {
                 const fd = new FormData();
                 fd.append('action', 'release_lock');
                 fd.append('path', pagePath);
+                // get csrf token from meta tag in head
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                if (csrfToken) {
+                    fd.append('csrf_token', csrfToken);
+                }
                 return fd;
             })());
         });
@@ -928,8 +933,19 @@ function openImageSelectionDialog(imageToolInstance) {
         formData.append('action', 'list_media');
         formData.append('path', targetPath);
 
+        // get csrf token from meta tag in head
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        const headers = {};
+        if (csrfToken) {
+            headers['X-CSRF-Token'] = csrfToken;
+        }
+
         try {
-            const res = await fetch((window.PW_BASE_PATH || '') + '/purewiki/api.php', { method: 'POST', body: formData });
+            const res = await fetch((window.PW_BASE_PATH || '') + '/purewiki/api.php', { 
+                method: 'POST', 
+                headers: headers,
+                body: formData 
+            });
             const result = await res.json();
 
             grid.innerHTML = '';
@@ -1005,8 +1021,18 @@ function openImageSelectionDialog(imageToolInstance) {
 
         notify(`Uploading ${files.length} file(s)...`, 'info');
 
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        const headers = {};
+        if (csrfToken) {
+            headers['X-CSRF-Token'] = csrfToken;
+        }
+
         try {
-            const res = await fetch((window.PW_BASE_PATH || '') + '/purewiki/api.php', { method: 'POST', body: formData });
+            const res = await fetch((window.PW_BASE_PATH || '') + '/purewiki/api.php', { 
+                method: 'POST', 
+                headers: headers,
+                body: formData 
+            });
             const result = await res.json();
 
             if (result.require_confirmation) {

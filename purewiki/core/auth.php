@@ -185,3 +185,20 @@ function hasRole(string $requiredRole): bool {
     return ($levels[$currentRole] ?? 0) >= ($levels[$requiredRole] ?? 3);
 }
 
+/** Generate a CSRF token and stores it in the session. */
+function getCsrfToken(): string {
+    startAuth();
+    if (empty($_SESSION['pw_csrf_token'])) {
+        $_SESSION['pw_csrf_token'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['pw_csrf_token'];
+}
+
+/** Validate the CSRF token against the one stored in the session. */
+function validateCsrfToken(string $token): bool {
+    startAuth();
+    if (empty($_SESSION['pw_csrf_token'])) return false;
+    return hash_equals($_SESSION['pw_csrf_token'], $token);
+}
+
+

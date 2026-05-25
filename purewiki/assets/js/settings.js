@@ -881,11 +881,12 @@ function renderBackupList(backups) {
     const rowTpl = document.getElementById('tpl-backup-row');
     tbody.innerHTML = '';
 
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
     backups.forEach(backup => {
         const row = rowTpl.content.cloneNode(true);
         row.querySelector('[data-field="date"]').textContent = backup.date;
         row.querySelector('[data-field="size"]').textContent = backup.size;
-        row.querySelector('.pw-backup-download-link').href = `/purewiki/api.php?action=download_backup&file=${encodeURIComponent(backup.file)}`;
+        row.querySelector('.pw-backup-download-link').href = `/purewiki/api.php?action=download_backup&file=${encodeURIComponent(backup.file)}&csrf_token=${encodeURIComponent(csrfToken || '')}`;
         const deleteBtn = row.querySelector('.pw-backup-delete-btn');
         deleteBtn.setAttribute('data-file', backup.file);
         deleteBtn.addEventListener('click', () => deleteBackupEntry(backup.file, deleteBtn));
