@@ -88,7 +88,7 @@ function listUsers(): array {
     foreach ($users as $username => $data) {
         $result[] = [
             'username'   => $username,
-            'role'       => $data['role'] ?? 'admin',
+            'role'       => $data['role'] ?? 'reader',
             'created_at' => $data['created_at'] ?? ''
         ];
     }
@@ -185,7 +185,7 @@ function loginUser(string $username, string $password): bool|string {
     session_regenerate_id(true);
 
     $_SESSION['pw_user']       = $username;
-    $_SESSION['pw_role']       = $users[$username]['role'] ?? 'admin';
+    $_SESSION['pw_role']       = $users[$username]['role'] ?? 'reader';
     $_SESSION['pw_login_time'] = time();
 
     return true;
@@ -211,7 +211,7 @@ function hasRole(string $requiredRole): bool {
     if (!isLoggedIn()) return false;
 
     $levels = ['admin' => 3, 'editor' => 2, 'reader' => 1];
-    $currentRole = $_SESSION['pw_role'] ?? 'admin';
+    $currentRole = $_SESSION['pw_role'] ?? 'reader';
 
     return ($levels[$currentRole] ?? 0) >= ($levels[$requiredRole] ?? 3);
 }
