@@ -115,6 +115,36 @@ function startAuth(): void {
     }
 }
 
+/** Validates the session user against the users.json to check if user still exist and if role has changed. */
+function validateSessionUser(): bool {
+    $checkInterval = 60; // Interval in seconds before next check for changes in users.json file
+
+    // Use cached result from $_SESSION if still within the interval
+    if (isset($_SESSION['pw_last_user_check']) &&
+        (time() - (int)$_SESSION['pw_last_user_check']) < $checkInterval) {
+        return true;
+    }
+
+    $users    = readUsers();
+    $username = $_SESSION['pw_user'];
+
+    // Check if user was deleted from users.json
+    if (!isset($users[$username])) {
+        logoutUser();
+        return false;
+    }
+
+    // Check if role changed since user logged in
+    if (($users[$username]['role']) !== $_SESSION['pw_role']) {
+        logoutUser();
+        return false;
+    }
+
+    // Update cache timestamp
+    $_SESSION['pw_last_user_check'] = time();
+    return true;
+}
+
 /** Checks for an active, valid authenticated session. */
 function isLoggedIn(): bool {
     startAuth();
@@ -130,7 +160,8 @@ function isLoggedIn(): bool {
         return false;
     }
 
-    return true;
+    // If logged in, check if user still exists and role is the same
+    return validateSessionUser();
 }
 
 function loginUser(string $username, string $password): bool|string {
