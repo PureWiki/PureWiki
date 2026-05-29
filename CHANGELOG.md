@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Improved overall responsive design of the admin dashboard, sidebar and editor for smaller screens and mobile devices.
 - Improved visibility and design of the Editor.js action buttons on mobile.
+- Changed background color of toast notifications to a more visible background color in light mode.
 
 ## [0.2.0-alpha.12] - 2026-05-25
 
