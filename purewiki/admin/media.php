@@ -28,6 +28,7 @@ require_once __DIR__ . '/layout_head.php';
     <!-- Header -->
     <header class="pw-dashboard-header">
         <div class="pw-header-left">
+            <button id="pw-media-sidebar-toggle" class="pw-btn pw-sidebar-toggle-btn" title="Toggle Menu" aria-label="Toggle Menu"><iconify-icon icon="mdi:menu"></iconify-icon></button>
             <h1 class="pw-site-title"><?php echo __('media.title'); ?></h1>
         </div>
         <div class="pw-header-right">
@@ -150,6 +151,7 @@ require_once __DIR__ . '/layout_head.php';
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             initDialogSystem();
+            initAdminSidebarToggle('pw-media-sidebar-toggle');
 
             let currentPath = '__global__';
 

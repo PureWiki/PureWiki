@@ -32,7 +32,7 @@ require_once __DIR__ . '/layout_head.php';
 <body class="pw-dashboard-body">
 
     <!-- Editor Header -->
-    <header class="pw-dashboard-header">
+    <header class="pw-dashboard-header pw-editor-header">
         <div class="pw-edit-header-left">
             <button id="pw-btn-back-to-dash" class="pw-btn" title="<?php echo __('editor.back_to_dashboard'); ?>" aria-label="<?php echo __('editor.back_to_dashboard'); ?>"><iconify-icon icon="mdi:arrow-left"></iconify-icon></button>
             <h2 id="pw-editor-title" class="pw-editor-title" title="Double click to edit" data-path="<?php echo htmlspecialchars($editPath); ?>"><?php echo __('common.loading'); ?></h2>

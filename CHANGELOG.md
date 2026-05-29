@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed raw CSS styles and JavaScript code from `raw` blocks being indexed in search previews by filtering out style/script tags before indexing.
 - Wrapped the SMTP email settings in a form tag and added `autocomplete="username"` and `autocomplete="current-password"` to prevent browser warnings.
 
+### Changed
+- Improved overall responsive design of the admin dashboard, sidebar and editor for smaller screens and mobile devices.
+- Improved visibility and design of the Editor.js action buttons on mobile.
+
 ## [0.2.0-alpha.12] - 2026-05-25
 
 ### Added

@@ -78,6 +78,7 @@ require_once __DIR__ . '/layout_head.php';
     <!-- Header -->
     <header class="pw-dashboard-header">
         <div class="pw-header-left">
+            <button id="pw-settings-sidebar-toggle" class="pw-btn pw-sidebar-toggle-btn" title="Toggle Menu" aria-label="Toggle Menu"><iconify-icon icon="mdi:menu"></iconify-icon></button>
             <h1 class="pw-site-title"><?php echo __('settings.title'); ?></h1>
         </div>
         <div class="pw-header-right">
@@ -604,6 +605,11 @@ require_once __DIR__ . '/layout_head.php';
     <script src="<?php echo BASE_PATH; ?>/purewiki/assets/js/notify.js"></script>
     <script src="<?php echo BASE_PATH; ?>/purewiki/assets/js/settings.js"></script>
     <script src="<?php echo BASE_PATH; ?>/purewiki/assets/js/clear_cache.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            initAdminSidebarToggle('pw-settings-sidebar-toggle');
+        });
+    </script>
 
     <!-- Templates (used by settings.js) -->
     <template id="tpl-user-row">

@@ -657,9 +657,11 @@ body {
         padding: 8px;
         width: 40px;
         height: 40px;
+        gap: 0;
     }
     .pw-edit-header-right .pw-btn iconify-icon {
         font-size: 20px;
+        margin: 0;
     }
 }
 
@@ -1239,6 +1241,35 @@ body {
 .pw-sidebar-toggle-btn {
     display: none;
     margin-right: 15px;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    flex-shrink: 0;
+}
+.pw-sidebar-toggle-btn iconify-icon {
+    font-size: 20px;
+}
+
+/* Sidebar Backdrop on Mobile */
+.pw-sidebar-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    z-index: 999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+}
+.pw-sidebar-backdrop.pw-show {
+    opacity: 1;
+    pointer-events: auto;
 }
 
 @media (max-width: 800px) {
@@ -1247,30 +1278,84 @@ body {
     }
 
     .pw-dashboard-header {
-        height: auto;
+        height: 60px;
         min-height: 60px;
-        flex-direction: column;
-        padding: 10px 20px;
-        align-items: flex-start;
-        gap: 10px;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 15px;
     }
 
     .pw-header-left {
-        width: 100%;
-        justify-content: space-between;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: auto;
     }
 
     .pw-header-right {
-        width: 100%;
+        display: flex;
+        align-items: center;
         gap: 8px;
-        flex-wrap: wrap;
+        width: auto;
     }
 
-    .pw-header-right .pw-btn {
-        flex: 1;
-        font-size: 13px;
-        padding: 6px 12px;
-        min-height: 38px;
+    .pw-dashboard-header .pw-header-right .pw-btn {
+        font-size: 0;
+        padding: 8px;
+        width: 38px;
+        height: 38px;
+        min-height: unset;
+        flex: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0;
+    }
+
+    .pw-dashboard-header .pw-header-right .pw-btn iconify-icon {
+        font-size: 20px;
+        margin: 0;
+    }
+
+    /* Editor header on mobile */
+    .pw-editor-header.pw-dashboard-header {
+        height: auto;
+        min-height: auto;
+        flex-direction: column;
+        align-items: stretch;
+        padding: 12px 15px;
+        gap: 12px;
+    }
+
+    .pw-editor-header .pw-edit-header-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .pw-editor-header .pw-edit-header-left .pw-editor-title {
+        font-size: 1.25rem;
+        word-break: break-word;
+    }
+
+    .pw-editor-header .pw-edit-header-center {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        width: 100%;
+    }
+
+    .pw-editor-header .pw-edit-header-right {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 8px;
+        width: 100%;
     }
 
     .pw-dashboard-container {

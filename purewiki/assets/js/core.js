@@ -909,3 +909,55 @@ function initTreeDragAndDrop() {
         });
     }
 }
+
+/**
+ * Initialize responsive sidebar toggle
+ */
+function initAdminSidebarToggle(btnId) {
+    const btn = document.getElementById(btnId);
+    const sidebar = document.querySelector('.pw-dashboard-sidebar');
+    if (!btn || !sidebar) return;
+
+    // backdrop
+    let backdrop = document.getElementById('pw-sidebar-backdrop');
+    if (!backdrop) {
+        backdrop = document.createElement('div');
+        backdrop.id = 'pw-sidebar-backdrop';
+        backdrop.className = 'pw-sidebar-backdrop';
+        document.body.appendChild(backdrop);
+    }
+
+    const toggleSidebar = (show) => {
+        const shouldShow = show !== undefined ? show : !sidebar.classList.contains('pw-show');
+        sidebar.classList.toggle('pw-show', shouldShow);
+        backdrop.classList.toggle('pw-show', shouldShow);
+    };
+
+    btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleSidebar();
+    });
+
+    backdrop.addEventListener('click', () => {
+        toggleSidebar(false);
+    });
+
+    // Close when clicking outside of the sidebar
+    document.addEventListener('click', (e) => {
+        if (window.innerWidth <= 800) {
+            if (sidebar.classList.contains('pw-show') && !sidebar.contains(e.target) && e.target !== btn) {
+                toggleSidebar(false);
+            }
+        }
+    });
+
+    // Close after selecting a page or tab on mobile
+    const treeLinks = sidebar.querySelectorAll('.pw-tree-item');
+    treeLinks.forEach(link => {
+        link.addEventListener('click', () => {
+            if (window.innerWidth <= 800) {
+                toggleSidebar(false);
+            }
+        });
+    });
+}

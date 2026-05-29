@@ -174,7 +174,7 @@ require_once __DIR__ . '/layout_head.php';
             initDashboardInteractions();
             initTreeDragAndDrop();
             initTreeSearch();
-            initSidebarToggle();
+            initAdminSidebarToggle('pw-dashboard-sidebar-toggle');
 
             const savedPath = sessionStorage.getItem('pw-active-page-path');
             if (savedPath) {
@@ -184,36 +184,6 @@ require_once __DIR__ . '/layout_head.php';
                 }
             }
         });
-
-        function initSidebarToggle() {
-            const btn = document.getElementById('pw-dashboard-sidebar-toggle');
-            const sidebar = document.querySelector('.pw-dashboard-sidebar');
-            if (!btn || !sidebar) return;
-
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                sidebar.classList.toggle('pw-show');
-            });
-
-            // Close sidebar when clicking outside on mobile
-            document.addEventListener('click', (e) => {
-                if (window.innerWidth <= 800) {
-                    if (sidebar.classList.contains('pw-show') && !sidebar.contains(e.target) && e.target !== btn) {
-                        sidebar.classList.remove('pw-show');
-                    }
-                }
-            });
-
-            // Handle sidebar auto-hide after page selection on mobile
-            const treeLinks = document.querySelectorAll('.pw-tree-item');
-            treeLinks.forEach(link => {
-                link.addEventListener('click', () => {
-                    if (window.innerWidth <= 800) {
-                        sidebar.classList.remove('pw-show');
-                    }
-                });
-            });
-        }
 
 
         async function logoutAndRedirect() {

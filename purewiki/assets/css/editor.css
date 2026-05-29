@@ -41,11 +41,19 @@
 .ce-toolbar__plus,
 .ce-toolbar__settings-btn {
     color: var(--pw-text) !important;
+    background-color: var(--pw-bg-panel) !important;
+    border: 1px solid var(--pw-border) !important;
+    border-radius: 4px !important;
+    opacity: 0.75 !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15) !important;
+    transition: opacity 0.15s ease, background-color 0.15s ease !important;
 }
 
 .ce-toolbar__plus:hover,
 .ce-toolbar__settings-btn:hover {
-    background-color: var(--pw-bg-panel) !important;
+    background-color: var(--pw-btn-hover) !important;
+    opacity: 1 !important;
+    border-color: var(--pw-primary) !important;
 }
 
 /* Inline toolbar and popovers */
