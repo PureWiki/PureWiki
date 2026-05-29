@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed Fallback for `pw_role` from `admin` to `reader` to prevent that users without a valid role get admin access.
 - Added missing translation for `lang_available`.
 - Fixed raw CSS styles and JavaScript code from `raw` blocks being indexed in search previews by filtering out style/script tags before indexing.
+- Wrapped the SMTP email settings in a form tag and added `autocomplete="username"` and `autocomplete="current-password"` to prevent browser warnings.
 
 ## [0.2.0-alpha.12] - 2026-05-25
 

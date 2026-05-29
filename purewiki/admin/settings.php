@@ -375,28 +375,30 @@ require_once __DIR__ . '/layout_head.php';
                     renderToggle('pw-setting-mail-enable', __('settings.mail_enable'), __('settings.mail_enable_desc'));
                     ?>
 
-                    <div id="pw-mail-settings-group" style="margin-top: 15px;">
-                        <hr class="pw-separator">
-                        <h3 class="pw-settings-heading"><?php echo __('settings.smtp_configuration'); ?></h3>
+                    <form id="pw-form-mail" onsubmit="return false;">
+                        <div id="pw-mail-settings-group" style="margin-top: 15px;">
+                            <hr class="pw-separator">
+                            <h3 class="pw-settings-heading"><?php echo __('settings.smtp_configuration'); ?></h3>
 
-                        <?php
-                        renderInput('pw-setting-mail-host', __('settings.mail_host'), '', 'text', 'pw-input pw-w-lg', 'smtp.example.com');
-                        renderInput('pw-setting-mail-port', __('settings.mail_port'), '', 'number', 'pw-input pw-w-sm', '587');
-                        renderInput('pw-setting-mail-username', __('settings.mail_username'), '', 'text', 'pw-input pw-w-lg', 'user@example.com');
-                        renderInput('pw-setting-mail-password', __('settings.mail_password'), __('settings.mail_password_desc'), 'password', 'pw-input pw-w-lg', '••••••••');
-                        renderSelect('pw-setting-mail-encryption', __('settings.mail_encryption'), '', ['none' => __('settings.mail_enc_none'), 'tls' => 'TLS', 'ssl' => 'SSL'], 'pw-input pw-w-sm');
-                        renderInput('pw-setting-mail-from-address', __('settings.mail_from_address'), '', 'email', 'pw-input pw-w-lg', 'no-reply@example.com');
-                        renderInput('pw-setting-mail-from-name', __('settings.mail_from_name'), '', 'text', 'pw-input pw-w-lg', 'PureWiki');
-                        ?>
+                            <?php
+                            renderInput('pw-setting-mail-host', __('settings.mail_host'), '', 'text', 'pw-input pw-w-lg', 'smtp.example.com');
+                            renderInput('pw-setting-mail-port', __('settings.mail_port'), '', 'number', 'pw-input pw-w-sm', '587');
+                            renderInput('pw-setting-mail-username', __('settings.mail_username'), '', 'text', 'pw-input pw-w-lg', 'user@example.com', 'autocomplete="username"');
+                            renderInput('pw-setting-mail-password', __('settings.mail_password'), __('settings.mail_password_desc'), 'password', 'pw-input pw-w-lg', '••••••••', 'autocomplete="current-password"');
+                            renderSelect('pw-setting-mail-encryption', __('settings.mail_encryption'), '', ['none' => __('settings.mail_enc_none'), 'tls' => 'TLS', 'ssl' => 'SSL'], 'pw-input pw-w-sm');
+                            renderInput('pw-setting-mail-from-address', __('settings.mail_from_address'), '', 'email', 'pw-input pw-w-lg', 'no-reply@example.com');
+                            renderInput('pw-setting-mail-from-name', __('settings.mail_from_name'), '', 'text', 'pw-input pw-w-lg', 'PureWiki');
+                            ?>
 
-                        <hr class="pw-separator">
-                        <h3 class="pw-settings-heading"><?php echo __('settings.test_mail'); ?></h3>
-                        <p class="pw-hint"><?php echo __('settings.test_mail_desc'); ?></p>
-                        <div style="display: flex; gap: 10px; align-items: center; margin-top: 10px;">
-                            <input type="email" id="pw-setting-test-mail-address" class="pw-input pw-w-lg" placeholder="test@example.com">
-                            <button type="button" id="pw-btn-send-test-mail" class="pw-btn pw-btn-secondary"><iconify-icon icon="mdi:send" class="pw-icon-left"></iconify-icon> <?php echo __('settings.send_test_mail'); ?></button>
+                            <hr class="pw-separator">
+                            <h3 class="pw-settings-heading"><?php echo __('settings.test_mail'); ?></h3>
+                            <p class="pw-hint"><?php echo __('settings.test_mail_desc'); ?></p>
+                            <div style="display: flex; gap: 10px; align-items: center; margin-top: 10px;">
+                                <input type="email" id="pw-setting-test-mail-address" class="pw-input pw-w-lg" placeholder="test@example.com">
+                                <button type="button" id="pw-btn-send-test-mail" class="pw-btn pw-btn-secondary"><iconify-icon icon="mdi:send" class="pw-icon-left"></iconify-icon> <?php echo __('settings.send_test_mail'); ?></button>
+                            </div>
                         </div>
-                    </div>
+                    </form>
                 </div>
             </div>
 
