@@ -244,7 +244,8 @@
         "ui_convert_to": "Convert to",
         "ui_link_autocomplete_placeholder": "Search pages or paste link...",
         "ui_link_autocomplete_not_found": "Nothing found",
-        "ui_link_autocomplete_title": "Link"
+        "ui_link_autocomplete_title": "Link",
+        "lang_available": "Language available"
     },
     "media": {
         "title": "Media Manager",

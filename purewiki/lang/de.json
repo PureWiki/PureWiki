@@ -244,7 +244,8 @@
         "ui_convert_to": "Konvertieren zu",
         "ui_link_autocomplete_placeholder": "Suche nach Seiten oder Links...",
         "ui_link_autocomplete_not_found": "Nichts gefunden",
-        "ui_link_autocomplete_title": "Link"
+        "ui_link_autocomplete_title": "Link",
+        "lang_available": "Sprache verfügbar"
     },
     "media": {
         "title": "Medien-Manager",
