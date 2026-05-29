@@ -255,8 +255,17 @@ function _extractTextFromCode(array $data, array &$parts): void {
  */
 function _extractTextFromRaw(array $data, array &$parts): void {
     if (!empty($data['html'])) {
-        $clean = strip_tags($data['html']);
-        if ($clean !== '') $parts[] = $clean;
+        $html = $data['html'];
+        // Remove style blocks and contents
+        $html = preg_replace('/<style\b[^>]*>(.*?)<\/style>/is', '', $html);
+        // Remove script blocks and contents
+        $html = preg_replace('/<script\b[^>]*>(.*?)<\/script>/is', '', $html);
+        
+        $clean = strip_tags($html);
+        $clean = trim(preg_replace('/\s+/', ' ', $clean));
+        if ($clean !== '') {
+            $parts[] = $clean;
+        }
     }
 }
 

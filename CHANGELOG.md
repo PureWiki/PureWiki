@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `validateSessionUser()` to prevent that deleted or modified users could still access the backend until their session cookie expired.
 - Changed Fallback for `pw_role` from `admin` to `reader` to prevent that users without a valid role get admin access.
 - Added missing translation for `lang_available`.
+- Fixed raw CSS styles and JavaScript code from `raw` blocks being indexed in search previews by filtering out style/script tags before indexing.
 
 ## [0.2.0-alpha.12] - 2026-05-25
 
