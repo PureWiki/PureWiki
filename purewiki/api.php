@@ -179,6 +179,7 @@ if (!isset($apiRoutes[$action])) {
 }
 
 // Enforce Authentication and Role-Based Access Control
+// Editor Actions are all available actions except admin actions
 $publicActions = ['search', 'setup_wiki'];
 $readerActions = ['logout'];
 $adminActions  = [
@@ -197,32 +198,43 @@ $adminActions  = [
 $adminActions = ExtensionLoader::applyFilter('api.admin_actions', $adminActions);
 $publicActions = ExtensionLoader::applyFilter('api.public_actions', $publicActions);
 
+// Check if user is allowed to access the action
+// NOTE: Admin also have editor rights, editor also have reader rights and so on...
+
+// Check if action is allowed for public users (not logged in)
 if (!in_array($action, $publicActions)) {
     if (!isLoggedIn()) {
         http_response_code(401);
         echo json_encode(['success' => false, 'message' => 'Unauthorized']);
-        exit;
+        exit; // Action requires login -> deny access
     }
-
-    // CSRF Token validation
+    
+    // At this point user is logged in, check for CSRF token
     $token = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? $_POST['csrf_token'] ?? $_GET['csrf_token'] ?? '';
     if (!validateCsrfToken($token)) {
         http_response_code(403);
         echo json_encode(['success' => false, 'message' => 'CSRF Token invalid.']);
-        exit;
+        exit; // CSRF token is invalid -> deny access
     }
 
+    // CSRF token is valid, now check if user has the required role for the action
     if (in_array($action, $adminActions) && !hasRole('admin')) {
         http_response_code(403);
         echo json_encode(['success' => false, 'message' => 'Admin role required.']);
-        exit;
+        exit; // Admin role for action required, but user has no admin role -> deny access
     }
 
-    if (!in_array($action, $adminActions) && !in_array($action, $readerActions) && !hasRole('editor')) {
+    // No admin action, so check if it is a reader action or if user has editor role
+    if (!in_array($action, $readerActions) && !hasRole('editor')) {
         http_response_code(403);
         echo json_encode(['success' => false, 'message' => 'Editor role required.']);
-        exit;
+        exit; // Not a reader action and user is not an editor -> deny access
     }
+    // Continue when:
+    // - action doesn't require login
+    // - user is logged in and it's a reader action
+    // - user is logged in, it's not an admin or reader action, but has editor role
+    // - user has admin role
 }
 
 $routeTarget = $apiRoutes[$action];
