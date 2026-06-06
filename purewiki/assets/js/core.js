@@ -151,6 +151,13 @@ function openDialog(options) {
         currentDialogResolve = resolve;
 
         const overlay = document.getElementById('pw-dialog-overlay');
+        
+        // Add custom class if provided
+        overlay.className = 'pw-dialog-overlay';
+        if (options.className) {
+            overlay.classList.add(options.className);
+        }
+
         const titleEl = document.getElementById('pw-dialog-title');
         const textEl = document.getElementById('pw-dialog-text');
         const inputContainer = document.getElementById('pw-dialog-input-container');

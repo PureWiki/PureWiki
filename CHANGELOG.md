@@ -7,7 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Add user roles and permissions help text to the settings page.
+- Added user roles and permissions help text to the settings page.
+- Added a visual diff-viewer that allows comparing historical page revisions with the current live version.
 
 ### Fixed
 - Added translated titles for draft and private page indicators in the treeview.

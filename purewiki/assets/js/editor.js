@@ -524,23 +524,43 @@ async function loadPageHistory() {
             const dateStr = formatPwDate(d, false);
             const timeStr = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
 
-            const btn = document.createElement('button');
-            btn.className = 'pw-history-item';
-            
+            const item = document.createElement('div');
+            item.className = 'pw-history-item';
+
             let authorHtml = '';
             if (v.author) {
                 authorHtml = `<span class="pw-history-author">${__('editor.history_by', v.author)}</span>`;
             }
 
-            btn.innerHTML = `
-                <div class="pw-history-item-meta">
-                    <span class="pw-history-date">${dateStr}</span>
-                    <span class="pw-history-time">${timeStr}</span>
+            item.innerHTML = `
+                <div class="pw-history-item-content">
+                    <div class="pw-history-item-meta">
+                        <span class="pw-history-date">${dateStr}</span>
+                        <span class="pw-history-time">${timeStr}</span>
+                    </div>
+                    ${authorHtml}
                 </div>
-                ${authorHtml}
+                <div class="pw-history-item-actions">
+                    <button class="pw-btn pw-btn-sm pw-history-btn-diff" title="${__('editor.compare_version')}">
+                        <iconify-icon icon="mdi:compare"></iconify-icon>
+                    </button>
+                    <button class="pw-btn pw-btn-sm pw-btn-primary pw-history-btn-restore" title="${__('editor.restore')}">
+                        <iconify-icon icon="mdi:restore"></iconify-icon>
+                    </button>
+                </div>
             `;
-            btn.addEventListener('click', () => restorePageVersion(v.file));
-            menu.appendChild(btn);
+
+            item.querySelector('.pw-history-btn-diff').addEventListener('click', (e) => {
+                e.stopPropagation();
+                comparePageVersion(v.file);
+            });
+
+            item.querySelector('.pw-history-btn-restore').addEventListener('click', (e) => {
+                e.stopPropagation();
+                restorePageVersion(v.file);
+            });
+
+            menu.appendChild(item);
         });
     } else {
         menu.innerHTML = '<div class="pw-history-empty">' + __('editor.no_history') + '</div>';
@@ -575,6 +595,94 @@ async function restorePageVersion(file) {
     } else {
         notify(__('editor.error_restore_version'), 'error');
     }
+}
+
+/**
+ * Compares a old page version with the current live version
+ * @param {string} file filename to compare
+ */
+async function comparePageVersion(file) {
+    const titleEl = document.getElementById('pw-editor-title');
+    const path = titleEl ? titleEl.getAttribute('data-path') : null;
+    if (!path) return;
+
+    const menu = document.getElementById('pw-history-menu');
+    if (menu) menu.classList.remove('pw-show');
+
+    if (hasUnsavedChanges && typeof saveCurrentDraft === 'function') {
+        await saveCurrentDraft(true);
+    }
+
+    const result = await apiSafe('compare_page_version', { path, file, lang: currentLang });
+    if (!result || !result.success) {
+        notify(__('editor.error_loading_page'), 'error');
+        return;
+    }
+
+    const diffData = result.data || [];
+    if (diffData.length === 0) {
+        await openDialog({
+            title: __('editor.diff_title'),
+            text: __('editor.diff_no_changes'),
+            type: 'alert'
+        });
+        return;
+    }
+
+    let diffHtml = '<div class="pw-diff-legend">';
+    diffHtml += `<span class="pw-diff-legend-item"><span class="pw-diff-indicator pw-diff-added-indicator"></span>${__('editor.diff_legend_added')}</span>`;
+    diffHtml += `<span class="pw-diff-legend-item"><span class="pw-diff-indicator pw-diff-deleted-indicator"></span>${__('editor.diff_legend_deleted')}</span>`;
+    diffHtml += '</div>';
+
+    diffHtml += '<div class="pw-diff-container">';
+    diffData.forEach(line => {
+        let className = 'pw-diff-line';
+        let prefix = ' ';
+        if (line.type === 'added') {
+            className += ' pw-diff-added';
+            prefix = '+';
+        } else if (line.type === 'deleted') {
+            className += ' pw-diff-deleted';
+            prefix = '-';
+        } else {
+            className += ' pw-diff-unchanged';
+        }
+        diffHtml += `<div class="${className}"><span class="pw-diff-prefix">${prefix}</span><span class="pw-diff-text">${escapeHtml(line.text)}</span></div>`;
+    });
+    diffHtml += '</div>';
+
+    const wantRestore = await openDialog({
+        title: __('editor.diff_title'),
+        html: diffHtml,
+        type: 'confirm',
+        confirmText: __('editor.restore') || 'Restore',
+        cancelText: __('common.close') || 'Close',
+        className: 'pw-dialog-lg'
+    });
+
+    if (wantRestore) {
+        // Wait for the diff dialog close animation to finish, otherwise the restore dialog will close immediately
+        setTimeout(() => {
+            restorePageVersion(file);
+        }, 300);
+    }
+}
+
+/**
+ * Escapes HTML characters in text lines.
+ * @param {string} text
+ * @returns {string}
+ * 
+ * TODO: Add and use global escape function
+ */
+function escapeHtml(text) {
+    if (typeof text !== 'string') return '';
+    return text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
 }
 
 /** Deletes current draft. */

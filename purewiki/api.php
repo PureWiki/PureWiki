@@ -109,6 +109,7 @@ $apiRoutes = [
     'publish_page' => 'content/publish.php',
     'get_page_history' => 'content/history.php',
     'restore_page_version' => 'content/history.php',
+    'compare_page_version' => 'content/history.php',
     'save_page_settings' => 'content/settings.php',
 
     'list_media' => 'media/media.php',
