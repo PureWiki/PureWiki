@@ -407,6 +407,43 @@ require_once __DIR__ . '/layout_head.php';
             <div id="pw-tab-users" class="pw-settings-tab" style="display: none;">
                 <h2><?php echo __('settings.users_title'); ?></h2>
 
+                <!-- Role Help Text -->
+                <div class="pw-settings-panel">
+                    <p class="pw-settings-subheading">
+                        <iconify-icon icon="mdi:help-circle-outline" style="color: var(--pw-primary); margin-right: 4px; vertical-align: middle;"></iconify-icon>
+                        <?php echo __('settings.users_help_title'); ?>
+                    </p>
+                    <p class="pw-setting-description">
+                        <?php echo __('settings.users_help_intro'); ?>
+                    </p>
+                    <div class="pw-roles-help-grid">
+                        <!-- Administrator -->
+                        <div class="pw-roles-help-card admin">
+                            <strong>
+                                <iconify-icon icon="mdi:shield-account"></iconify-icon>
+                                <?php echo __('settings.users_help_admin_title'); ?>
+                            </strong>
+                            <span><?php echo __('settings.users_help_admin_desc'); ?></span>
+                        </div>
+                        <!-- Editor -->
+                        <div class="pw-roles-help-card editor">
+                            <strong>
+                                <iconify-icon icon="mdi:pencil-box-multiple"></iconify-icon>
+                                <?php echo __('settings.users_help_editor_title'); ?>
+                            </strong>
+                            <span><?php echo __('settings.users_help_editor_desc'); ?></span>
+                        </div>
+                        <!-- Reader -->
+                        <div class="pw-roles-help-card reader">
+                            <strong>
+                                <iconify-icon icon="mdi:eye"></iconify-icon>
+                                <?php echo __('settings.users_help_reader_title'); ?>
+                            </strong>
+                            <span><?php echo __('settings.users_help_reader_desc'); ?></span>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- User List -->
                 <div class="pw-settings-panel" style="gap: 0;">
                     <h3 class="pw-settings-subheading"><?php echo __('settings.users_heading'); ?></h3>

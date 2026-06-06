@@ -1022,7 +1022,7 @@ body {
 
 .pw-settings-subheading {
     margin-top: 0;
-    margin-bottom: 16px;
+    margin-bottom: 0;
     font-size: 1rem;
 }
 
@@ -1437,3 +1437,54 @@ body {
     background-color: var(--pw-danger-hover) !important;
     border-color: var(--pw-danger-hover) !important;
 }
+
+.pw-roles-help-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 15px;
+}
+
+.pw-roles-help-card {
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.pw-roles-help-card strong {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.95rem;
+    color: var(--pw-text);
+}
+
+.pw-roles-help-card span {
+    font-size: 0.85rem;
+    line-height: 1.45;
+    color: var(--pw-text-muted);
+}
+
+.pw-roles-help-card.admin {
+    border-left: 4px solid var(--pw-primary);
+    background: rgba(0, 123, 255, 0.04);
+}
+
+.pw-roles-help-card.admin strong iconify-icon {
+    color: var(--pw-primary);
+}
+
+.pw-roles-help-card.editor {
+    border-left: 4px solid var(--pw-success);
+    background: rgba(40, 167, 69, 0.04);
+}
+
+.pw-roles-help-card.editor strong iconify-icon {
+    color: var(--pw-success);
+}
+
+.pw-roles-help-card.reader {
+    border-left: 4px solid var(--pw-text-muted);
+    background: rgba(108, 117, 125, 0.04);
+}
+
