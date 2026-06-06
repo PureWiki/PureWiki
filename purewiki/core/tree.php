@@ -236,10 +236,10 @@ function buildAdminTree($tree) {
         $html .= '<span class="pw-tree-toggle"></span>';
         $html .= '<span class="pw-tree-label">' . htmlspecialchars($node['name']) . '</span>';
         if (!empty($node['is_private'])) {
-            $html .= '<span class="pw-tree-private-dot" title="Private Page"></span>';
+            $html .= '<span class="pw-tree-private-dot" title="' . htmlspecialchars(__('dashboard.private_page')) . '"></span>';
         }
         if (!empty($node['has_draft'])) {
-            $html .= '<span class="pw-tree-draft-dot" title="Unpublished Draft"></span>';
+            $html .= '<span class="pw-tree-draft-dot" title="' . htmlspecialchars(__('dashboard.unpublished_draft')) . '"></span>';
         }
         $html .= '</div>';
 

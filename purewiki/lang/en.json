@@ -69,6 +69,8 @@
         "path_label": "Path:",
         "draft": "DRAFT",
         "private": "PRIVATE",
+        "unpublished_draft": "Unpublished Draft",
+        "private_page": "Private Page",
         "create_subpage": "Create Sub-Page",
         "enter_title": "Enter the title for the new page:",
         "enter_title_placeholder": "e.g. New Page",

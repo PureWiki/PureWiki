@@ -86,6 +86,8 @@
         "path_label": "Pfad:",
         "draft": "ENTWURF",
         "private": "PRIVAT",
+        "unpublished_draft": "Unveröffentlichter Entwurf",
+        "private_page": "Private Seite",
         "create_subpage": "Unterseite erstellen",
         "enter_title": "Geben Sie den Titel für die neue Seite ein:",
         "enter_title_placeholder": "z.B. Neue Seite",
