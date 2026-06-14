@@ -45,7 +45,7 @@ if (createDirectory($targetPath)) {
         'pagetitle' => $title,
         'DateCreated' => $now,
         'DateModified' => $now,
-        'Description' => '',
+        'description' => '',
         'Author' => $author,
         'Settings' => [
             'Layout' => basename($layout)

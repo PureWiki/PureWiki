@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added user roles and permissions help text to the settings page.
 - Added a visual diff-viewer that allows comparing historical page revisions with the current live version.
 
+### Changed
+- Changed page description JSON key to lowercase `description` (with backwards compatibility fallback for uppercase `Description`).
+
 ### Fixed
 - Added translated titles for draft and private page indicators in the treeview.
 

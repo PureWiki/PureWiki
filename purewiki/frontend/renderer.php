@@ -74,7 +74,7 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
             $rawModified  = $pageData['DateModified'] ?? '';
             $dateCreated  = $rawCreated  ? date('d.m.Y', strtotime($rawCreated))  : '';
             $dateModified = $rawModified ? date('d.m.Y', strtotime($rawModified)) : '';
-            $description  = $pageData['Description'] ?? '';
+            $description  = $pageData['description'] ?? $pageData['Description'] ?? '';
             if (empty($description) && !empty($config['wiki_description'])) {
                 $description = $config['wiki_description'];
             }

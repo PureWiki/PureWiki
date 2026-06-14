@@ -29,6 +29,6 @@
         "showInNavbar": false
     },
     "Author": "System",
-    "Description": "Default 404 error page.",
+    "description": "Default 404 error page.",
     "Order": 0
 }

@@ -538,7 +538,7 @@ function bindSidebarTreeItems(treeItems, mainActions, mainContent, btnAdd, btnDe
                         const d = result.data;
                         const created = d.DateCreated ? new Date(d.DateCreated).toLocaleString() : __('common.na');
                         const modified = d.DateModified ? new Date(d.DateModified).toLocaleString() : __('common.na');
-                        const desc = d.Description || __('common.no_description');
+                        const desc = d.description || d.Description || __('common.no_description');
 
                         const infoTpl = document.getElementById('tpl-page-info');
                         if (infoTpl) {

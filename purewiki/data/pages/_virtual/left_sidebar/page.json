@@ -24,7 +24,7 @@
     "DateCreated": "2026-02-22T12:00:00+00:00",
     "DateModified": "2026-03-18T21:56:52+00:00",
     "Author": "system",
-    "Description": "",
+    "description": "",
     "Settings": {
         "Layout": "page",
         "hide_left_sidebar": false,

@@ -23,7 +23,9 @@ function applyPageSettings(array $data, array $postData): array {
     // Cast and sanitize incoming data immediately
     // Malformed structures here can break the parser when saving to JSON later
     if (isset($postData['description'])) {
-        $data['Description'] = $postData['description'];
+        $data['description'] = $postData['description'];
+        // Remove legacy uppercase Description
+        unset($data['Description']);
     }
     if (isset($postData['is_private'])) {
         $data['isPrivate'] = filter_var($postData['is_private'], FILTER_VALIDATE_BOOLEAN);

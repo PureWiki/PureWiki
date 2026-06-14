@@ -15,7 +15,7 @@
  * An optional 'default' value - used when the field is not set in the page data.
  */
 const pageSettings = [
-    { key: 'description',        el: 'ps-description',        path: 'Description'                   },
+    { key: 'description',        el: 'ps-description',        path: 'description'                   },
     { key: 'tags',               el: 'ps-tags',               path: 'Tags'                          },
     { key: 'layout',             el: 'ps-layout',             path: 'Settings.Layout', default: 'page' },
     { key: 'is_private',         el: 'ps-is-private',         path: 'isPrivate'                     },
@@ -56,6 +56,10 @@ async function loadPageSettings(targetPath) {
         if (!el) continue;
 
         let val = getNestedObjProp(currentPageData, field.path);
+
+        if (field.key === 'description' && val === undefined) {
+            val = getNestedObjProp(currentPageData, 'Description');
+        }
 
         if (val === undefined) {
             val = field.default !== undefined ? field.default : (el.type === 'checkbox' ? false : '');

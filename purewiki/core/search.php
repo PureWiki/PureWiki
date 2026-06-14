@@ -84,7 +84,7 @@ function _collectSearchEntries(string $dir, string $pagesDir, array &$index, arr
                 $index[$lang][] = [
                     'path'        => $urlPath,
                     'title'       => $data['pagetitle'] ?? basename($dir),
-                    'description' => $data['Description'] ?? '',
+                    'description' => $data['description'] ?? $data['Description'] ?? '',
                     'content'     => implode(' ', $textParts)
                 ];
             }

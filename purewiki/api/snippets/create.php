@@ -44,7 +44,7 @@ if ($action === 'create_snippet') {
             'pagetitle' => $title,
             'DateCreated' => $now,
             'DateModified' => $now,
-            'Description' => '',
+            'description' => '',
             'Author' => $author,
             'Settings' => [
                 'Layout' => 'page'
