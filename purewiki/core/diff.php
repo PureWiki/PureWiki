@@ -83,9 +83,23 @@ function blocksToTextLines(array $blocks): array {
             case 'list':
                 $items = $data['items'] ?? [];
                 $style = ($data['style'] ?? 'unordered') === 'ordered' ? '1.' : '-';
-                foreach ($items as $item) {
-                    $lines[] = $style . ' ' . $item;
-                }
+
+                $parseListItems = function ($itemsList, $indentLevel = 0) use (&$parseListItems, &$lines, $style) {
+                    $indent = str_repeat('  ', $indentLevel);
+                    foreach ($itemsList as $item) {
+                        if (is_array($item)) {
+                            $content = $item['content'] ?? '';
+                            $lines[] = $indent . $style . ' ' . $content;
+                            if (!empty($item['items']) && is_array($item['items'])) {
+                                $parseListItems($item['items'], $indentLevel + 1);
+                            }
+                        } else {
+                            $lines[] = $indent . $style . ' ' . $item;
+                        }
+                    }
+                };
+                
+                $parseListItems($items);
                 break;
 
             case 'table':
