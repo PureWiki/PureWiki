@@ -131,6 +131,7 @@
         "page_settings": "Seiteneinstellungen",
         "publish": "Veröffentlichen",
         "page_settings_title": "Seiteneinstellungen",
+        "view_code": "Seiten-Quellcode anzeigen",
         "language": "Sprache",
         "description_label": "Beschreibung",
         "description_hint": "Kurzbeschreibung, verfügbar im Theme über <code>{{ description }}</code>.",

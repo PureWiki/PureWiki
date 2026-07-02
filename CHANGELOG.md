@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Added a "View Page Source" button in the Page Settings title bar to view the raw JSON data of the page.
+
 ### Fixed
 - Fixed array to string conversion error in the visual diff viewer when using nested lists.
 

@@ -187,9 +187,36 @@ function bindLangSwitcher(targetPath) {
     });
 }
 
+/** open the code viewer */
+function showCodeViewer() {
+    if (!currentPageData) {
+        notify(__('common.error'), 'error');
+        return;
+    }
+    const jsonStr = JSON.stringify(currentPageData, null, 2);
+
+    // TODO: Use global escape function if available
+    const escapedJson = jsonStr
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+
+    openDialog({
+        title: __('editor.view_code') || 'View Code',
+        html: `<pre class="pw-code-viewer-pre"><code class="pw-code-viewer-code">${escapedJson}</code></pre>`,
+        className: 'pw-dialog-code-viewer',
+        type: 'alert',
+        confirmText: __('common.close') || 'Close'
+    });
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     const btnBack = document.getElementById('pw-btn-back');
     const btnSave = document.getElementById('pw-btn-save-page-settings');
+    const btnViewCode = document.getElementById('pw-btn-view-code');
+    if (btnViewCode) btnViewCode.addEventListener('click', showCodeViewer);
 
     const urlParams    = new URLSearchParams(window.location.search);
     const targetPath   = urlParams.get('path') || '/';

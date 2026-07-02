@@ -131,6 +131,7 @@
         "page_settings": "Page Settings",
         "publish": "Publish",
         "page_settings_title": "Page Settings",
+        "view_code": "View Page Source",
         "language": "Language",
         "description_label": "Description",
         "description_hint": "Short summary shown in the theme via <code>{{ description }}</code>.",

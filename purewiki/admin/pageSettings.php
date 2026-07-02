@@ -66,6 +66,7 @@ require_once __DIR__ . '/layout_head.php';
         </div>
         <div class="pw-header-right">
             <button id="pw-btn-back" class="pw-btn"><iconify-icon icon="mdi:arrow-left"></iconify-icon> <?php echo __('common.back'); ?></button>
+            <button id="pw-btn-view-code" class="pw-btn"><iconify-icon icon="mdi:code-json"></iconify-icon> <?php echo __('editor.view_code'); ?></button>
             <button id="pw-btn-save-page-settings" class="pw-btn pw-btn-primary"><iconify-icon icon="mdi:content-save"></iconify-icon> <?php echo __('common.save'); ?></button>
         </div>
     </header>

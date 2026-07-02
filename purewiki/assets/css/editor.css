@@ -1340,3 +1340,26 @@ input[type=number]::-webkit-outer-spin-button {
     max-width: 95%;
 }
 
+/* Code Viewer Dialog */
+.pw-dialog-code-viewer .pw-dialog-box {
+    width: 90vw;
+    max-width: 1200px;
+}
+.pw-dialog-code-viewer .pw-code-viewer-pre {
+    background-color: var(--pw-input-bg);
+    color: var(--pw-text);
+    padding: 1rem;
+    border-radius: 4px;
+    max-height: 700px;
+    overflow-y: auto;
+    font-family: 'Courier New', Courier, monospace;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-all;
+    border: 1px solid var(--pw-border);
+}
+.pw-dialog-code-viewer .pw-code-viewer-code {
+    font-family: inherit;
+    color: inherit;
+}
+
