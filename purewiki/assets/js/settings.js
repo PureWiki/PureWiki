@@ -839,16 +839,6 @@ async function addUser(e) {
     }
 }
 
-/** Safely escapes HTML entities string (prevent XSS). */
-function escapeHtml(str) {
-    return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
-}
-
 /** Fetches the backup list and renders it in the table. */
 async function loadBackups() {
     const tbody = document.getElementById('pw-backup-list');
@@ -1079,10 +1069,7 @@ function colorizeDebugLog(text) {
     return text
         .split('\n')
         .map(function (line) {
-            var escaped = line
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;');
+            var escaped = escapeHtml(line);
             if (/\[ERROR\]/.test(line)) return '<span class="pw-log-error">' + escaped + '</span>';
             if (/\[WARN\s*\]/.test(line)) return '<span class="pw-log-warn">' + escaped + '</span>';
             if (/\[INFO\s*\]/.test(line)) return '<span class="pw-log-info">' + escaped + '</span>';

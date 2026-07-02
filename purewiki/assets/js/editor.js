@@ -668,23 +668,6 @@ async function comparePageVersion(file) {
     }
 }
 
-/**
- * Escapes HTML characters in text lines.
- * @param {string} text
- * @returns {string}
- * 
- * TODO: Add and use global escape function
- */
-function escapeHtml(text) {
-    if (typeof text !== 'string') return '';
-    return text
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
-}
-
 /** Deletes current draft. */
 async function deleteDraft() {
     const titleEl = document.getElementById('pw-editor-title');

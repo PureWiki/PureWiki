@@ -195,13 +195,7 @@ function showCodeViewer() {
     }
     const jsonStr = JSON.stringify(currentPageData, null, 2);
 
-    // TODO: Use global escape function if available
-    const escapedJson = jsonStr
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
+    const escapedJson = escapeHtml(jsonStr);
 
     openDialog({
         title: __('editor.view_code') || 'View Code',

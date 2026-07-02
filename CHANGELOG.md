@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixed array to string conversion error in the visual diff viewer when using nested lists.
 
+### Changed
+- Created a global `escapeHtml()` function in `core.js` to get rid of redundant code.
+
 ## [0.2.1] - 2026-06-21
 
 ### Added
