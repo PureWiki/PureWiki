@@ -34,6 +34,7 @@ PureWiki is a lightweight, high-performance, and file-based wiki system built wi
 - **Modern Editor**: Integrated with Editor.js for clean, block-based editing, including custom plugins for Markdown, Grid layouts, Accordions, and more.
 - **Built-in Caching**: Features a static file caching system for fast wiki page access.
 - **Authentication & Roles**: Simple but effective role-based access control.
+- **Comments System**: Built-in comments system supporting per-page configurations, manual approval and a management page.
 - **Drafts & History**: Automatically saves drafts and maintains a full version history of your pages.
 - **Built-in Search**: Fast and simple full-text search capability.
 - **Themes**: Ready-to-use theme, easy to create your own themes.
