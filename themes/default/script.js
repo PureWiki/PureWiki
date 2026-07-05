@@ -258,4 +258,64 @@ document.addEventListener('DOMContentLoaded', () => {
             return div.innerHTML;
         }
     }
+
+    // Comments
+    const commentForm = document.getElementById('pw-comment-form');
+    if (commentForm) {
+        commentForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const submitBtn = document.getElementById('pw-comment-submit');
+            const msgBox = document.getElementById('pw-comment-message');
+            
+            if (submitBtn) submitBtn.disabled = true;
+
+            const formData = new FormData(commentForm);
+            const apiEndpoint = commentForm.getAttribute('data-api-endpoint');
+            const requireApproval = commentForm.getAttribute('data-require-approval') === 'true';
+            const pendingMessage = commentForm.getAttribute('data-pending-message');
+            const successMessage = commentForm.getAttribute('data-success-message');
+
+            try {
+                const response = await fetch(apiEndpoint, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response error');
+                }
+
+                const result = await response.json();
+
+                if (result && result.success) {
+                    msgBox.className = 'pw-comment-message pw-comment-message-success';
+                    msgBox.style.display = 'block';
+                    
+                    if (requireApproval) {
+                        msgBox.textContent = pendingMessage;
+                    } else {
+                        msgBox.textContent = successMessage;
+                        setTimeout(() => window.location.reload(), 1500);
+                    }
+
+                    // Reset form fields
+                    const nameInput = document.getElementById('pw-comment-name');
+                    const emailInput = document.getElementById('pw-comment-email');
+                    const textInput = document.getElementById('pw-comment-text');
+                    if (nameInput) nameInput.value = '';
+                    if (emailInput) emailInput.value = '';
+                    if (textInput) textInput.value = '';
+                } else {
+                    throw new Error(result.message || 'Unknown error');
+                }
+            } catch (error) {
+                msgBox.className = 'pw-comment-message pw-comment-message-error';
+                msgBox.style.display = 'block';
+                msgBox.textContent = error.message || 'An error occurred. Please try again.';
+            } finally {
+                if (submitBtn) submitBtn.disabled = false;
+            }
+        });
+    }
 });

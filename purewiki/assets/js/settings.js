@@ -73,7 +73,9 @@ const settingsFields = {
     'mail_from_name': 'pw-setting-mail-from-name',
     'i18n_enabled':  'pw-setting-i18n-enabled',
     'i18n_default_lang': 'pw-setting-i18n-default-lang',
-    'i18n_supported_langs': 'pw-setting-i18n-supported-langs'
+    'i18n_supported_langs': 'pw-setting-i18n-supported-langs',
+    'comments_enabled': 'pw-setting-comments-enabled',
+    'comments_require_approval': 'pw-setting-comments-require-approval'
 };
 
 /** Loads the current configuration and populates the form fields. */

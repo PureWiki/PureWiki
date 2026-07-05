@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [unreleased]
+
+### Added
+**Comments System**:
+- Added a comment system allowing users to post comments on wiki pages (configurable globally and per-page).
+- Added a global comments moderation panel at `/dashboard/comments`.
+- Added a comments summary card in the dashboard page details view.
+- Created the `{{ macro:comments }}` macro to display approved comments and the submit form in the frontend.
+- Added necessary styles and js to the default theme.
+
 ## [0.2.2] - 2026-07-02
 
 ### Added

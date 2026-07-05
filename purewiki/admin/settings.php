@@ -208,6 +208,13 @@ require_once __DIR__ . '/layout_head.php';
                     </div>
 
                     <hr class="pw-separator">
+                    <h3 class="pw-settings-heading"><?php echo __('comments.title'); ?></h3>
+                    <?php
+                    renderToggle('pw-setting-comments-enabled', __('comments.enable_global'));
+                    renderToggle('pw-setting-comments-require-approval', __('comments.require_approval'));
+                    ?>
+
+                    <hr class="pw-separator">
                     <h3 class="pw-settings-heading"><?php echo __('settings.caching'); ?></h3>
                     <?php
                     $clearCacheBtn = '<div style="margin-top: 15px;"><button id="pw-btn-clear-cache" class="pw-btn pw-btn-secondary" type="button"><iconify-icon icon="mdi:delete-sweep" class="pw-icon-left"></iconify-icon> '.__('settings.clear_cache').'</button></div>';

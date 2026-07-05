@@ -170,6 +170,10 @@ $apiRoutes = [
     'toggle_extension'   => 'extensions/toggle.php',
     'uninstall_extension'=> 'extensions/uninstall.php',
     'get_extension_info' => 'extensions/info.php',
+    'submit_comment'     => 'comments/submit.php',
+    'list_comments'      => 'comments/list.php',
+    'list_all_comments'  => 'comments/list_all.php',
+    'moderate_comment'   => 'comments/moderate.php',
 ];
 
 $apiRoutes = ExtensionLoader::applyFilter('api.routes', $apiRoutes);
@@ -181,7 +185,7 @@ if (!isset($apiRoutes[$action])) {
 
 // Enforce Authentication and Role-Based Access Control
 // Editor Actions are all available actions except admin actions
-$publicActions = ['search', 'setup_wiki'];
+$publicActions = ['search', 'setup_wiki', 'submit_comment'];
 $readerActions = ['logout'];
 $adminActions  = [
     'get_config', 'save_config', 'clear_cache', 'list_users', 'create_user', 'delete_user',
@@ -193,7 +197,7 @@ $adminActions  = [
     'get_mail_config', 'save_mail_config', 'disable_mail', 'send_test_mail',
     'list_trash', 'restore_trash_item', 'delete_trash_item', 'empty_trash',
     'list_extensions', 'toggle_extension', 'uninstall_extension', 'get_extension_info',
-    'get_debug_log', 'clear_debug_log',
+    'get_debug_log', 'clear_debug_log', 'list_comments', 'list_all_comments', 'moderate_comment',
 ];
 
 $adminActions = ExtensionLoader::applyFilter('api.admin_actions', $adminActions);

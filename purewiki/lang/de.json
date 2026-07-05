@@ -688,5 +688,28 @@
         "success_created": "Dein PureWiki wurde erfolgreich erstellt.",
         "redirecting": "Weiterleitung zur Startseite...",
         "error_occurred": "Fehler aufgetreten"
+    },
+    "comments": {
+        "title": "Kommentare",
+        "enable_global": "Kommentar-System aktivieren",
+        "require_approval": "Kommentare erst nach Freigabe anzeigen",
+        "enable_page": "Kommentare für diese Seite aktivieren",
+        "submit": "Kommentar absenden",
+        "name_label": "Name",
+        "email_label": "E-Mail",
+        "text_label": "Kommentar",
+        "success_message": "Kommentar erfolgreich veröffentlicht.",
+        "pending_message": "Kommentar wird nach Freigabe angezeigt.",
+        "no_comments": "Noch keine Kommentare.",
+        "approve": "Freigeben",
+        "hide": "Verstecken",
+        "delete": "Löschen",
+        "delete_confirm": "Möchtest du diesen Kommentar wirklich löschen?",
+        "status_pending": "Ausstehend",
+        "status_approved": "Genehmigt",
+        "status_hidden": "Versteckt",
+        "filter_all": "Alle",
+        "page_column": "Seite",
+        "dashboard_title": "Kommentarverwaltung"
     }
 }

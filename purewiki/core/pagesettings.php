@@ -70,6 +70,9 @@ function applyPageSettings(array $data, array $postData): array {
     if (isset($postData['prevnext_scope'])) {
         $data['Settings']['prevnext_scope'] = basename($postData['prevnext_scope']);
     }
+    if (isset($postData['enable_comments'])) {
+        $data['Settings']['enable_comments'] = filter_var($postData['enable_comments'], FILTER_VALIDATE_BOOLEAN);
+    }
 
     if (class_exists('ExtensionLoader')) {
         $data = ExtensionLoader::applyFilter('page_settings.save', $data, ['post' => $postData]);

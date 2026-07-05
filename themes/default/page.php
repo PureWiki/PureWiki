@@ -25,6 +25,7 @@ echo '<div class="pw-main-content">';
 echo '{{ macro:breadcrumbs }}';
 echo file_get_contents(__DIR__ . '/elements/content.php');
 echo '{{ macro:prevnext }}';
+echo '{{ macro:comments }}';
 echo '</div>';
 echo '{{ if show_right_sidebar }}';
 echo '<aside class="pw-virtual-sidebar pw-sidebar-right">';

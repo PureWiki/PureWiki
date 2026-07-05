@@ -183,6 +183,18 @@ require_once __DIR__ . '/layout_head.php';
                     </div>
                 </div>
 
+                <!-- Comments -->
+                <?php if (!empty($config['comments_enabled'])): ?>
+                <hr class="pw-separator">
+                <h3 class="pw-settings-heading"><?php echo __('comments.title'); ?></h3>
+                <div class="pw-setting-field">
+                    <label class="pw-toggle-label">
+                        <input type="checkbox" id="ps-enable-comments" class="pw-checkbox">
+                        <?php echo __('comments.enable_page'); ?>
+                    </label>
+                </div>
+                <?php endif; ?>
+
                 <?php
                 if (class_exists('ExtensionLoader')) {
                     echo ExtensionLoader::applyFilter('page_settings.fields', '', ['path' => $pagePath]);

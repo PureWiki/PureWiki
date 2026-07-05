@@ -25,6 +25,7 @@ const pageSettings = [
     { key: 'prevnext_enabled',   el: 'ps-prevnext-enable',    path: 'Settings.prevnext_enabled'     },
     { key: 'hide_left_sidebar',  el: 'ps-hide-left-sidebar',  path: 'Settings.hide_left_sidebar'    },
     { key: 'hide_right_sidebar', el: 'ps-hide-right-sidebar', path: 'Settings.hide_right_sidebar'   },
+    { key: 'enable_comments',    el: 'ps-enable-comments',    path: 'Settings.enable_comments'      },
 ];
 
 let currentPageData = null;

@@ -41,6 +41,9 @@ require_once __DIR__ . '/layout_head.php';
             <?php } ?>
             <button class="pw-btn" onclick="window.open(window.PW_BASE_PATH+'/', '_blank')"><iconify-icon icon="mdi:open-in-new"></iconify-icon> <?php echo __('dashboard.visit_wiki'); ?></button>
             <button class="pw-btn" onclick="window.location.href=window.PW_BASE_PATH+'/dashboard/media'"><iconify-icon icon="mdi:image-multiple"></iconify-icon> <?php echo __('dashboard.media'); ?></button>
+            <?php if (!empty($config['comments_enabled'])) { ?>
+                <button class="pw-btn" onclick="window.location.href=window.PW_BASE_PATH+'/dashboard/comments'"><iconify-icon icon="mdi:comment-text-multiple-outline"></iconify-icon> <?php echo __('comments.title'); ?></button>
+            <?php } ?>
             <?php if (hasRole('admin')) { ?>
                 <button class="pw-btn" onclick="window.location.href=window.PW_BASE_PATH+'/dashboard/settings'"><iconify-icon icon="mdi:cog"></iconify-icon> <?php echo __('setup.wiki_settings'); ?></button>
             <?php } ?>
@@ -249,6 +252,19 @@ require_once __DIR__ . '/layout_head.php';
                 <button id="pw-btn-save-redirect" class="pw-btn pw-btn-primary"><?php echo __('common.save'); ?></button>
             </div>
             <p class="pw-hint-small"><?php echo __('dashboard.redirect_hint'); ?></p>
+        </div>
+    </template>
+
+    <template id="tpl-comments-card">
+        <div class="pw-card pw-comments-card" style="margin-top: 20px;">
+            <h3>
+                <iconify-icon icon="mdi:comment-text-multiple-outline" class="pw-icon-left"></iconify-icon> 
+                <?php echo __('comments.title'); ?>
+                <span class="pw-badge pw-badge-warning" data-field="pending-count" style="display: none; font-size: 0.8rem; margin-left: 8px;"></span>
+            </h3>
+            <div data-field="comments-list" class="pw-comments-admin-list">
+            </div>
+            <p data-field="no-comments" class="pw-text-muted" style="display: none; margin: 10px 0;"><?php echo __('comments.no_comments'); ?></p>
         </div>
     </template>
 

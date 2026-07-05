@@ -602,6 +602,157 @@ function bindSidebarTreeItems(treeItems, mainActions, mainContent, btnAdd, btnDe
                                 mainContent.appendChild(moveTpl.content.cloneNode(true));
                             }
                         }
+
+                        // Comments sectiom for dashboard
+                        if (!isSystemPage && !isSnippet) {
+                            const commentsTpl = document.getElementById('tpl-comments-card');
+                            if (commentsTpl) {
+                                const card = commentsTpl.content.cloneNode(true);
+                                const listContainer = card.querySelector('[data-field="comments-list"]');
+                                const noCommentsMsg = card.querySelector('[data-field="no-comments"]');
+                                const badge = card.querySelector('[data-field="pending-count"]');
+
+                                mainContent.appendChild(card);
+
+                                // Get comments from API
+                                apiCall('list_comments', { path })
+                                .then(res => {
+                                    if (res && res.success && Array.isArray(res.data)) {
+                                        const comments = res.data;
+                                        if (comments.length === 0) {
+                                            noCommentsMsg.style.display = 'block';
+                                            return;
+                                        }
+
+                                        let pendingCount = 0;
+
+                                        comments.forEach(c => {
+                                            if (c.status === 'pending') pendingCount++;
+
+                                            const item = document.createElement('div');
+                                            item.className = 'pw-comment-admin-item';
+                                            item.style.borderBottom = '1px solid var(--pw-border)';
+                                            item.style.padding = '10px 0';
+
+                                            const header = document.createElement('div');
+                                            header.style.display = 'flex';
+                                            header.style.justifyContent = 'space-between';
+                                            header.style.fontSize = '0.9rem';
+
+                                            const authorInfo = document.createElement('span');
+                                            authorInfo.innerHTML = `<strong>${escapeHtml(c.name)}</strong> <a href="mailto:${escapeHtml(c.email)}" class="pw-muted" style="margin-left:8px;font-size:0.8rem;">&lt;${escapeHtml(c.email)}&gt;</a>`;
+
+                                            const dateInfo = document.createElement('span');
+                                            dateInfo.className = 'pw-text-muted';
+                                            dateInfo.textContent = new Date(c.date).toLocaleString();
+
+                                            header.appendChild(authorInfo);
+                                            header.appendChild(dateInfo);
+                                            item.appendChild(header);
+
+                                            const body = document.createElement('div');
+                                            body.style.margin = '5px 0';
+                                            body.style.whiteSpace = 'pre-wrap';
+                                            body.textContent = c.text;
+                                            item.appendChild(body);
+
+                                            const footer = document.createElement('div');
+                                            footer.style.display = 'flex';
+                                            footer.style.gap = '10px';
+                                            footer.style.alignItems = 'center';
+                                            footer.style.marginTop = '8px';
+
+                                            // Status Badge
+                                            const statusBadge = document.createElement('span');
+                                            statusBadge.className = 'pw-badge';
+                                            if (c.status === 'approved') {
+                                                statusBadge.textContent = __('comments.status_approved') || 'Approved';
+                                                statusBadge.style.backgroundColor = 'rgba(40, 167, 69, 0.2)';
+                                                statusBadge.style.color = '#28a745';
+                                            } else if (c.status === 'hidden') {
+                                                statusBadge.textContent = __('comments.status_hidden') || 'Hidden';
+                                                statusBadge.style.backgroundColor = 'rgba(108, 117, 125, 0.2)';
+                                                statusBadge.style.color = '#6c757d';
+                                            } else {
+                                                statusBadge.textContent = __('comments.status_pending') || 'Pending';
+                                                statusBadge.style.backgroundColor = 'rgba(255, 193, 7, 0.2)';
+                                                statusBadge.style.color = '#ffc107';
+                                            }
+                                            footer.appendChild(statusBadge);
+
+                                            // Action Buttons
+                                            if (c.status === 'pending' || c.status === 'hidden') {
+                                                const btnApprove = document.createElement('button');
+                                                btnApprove.className = 'pw-btn pw-btn-primary';
+                                                btnApprove.style.padding = '2px 8px';
+                                                btnApprove.style.fontSize = '0.8rem';
+                                                btnApprove.textContent = __('comments.approve') || 'Approve';
+                                                btnApprove.onclick = async () => {
+                                                    const ok = await apiSafe('moderate_comment', { path, comment_id: c.id, mod_action: 'approve' });
+                                                    if (ok) {
+                                                        const activeItem = document.querySelector('.pw-tree-item.pw-tree-active');
+                                                        if (activeItem) activeItem.click();
+                                                    }
+                                                };
+                                                footer.appendChild(btnApprove);
+                                            }
+
+                                            if (c.status === 'approved') {
+                                                const btnHide = document.createElement('button');
+                                                btnHide.className = 'pw-btn';
+                                                btnHide.style.padding = '2px 8px';
+                                                btnHide.style.fontSize = '0.8rem';
+                                                btnHide.textContent = __('comments.hide') || 'Hide';
+                                                btnHide.onclick = async () => {
+                                                    const ok = await apiSafe('moderate_comment', { path, comment_id: c.id, mod_action: 'hide' });
+                                                    if (ok) {
+                                                        const activeItem = document.querySelector('.pw-tree-item.pw-tree-active');
+                                                        if (activeItem) activeItem.click();
+                                                    }
+                                                };
+                                                footer.appendChild(btnHide);
+                                            }
+
+                                            const btnDelete = document.createElement('button');
+                                            btnDelete.className = 'pw-btn pw-btn-danger';
+                                            btnDelete.style.padding = '2px 8px';
+                                            btnDelete.style.fontSize = '0.8rem';
+                                            btnDelete.textContent = __('common.delete') || 'Delete';
+                                            btnDelete.onclick = async () => {
+                                                const confirmed = await openDialog({
+                                                    title: __('comments.delete') || 'Delete Comment',
+                                                    text: __('comments.delete_confirm') || 'Are you sure you want to delete this comment?',
+                                                    confirmText: __('common.delete') || 'Delete',
+                                                    cancelText: __('common.cancel') || 'Cancel',
+                                                    type: 'confirm'
+                                                });
+                                                if (confirmed) {
+                                                    const ok = await apiSafe('moderate_comment', { path, comment_id: c.id, mod_action: 'delete' });
+                                                    if (ok) {
+                                                        const activeItem = document.querySelector('.pw-tree-item.pw-tree-active');
+                                                        if (activeItem) activeItem.click();
+                                                    }
+                                                }
+                                            };
+                                            footer.appendChild(btnDelete);
+
+                                            item.appendChild(footer);
+                                            listContainer.appendChild(item);
+                                        });
+
+                                        if (pendingCount > 0) {
+                                            badge.style.display = 'inline-block';
+                                            badge.textContent = pendingCount;
+                                        }
+                                    } else {
+                                        noCommentsMsg.style.display = 'block';
+                                    }
+                                })
+                                .catch(() => {
+                                    noCommentsMsg.style.display = 'block';
+                                });
+                            }
+                        }
                     } else {
                         const fallback = document.createElement('p');
                         fallback.textContent = __('common.use_buttons');
