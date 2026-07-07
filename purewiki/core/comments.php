@@ -45,7 +45,7 @@ function getComments(string $pagePath): array {
     try {
         $data = readJsonFile($file);
         return (is_array($data) && isset($data['comments']) && is_array($data['comments'])) ? $data['comments'] : [];
-    } catch (\Exception $exception) {
+    } catch (PureWikiException $exception) {
         return [];
     }
 }
@@ -225,7 +225,7 @@ function getAllComments(): array {
                     $allComments[] = $comment;
                 }
             }
-        } catch (\Exception $exception) {
+        } catch (PureWikiException $exception) {
             // ignore corrupted files
         }
     }
@@ -253,7 +253,7 @@ function getAllComments(): array {
                                 $allComments[] = $comment;
                             }
                         }
-                    } catch (\Exception $exception) {
+                    } catch (PureWikiException $exception) {
                         // ignore corrupted files
                     }
                 }

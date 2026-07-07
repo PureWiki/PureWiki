@@ -145,7 +145,7 @@ function isSetupCompleted(): bool {
     try {
         $users = readJsonFile($usersPath);
         $hasUsers = is_array($users) && !empty($users);
-    } catch (Exception $e) {
+    } catch (PureWikiException $e) {
         // If users.json is non-existent or invalid, it's not a complete setup
     }
 

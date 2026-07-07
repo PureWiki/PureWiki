@@ -68,7 +68,7 @@ if (!file_exists($pageJson)) {
 
 try {
     $pageData = readJsonFile($pageJson);
-} catch (\Exception $e) {
+} catch (PureWikiException $e) {
     $response['message'] = 'Failed to load page settings.';
     return;
 }
@@ -90,6 +90,6 @@ try {
         'id' => $newComment['id'],
         'status' => $newComment['status']
     ];
-} catch (\Exception $e) {
+} catch (PureWikiException $e) {
     $response['message'] = 'Failed to save comment.';
 }

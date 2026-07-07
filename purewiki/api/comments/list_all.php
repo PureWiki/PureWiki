@@ -18,6 +18,6 @@ try {
     $comments = getAllComments();
     $response['success'] = true;
     $response['data'] = $comments;
-} catch (\Exception $exception) {
+} catch (PureWikiException $exception) {
     $response['message'] = 'Failed to load global comments.';
 }

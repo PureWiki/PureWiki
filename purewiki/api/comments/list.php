@@ -29,6 +29,6 @@ try {
     $comments = getComments($safePath);
     $response['success'] = true;
     $response['data'] = $comments;
-} catch (\Exception $exception) {
+} catch (PureWikiException $exception) {
     $response['message'] = 'Failed to load comments.';
 }

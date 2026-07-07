@@ -51,7 +51,7 @@ if ($success) {
     try {
         // clear cache
         clearCache($safePath);
-    } catch (\Exception $exception) {
+    } catch (PureWikiException $exception) {
         if (function_exists('pw_debug')) {
             pw_debug("moderate_comment: Failed to clear cache for '$safePath'", 'api');
         }
