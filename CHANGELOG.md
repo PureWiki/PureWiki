@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a comments summary card in the dashboard page details view.
 - Created the `{{ macro:comments }}` macro to display approved comments and the submit form in the frontend.
 - Added necessary styles and js to the default theme.
+- Added a regex based spam filter for email addresses to block comments.
 
 ## [0.2.2] - 2026-07-02
 

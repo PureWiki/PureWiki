@@ -710,6 +710,11 @@
         "status_hidden": "Hidden",
         "filter_all": "All",
         "page_column": "Page",
-        "dashboard_title": "Comments Moderation"
+        "dashboard_title": "Comments Moderation",
+        "spam_regex_title": "Email Address Spam Filter (RegEx)",
+        "spam_regex_desc": "Comments with email addresses matching any of these regular expressions will be marked as spam (status 'pending' and hidden).",
+        "spam_regex_placeholder": "e.g. /@spamdomain\\.com$/i or /^test@/",
+        "spam_regex_add": "Add",
+        "spam": "Spam"
     }
 }

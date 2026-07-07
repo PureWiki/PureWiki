@@ -75,7 +75,8 @@ const settingsFields = {
     'i18n_default_lang': 'pw-setting-i18n-default-lang',
     'i18n_supported_langs': 'pw-setting-i18n-supported-langs',
     'comments_enabled': 'pw-setting-comments-enabled',
-    'comments_require_approval': 'pw-setting-comments-require-approval'
+    'comments_require_approval': 'pw-setting-comments-require-approval',
+    'comments_spam_regex': 'pw-setting-comments-spam-regex'
 };
 
 /** Loads the current configuration and populates the form fields. */
@@ -91,7 +92,7 @@ async function loadSettings() {
                 if (el.type === 'checkbox') {
                     el.checked = result.data[key] === true || result.data[key] === 'true';
                     el.dispatchEvent(new Event('change'));
-                } else if (key === 'i18n_supported_langs') {
+                } else if (key === 'i18n_supported_langs' || key === 'comments_spam_regex') {
                     el.value = JSON.stringify(Array.isArray(result.data[key]) ? result.data[key] : []);
                     el.dispatchEvent(new Event('change'));
                 } else {
@@ -109,7 +110,7 @@ async function saveSettings() {
         if (el) {
             if (el.type === 'checkbox') {
                 config[key] = el.checked;
-            } else if (key === 'i18n_supported_langs') {
+            } else if (key === 'i18n_supported_langs' || key === 'comments_spam_regex') {
                 try {
                     config[key] = el.value ? JSON.parse(el.value) : [];
                 } catch(e) {
@@ -433,6 +434,77 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             i18nToggle.addEventListener('change', updateI18nState);
             updateI18nState();
+        }
+    }
+
+    // Comments Spam Regex settings logic
+    const spamRegexInput = document.getElementById('pw-setting-comments-spam-regex');
+    const spamRegexList = document.getElementById('pw-comments-spam-list');
+    const spamRegexNew = document.getElementById('pw-comments-spam-new-regex');
+    const spamRegexAddBtn = document.getElementById('pw-btn-add-spam-regex');
+    const commentsToggle = document.getElementById('pw-setting-comments-enabled');
+    const commentsRequireApproval = document.getElementById('pw-setting-comments-require-approval');
+    const commentsSpamGroup = document.getElementById('pw-setting-comments-spam-group');
+
+    if (spamRegexInput && spamRegexList && spamRegexAddBtn) {
+        const renderSpamRegex = () => {
+            spamRegexList.innerHTML = '';
+            let patterns = [];
+            try { patterns = JSON.parse(spamRegexInput.value); } catch(e) {}
+            if (!Array.isArray(patterns)) patterns = [];
+
+            patterns.forEach(pattern => {
+                const badge = document.createElement('span');
+                badge.className = 'pw-lang-badge';
+                badge.style.textTransform = 'none'; // Prevent forcing uppercase
+                badge.innerHTML = escapeHtml(pattern) + ' <iconify-icon icon="mdi:close" title="Entfernen"></iconify-icon>';
+                badge.querySelector('iconify-icon').addEventListener('click', () => {
+                    const newPatterns = patterns.filter(p => p !== pattern);
+                    spamRegexInput.value = JSON.stringify(newPatterns);
+                    renderSpamRegex();
+                });
+                spamRegexList.appendChild(badge);
+            });
+        };
+
+        spamRegexInput.addEventListener('change', renderSpamRegex);
+
+        const addSpamRegex = () => {
+            const val = spamRegexNew.value.trim();
+            if (val) {
+                let patterns = [];
+                try { patterns = JSON.parse(spamRegexInput.value); } catch(e) {}
+                if (!patterns.includes(val)) {
+                    patterns.push(val);
+                    spamRegexInput.value = JSON.stringify(patterns);
+                    renderSpamRegex();
+                }
+                spamRegexNew.value = '';
+            }
+        };
+
+        spamRegexAddBtn.addEventListener('click', addSpamRegex);
+        spamRegexNew.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addSpamRegex();
+            }
+        });
+
+        if (commentsToggle && commentsRequireApproval && commentsSpamGroup) {
+            const updateCommentsState = () => {
+                const disabled = !commentsToggle.checked;
+                commentsRequireApproval.disabled = disabled;
+                commentsRequireApproval.style.opacity = disabled ? '0.5' : '1';
+                
+                commentsSpamGroup.style.opacity = disabled ? '0.5' : '1';
+                const spamInputs = commentsSpamGroup.querySelectorAll('input, button');
+                spamInputs.forEach(input => {
+                    input.disabled = disabled;
+                });
+            };
+            commentsToggle.addEventListener('change', updateCommentsState);
+            updateCommentsState();
         }
     }
 

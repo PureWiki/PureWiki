@@ -131,6 +131,17 @@
                 badge.style.color = '#ffc107';
             }
 
+            if (c.spam) {
+                const spamBadge = document.createElement('span');
+                spamBadge.className = 'pw-badge';
+                spamBadge.textContent = __('comments.spam') || 'Spam';
+                spamBadge.style.backgroundColor = 'rgba(220, 53, 69, 0.2)';
+                spamBadge.style.color = '#dc3545';
+                spamBadge.style.borderColor = 'rgba(220, 53, 69, 0.3)';
+                spamBadge.style.marginLeft = '5px';
+                badge.parentNode.appendChild(spamBadge);
+            }
+
             const btnApprove = row.querySelector('.pw-comments-approve-btn');
             const btnHide = row.querySelector('.pw-comments-hide-btn');
             const btnDelete = row.querySelector('.pw-comments-delete-btn');

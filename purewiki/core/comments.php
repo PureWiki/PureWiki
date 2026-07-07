@@ -79,13 +79,43 @@ function addComment(string $pagePath, string $name, string $email, string $text)
     $comments = getComments($pagePath);
     $config = getGlobalConfig();
     
-    // Approve if approval settings are disabled
-    $status = !empty($config['comments_require_approval']) ? 'pending' : 'approved';
-    
     // Sanitization
     $cleanName = trim($name);
     $cleanEmail = trim($email);
     $cleanText = trim($text);
+    
+    // Check spam regex
+    $isSpam = false;
+    $spamRegexList = $config['comments_spam_regex'] ?? [];
+    if (is_array($spamRegexList) && !empty($spamRegexList)) {
+        foreach ($spamRegexList as $pattern) {
+            if (empty($pattern)) continue;
+            
+            $delimitedPattern = $pattern;
+            $firstChar = substr($pattern, 0, 1);
+            $delimiters = ['/', '#', '~', '@'];
+            if (in_array($firstChar, $delimiters)) {
+                $delimitedPattern = $pattern;
+            } else {
+                $delimitedPattern = '/' . str_replace('/', '\/', $pattern) . '/i';
+            }
+            
+            try {
+                if (@preg_match($delimitedPattern, $cleanEmail)) {
+                    $isSpam = true;
+                    break;
+                }
+            } catch (\Throwable $e) {
+                // Ignore invalid regex
+            }
+        }
+    }
+    
+    // Approve if approval settings are disabled and no spam
+    $status = !empty($config['comments_require_approval']) ? 'pending' : 'approved';
+    if ($isSpam) {
+        $status = 'pending';
+    }
     
     $newComment = [
         'id' => 'c_' . time() . '_' . bin2hex(random_bytes(3)),
@@ -96,6 +126,10 @@ function addComment(string $pagePath, string $name, string $email, string $text)
         'status' => $status,
         'ip' => $_SERVER['REMOTE_ADDR'] ?? ''
     ];
+    
+    if ($isSpam) {
+        $newComment['spam'] = true;
+    }
     
     $comments[] = $newComment;
     saveComments($pagePath, $comments);

@@ -710,6 +710,11 @@
         "status_hidden": "Versteckt",
         "filter_all": "Alle",
         "page_column": "Seite",
-        "dashboard_title": "Kommentarverwaltung"
+        "dashboard_title": "Kommentarverwaltung",
+        "spam_regex_title": "Spam-Filter für E-Mail-Adressen (RegEx)",
+        "spam_regex_desc": "Kommentare mit E-Mail-Adressen, die auf eines dieser regulären Ausdrücke (Regex) passen, werden als Spam markiert (Status 'pending' / ausstehend und versteckt).",
+        "spam_regex_placeholder": "z.B. /@spamdomain\\.com$/i oder /^test@/",
+        "spam_regex_add": "Hinzufügen",
+        "spam": "Spam"
     }
 }

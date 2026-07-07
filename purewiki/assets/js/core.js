@@ -680,6 +680,17 @@ function bindSidebarTreeItems(treeItems, mainActions, mainContent, btnAdd, btnDe
                                             }
                                             footer.appendChild(statusBadge);
 
+                                            if (c.spam) {
+                                                const spamBadge = document.createElement('span');
+                                                spamBadge.className = 'pw-badge';
+                                                spamBadge.textContent = __('comments.spam') || 'Spam';
+                                                spamBadge.style.backgroundColor = 'rgba(220, 53, 69, 0.2)';
+                                                spamBadge.style.color = '#dc3545';
+                                                spamBadge.style.borderColor = 'rgba(220, 53, 69, 0.3)';
+                                                spamBadge.style.marginLeft = '5px';
+                                                footer.appendChild(spamBadge);
+                                            }
+
                                             // Action Buttons
                                             if (c.status === 'pending' || c.status === 'hidden') {
                                                 const btnApprove = document.createElement('button');

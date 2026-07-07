@@ -213,6 +213,16 @@ require_once __DIR__ . '/layout_head.php';
                     renderToggle('pw-setting-comments-enabled', __('comments.enable_global'));
                     renderToggle('pw-setting-comments-require-approval', __('comments.require_approval'));
                     ?>
+                    <div class="pw-setting-field" id="pw-setting-comments-spam-group">
+                        <label class="pw-setting-label"><?php echo __('comments.spam_regex_title'); ?></label>
+                        <p class="pw-setting-description"><?php echo __('comments.spam_regex_desc'); ?></p>
+                        <input type="hidden" id="pw-setting-comments-spam-regex">
+                        <div id="pw-comments-spam-list" style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px;"></div>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="text" id="pw-comments-spam-new-regex" class="pw-input pw-w-md" placeholder="<?php echo htmlspecialchars(__('comments.spam_regex_placeholder') ?? ''); ?>">
+                            <button type="button" id="pw-btn-add-spam-regex" class="pw-btn pw-btn-secondary"><iconify-icon icon="mdi:plus"></iconify-icon> <?php echo __('comments.spam_regex_add') ?? 'Add'; ?></button>
+                        </div>
+                    </div>
 
                     <hr class="pw-separator">
                     <h3 class="pw-settings-heading"><?php echo __('settings.caching'); ?></h3>

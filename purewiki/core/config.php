@@ -77,6 +77,7 @@ function getGlobalConfig(bool $forceReload = false): array {
         'i18n_supported_langs'    => [],
         'comments_enabled'        => false,
         'comments_require_approval' => true,
+        'comments_spam_regex'     => [],
         'extensions'              => []
     ];
 
