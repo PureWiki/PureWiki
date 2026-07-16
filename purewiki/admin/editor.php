@@ -144,17 +144,17 @@ require_once __DIR__ . '/layout_head.php';
     </div>
 
     <!-- Editor.js Core Plugins -->  
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/paragraph@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/header@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/list@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/delimiter@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@2.31.6"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/paragraph@2.11.3"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/header@2.8.9"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/list@2.0.9"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/delimiter@1.4.2"></script>
     <script src="<?php echo BASE_PATH; ?>/purewiki/editorPlugins/editor-raw.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/table@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/underline@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/marker@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/link-autocomplete@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/editorjs-drag-drop"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/table@2.4.5"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/underline@1.2.1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/marker@1.4.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/link-autocomplete@0.1.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/editorjs-drag-drop@1.1.15"></script>
     <!-- PureWiki Editor.js Plugins -->
     <script src="<?php echo BASE_PATH; ?>/purewiki/editorPlugins/editor-image.js"></script>
     <script src="<?php echo BASE_PATH; ?>/purewiki/editorPlugins/editor-markdown.js"></script>
