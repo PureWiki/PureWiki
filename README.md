@@ -7,6 +7,8 @@ PureWiki is a lightweight, high-performance, and file-based wiki system built wi
 ![PHP Version](https://img.shields.io/badge/PHP%20%E2%89%A5%208.1-grey)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/PureWiki/PureWiki?label=Code%20Size&color=2ea043)
 
+![PureWiki Dashboard Screenshot](https://purewiki.org/pages/purewiki_hero_animated.webp)
+
 > [!TIP]
 > Try PureWiki without installation: [demo.purewiki.org](https://demo.purewiki.org).
 
