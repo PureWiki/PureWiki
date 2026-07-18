@@ -1056,8 +1056,8 @@ function openImageSelectionDialog(imageToolInstance) {
                     imgContainer.style.cssText = 'width: 100%; height: 100px; display: flex; align-items: center; justify-content: center; background: #000;';
 
                     const img = document.createElement('img');
-                    const basePath = targetPath === '__global__' ? '/pages/' : '/pages' + (targetPath === '/' ? '' : targetPath) + '/';
-                    const imgUrl = basePath + f.name;
+                    const basePath = targetPath === '__global__' ? '/pages/' : '/pages/' + (targetPath === '/' ? '' : targetPath) + '/';
+                    const imgUrl = (basePath + f.name).replace(/\/\/+/g, '/');
 
                     img.src = (window.PW_BASE_PATH || '') + imgUrl;
                     img.style.cssText = 'max-width: 100%; max-height: 100%; object-fit: contain;';
