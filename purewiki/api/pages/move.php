@@ -165,6 +165,7 @@ if ($action === 'drag_drop_page') {
     invalidateSearchIndex();
     $response['success'] = true;
     $response['message'] = 'Page drag/drop layout saved.';
+    logActivity('page_move', 'page', '/' . $safeSource, ['new_path' => $sourcePath]);
     clearCache();
 
 } else if ($action === 'move_page') {
@@ -246,6 +247,7 @@ if ($action === 'drag_drop_page') {
         invalidateTreeCache();
         $response['success'] = true;
         $response['message'] = 'Page moved successfully.';
+        logActivity('page_move', 'page', '/' . $safePath, ['direction' => $direction]);
         clearCache();
     } else {
         $response['message'] = 'Source folder does not exist or access denied.';

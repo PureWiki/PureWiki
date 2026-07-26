@@ -715,6 +715,42 @@ body {
     text-transform: uppercase;
 }
 
+.pw-badge-primary {
+    background: color-mix(in srgb, var(--pw-primary) 15%, transparent);
+    color: var(--pw-primary);
+    border: 1px solid color-mix(in srgb, var(--pw-primary) 35%, transparent);
+}
+
+.pw-badge-secondary {
+    background: color-mix(in srgb, var(--pw-text-muted) 15%, transparent);
+    color: var(--pw-text-muted);
+    border: 1px solid color-mix(in srgb, var(--pw-text-muted) 35%, transparent);
+}
+
+.pw-badge-success {
+    background: color-mix(in srgb, var(--pw-success) 15%, transparent);
+    color: var(--pw-success);
+    border: 1px solid color-mix(in srgb, var(--pw-success) 35%, transparent);
+}
+
+.pw-badge-danger {
+    background: color-mix(in srgb, var(--pw-danger) 15%, transparent);
+    color: var(--pw-danger);
+    border: 1px solid color-mix(in srgb, var(--pw-danger) 35%, transparent);
+}
+
+.pw-badge-warning {
+    background: color-mix(in srgb, var(--pw-warning) 15%, transparent);
+    color: var(--pw-warning);
+    border: 1px solid color-mix(in srgb, var(--pw-warning) 35%, transparent);
+}
+
+.pw-badge-info {
+    background: color-mix(in srgb, var(--pw-primary) 15%, transparent);
+    color: var(--pw-primary);
+    border: 1px solid color-mix(in srgb, var(--pw-primary) 35%, transparent);
+}
+
 .pw-lang-badge {
     display: inline-flex;
     align-items: center;
@@ -1487,4 +1523,101 @@ body {
     border-left: 4px solid var(--pw-text-muted);
     background: rgba(108, 117, 125, 0.04);
 }
+
+/* Activity Log Component */
+.pw-activity-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.pw-activity-header h2 {
+    margin: 0;
+}
+
+.pw-activity-controls {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 15px;
+    align-items: center;
+}
+
+.pw-activity-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.pw-activity-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    background: var(--pw-bg);
+    border: 1px solid var(--pw-border);
+    border-radius: 6px;
+    font-size: 0.9rem;
+    margin-bottom: 6px;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.pw-activity-item:hover {
+    background: var(--pw-tree-hover);
+    border-color: var(--pw-border-focus);
+}
+
+.pw-activity-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    overflow: hidden;
+}
+
+.pw-activity-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--pw-tree-hover);
+    flex-shrink: 0;
+    font-size: 1.2rem;
+}
+
+.pw-activity-details {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.pw-activity-user {
+    color: var(--pw-text);
+    font-weight: 600;
+}
+
+.pw-activity-path {
+    font-size: 0.8rem;
+    font-family: var(--pw-font-mono, monospace);
+    background: var(--pw-tree-hover);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: var(--pw-primary);
+}
+
+.pw-activity-date {
+    font-size: 0.8rem;
+    color: var(--pw-text-muted);
+    flex-shrink: 0;
+    margin-left: 10px;
+}
+
+.pw-activity-load-more {
+    text-align: center;
+    margin-top: 15px;
+}
+
 

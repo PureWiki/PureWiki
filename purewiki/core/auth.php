@@ -188,6 +188,9 @@ function loginUser(string $username, string $password): bool|string {
     $_SESSION['pw_role']       = $users[$username]['role'] ?? 'reader';
     $_SESSION['pw_login_time'] = time();
 
+    require_once __DIR__ . '/activity.php';
+    logActivity('user_login', 'auth');
+
     return true;
 }
 

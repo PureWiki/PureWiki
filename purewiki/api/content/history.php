@@ -92,6 +92,7 @@ if ($action === 'get_page_history') {
             if (copy($historyFile, $draftPath)) {
                 $response['success'] = true;
                 $response['message'] = 'Version restored as draft.';
+                logActivity('page_restore', 'page', '/' . $safePath, ['version_file' => $safeFile]);
             } else {
                 $response['message'] = 'Failed to restore version.';
             }

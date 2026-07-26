@@ -85,6 +85,7 @@ try {
         require_once __DIR__ . '/../../core/cache.php';
         clearCache($safePath);
     }
+    logActivity('comment_add', 'comment', '/' . $safePath, ['author' => $name]);
     $response['success'] = true;
     $response['data'] = [
         'id' => $newComment['id'],

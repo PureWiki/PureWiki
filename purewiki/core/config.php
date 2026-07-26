@@ -78,6 +78,8 @@ function getGlobalConfig(bool $forceReload = false): array {
         'comments_enabled'        => false,
         'comments_require_approval' => true,
         'comments_spam_regex'     => [],
+        'enable_activity_log'     => false,
+        'activity_log_max_entries'=> 1000,
         'extensions'              => []
     ];
 

@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [unreleased]
 
+### Added
+- Added an Activity Log tab under Global Settings to track user and system actions in purewiki (disabled by default).
+
 ### Fixed
 - Fixed missing slash in image path generation within the editor image selection dialog.
 

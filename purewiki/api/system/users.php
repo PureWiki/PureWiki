@@ -26,6 +26,7 @@ if ($action === 'list_users') {
     if ($result === true) {
         $response['success'] = true;
         $response['message'] = 'User created successfully.';
+        logActivity('user_create', 'system', null, ['created_user' => $username, 'role' => $role]);
     } else {
         $response['message'] = $result;
     }
@@ -36,6 +37,7 @@ if ($action === 'list_users') {
     if ($result === true) {
         $response['success'] = true;
         $response['message'] = 'User deleted successfully.';
+        logActivity('user_delete', 'system', null, ['deleted_user' => $username]);
     } else {
         $response['message'] = $result;
     }

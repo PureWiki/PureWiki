@@ -25,6 +25,7 @@ if ($action === 'get_config') {
         saveGlobalConfig($configData);
         $response['success'] = true;
         $response['message'] = 'Settings saved successfully.';
+        logActivity('settings_update', 'system');
         clearCache();
     } else {
         $response['message'] = 'Invalid config data.';

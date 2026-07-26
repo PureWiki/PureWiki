@@ -32,6 +32,7 @@ if ($targetPath && isPathInDir($targetPath, $pagesDir)) {
     invalidateSearchIndex();
     $response['success'] = true;
     $response['message'] = 'Page moved to trash.';
+    logActivity('page_delete', 'page', '/' . $safePath);
     clearCache('/' . $safePath);
 } else {
     $response['message'] = 'Page does not exist or target out of bounds.';

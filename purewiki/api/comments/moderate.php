@@ -56,6 +56,7 @@ if ($success) {
             pw_debug("moderate_comment: Failed to clear cache for '$safePath'", 'api');
         }
     }
+    logActivity('comment_' . $modAction, 'comment', '/' . $safePath);
     $response['success'] = true;
 } else {
     $response['message'] = 'Failed to execute moderation action.';

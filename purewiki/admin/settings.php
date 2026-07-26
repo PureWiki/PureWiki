@@ -146,6 +146,14 @@ require_once __DIR__ . '/layout_head.php';
                             </span>
                         </div>
                     </li>
+                    <li class="pw-tree-node">
+                        <div class="pw-tree-item" data-settings-tab="activity">
+                            <span class="pw-tree-label">
+                                <iconify-icon icon="mdi:history" class="pw-icon-left"></iconify-icon>
+                                <?php echo __('settings.activity_tab'); ?>
+                            </span>
+                        </div>
+                    </li>
 
                     <!-- Extension Tabs -->
                     <?php foreach ($extensionTabs as $tab): ?>
@@ -634,6 +642,48 @@ require_once __DIR__ . '/layout_head.php';
 
                     <div id="pw-extensions-list" style="display: flex; flex-direction: column; gap: 15px; margin-top: 15px;">
                         <div><?php echo __('common.loading'); ?></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Activity Log Tab Content -->
+            <div id="pw-tab-activity" class="pw-settings-tab" style="display: none;">
+                <div class="pw-activity-header">
+                    <h2><?php echo __('settings.activity_tab'); ?></h2>
+                    <button id="pw-btn-clear-activity-log" class="pw-btn pw-btn-danger pw-btn-sm" type="button">
+                        <iconify-icon icon="mdi:delete-sweep-outline"></iconify-icon> <?php echo __('settings.clear_log'); ?>
+                    </button>
+                </div>
+                <div class="pw-settings-panel">
+                    <?php renderToggle('pw-setting-enable-activity-log', __('settings.enable_activity_log'), __('settings.enable_activity_log_desc')); ?>
+
+                    <hr style="border: 0; border-top: 1px solid var(--pw-border); margin: 20px 0;">
+
+                    <!-- Controls -->
+                    <div class="pw-activity-controls">
+                        <select id="pw-activity-filter-action" class="pw-input" style="width: auto;">
+                            <option value="all"><?php echo __('settings.activity_filter_all'); ?></option>
+                            <option value="page"><?php echo __('settings.activity_filter_pages'); ?></option>
+                            <option value="media"><?php echo __('settings.activity_filter_media'); ?></option>
+                            <option value="comment"><?php echo __('settings.activity_filter_comments'); ?></option>
+                            <option value="auth"><?php echo __('settings.activity_filter_auth'); ?></option>
+                            <option value="system"><?php echo __('settings.activity_filter_system'); ?></option>
+                        </select>
+                        <input type="text" id="pw-activity-filter-search" class="pw-input" style="width: 220px;" placeholder="<?php echo __('settings.activity_search_placeholder'); ?>">
+                        <button id="pw-btn-activity-refresh" class="pw-btn pw-btn-secondary pw-btn-sm" type="button" title="<?php echo __('common.refresh'); ?>">
+                            <iconify-icon icon="mdi:refresh"></iconify-icon>
+                        </button>
+                    </div>
+
+                    <!-- Activity Log List -->
+                    <div id="pw-activity-log-container" class="pw-activity-list">
+                        <div class="pw-text-muted"><?php echo __('common.loading'); ?></div>
+                    </div>
+
+                    <div id="pw-activity-load-more-wrap" class="pw-activity-load-more" style="display: none;">
+                        <button id="pw-btn-activity-load-more" class="pw-btn pw-btn-secondary pw-btn-sm" type="button">
+                            <?php echo __('settings.activity_load_more'); ?>
+                        </button>
                     </div>
                 </div>
             </div>

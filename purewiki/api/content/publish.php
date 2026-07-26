@@ -81,6 +81,7 @@ if ($targetDir && isPathInDir($targetDir, $pagesDir) && is_dir($targetDir)) {
 
             $response['success'] = true;
             $response['message'] = 'Page published successfully.';
+            logActivity('page_publish', 'page', $safePath);
 
             // Clear only the specific page's HTML cache to avoid full cache rebuilds.
             clearCache('/' . $safePath);

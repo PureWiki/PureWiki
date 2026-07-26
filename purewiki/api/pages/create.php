@@ -57,6 +57,7 @@ if (createDirectory($targetPath)) {
     $response['success'] = true;
     $response['message'] = 'Page created successfully.';
     $response['new_path'] = '/' . ltrim($safeParentPath . '/' . $folderName, '/');
+    logActivity('page_create', 'page', $response['new_path'], ['title' => $title]);
 } else {
     $response['message'] = 'Failed to create directory.';
 }

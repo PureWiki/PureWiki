@@ -117,6 +117,7 @@ if ($action === 'list_media') {
         
         if ($uploadedCount > 0) {
             $response['message'] = "$uploadedCount file(s) uploaded successfully.";
+            logActivity('media_upload', 'media', $path === '__global__' ? '/' : '/' . ($safePath ?? ''), ['count' => $uploadedCount]);
             if (!empty($errors)) {
                 $response['errors'] = $errors;
                 $response['message'] .= " (" . count($errors) . " failed)";
@@ -158,6 +159,7 @@ if ($action === 'list_media') {
             if (deleteMediaWithDerivatives($fileToDelete)) {
                 $response['success'] = true;
                 $response['message'] = 'File deleted successfully.';
+                logActivity('media_delete', 'media', basename($filename));
             } else {
                 $response['message'] = 'Failed to delete file.';
             }
