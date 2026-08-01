@@ -71,6 +71,8 @@ if ($action === 'get_system_status') {
             'total_images' => $totalImages,
             'webp_optimized' => $webpOptimized,
             'optimization_ratio' => $totalImages > 0 ? round(($webpOptimized / $totalImages) * 100) : 100
-        ]
+        ],
+        'storage' => getDiskStorageInfo()
     ];
 }
+

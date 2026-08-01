@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Added an Activity Log tab under Global Settings to track user and system actions in purewiki (disabled by default).
+- Added disk storage and Wiki size usage display with progress bar and low space warning in Global Settings status tab.
 
 ### Fixed
 - Fixed missing slash in image path generation within the editor image selection dialog.

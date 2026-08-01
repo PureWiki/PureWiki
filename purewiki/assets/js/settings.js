@@ -251,8 +251,68 @@ async function loadSystemStatus() {
                 statsEl.appendChild(stats);
             }
         }
+
+        if (data.storage) {
+            const st = data.storage;
+            const storageEl = document.getElementById('pw-status-storage');
+            const storageTpl = document.getElementById('tpl-storage-stats');
+
+            if (storageEl && storageTpl) {
+                const node = storageTpl.content.cloneNode(true);
+                const progressEl = node.querySelector('[data-field="progress"]');
+                const ratioEl = node.querySelector('[data-field="ratio"]');
+                const summaryEl = node.querySelector('[data-field="summary"]');
+                const btnRecalc = node.querySelector('#pw-btn-recalculate-storage');
+
+                if (progressEl) {
+                    progressEl.value = st.disk_used_bytes;
+                    progressEl.max = st.disk_total_bytes > 0 ? st.disk_total_bytes : 100;
+                    if (st.is_low_space) {
+                        progressEl.classList.add('pw-progress-danger');
+                    } else {
+                        progressEl.classList.remove('pw-progress-danger');
+                    }
+                }
+
+                if (ratioEl) {
+                    ratioEl.textContent = `${st.used_percent}%`;
+                }
+
+                if (summaryEl) {
+                    summaryEl.textContent = __('settings.storage_summary', st.wiki_size_formatted, st.disk_free_formatted, st.disk_total_formatted);
+                }
+
+                if (btnRecalc) {
+                    btnRecalc.addEventListener('click', async () => {
+                        btnRecalc.disabled = true;
+                        btnRecalc.innerHTML = '<iconify-icon icon="line-md:loading-loop"></iconify-icon>';
+                        await loadSystemStatus();
+                    });
+                }
+
+                storageEl.innerHTML = '';
+                storageEl.appendChild(node);
+            }
+
+            const alertsEl = document.getElementById('pw-status-alerts');
+            if (alertsEl) {
+                const existingLowAlert = alertsEl.querySelector('[data-field="storage-alert-text"]');
+                if (st.is_low_space) {
+                    if (!existingLowAlert) {
+                        const alertDiv = document.createElement('div');
+                        alertDiv.style.cssText = 'padding: 12px; background: rgba(244, 67, 54, 0.1); border-left: 4px solid var(--pw-danger); border-radius: 4px; color: var(--pw-danger); font-size: 0.9em; margin-bottom: 10px;';
+                        alertDiv.innerHTML = `<strong><iconify-icon icon="mdi:alert-circle-outline"></iconify-icon> Info:</strong> <span data-field="storage-alert-text">${__('settings.storage_low_alert')}</span>`;
+                        alertsEl.appendChild(alertDiv);
+                    }
+                } else if (existingLowAlert) {
+                    const alertContainer = existingLowAlert.closest('div');
+                    if (alertContainer) alertContainer.remove();
+                }
+            }
+        }
     }
 }
+
 
 /** Checks if sensitive files are accessible from outside. */
 async function checkSecurityConfiguration() {

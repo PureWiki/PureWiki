@@ -257,3 +257,66 @@ function moveToTrash(string $sourcePath): string {
 
     return $dest;
 }
+
+/**
+ * Recursively calculates the total size of a directory in bytes.
+ * @param string $dir Path to directory.
+ * @return int Total size in bytes.
+ */
+function getDirectorySize(string $dir): int {
+    $size = 0;
+    if (!is_dir($dir)) return 0;
+
+    $iterator = new RecursiveIteratorIterator(
+        new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS),
+        RecursiveIteratorIterator::SELF_FIRST
+    );
+
+    foreach ($iterator as $file) {
+        if ($file->isFile()) {
+            $size += $file->getSize();
+        }
+    }
+
+    return $size;
+}
+
+/**
+ * Evaluates system disk storage and total Wiki installation size.
+ * @return array Storage information array.
+ */
+function getDiskStorageInfo(): array {
+    require_once __DIR__ . '/misc.php';
+
+    $wikiRoot = realpath(__DIR__ . '/../..') ?: __DIR__ . '/../..';
+    $wikiSizeBytes = getDirectorySize($wikiRoot);
+
+    $diskFreeBytes = @disk_free_space($wikiRoot);
+    $diskTotalBytes = @disk_total_space($wikiRoot);
+
+    if ($diskFreeBytes === false || $diskTotalBytes === false || $diskTotalBytes <= 0) {
+        $diskFreeBytes = 0;
+        $diskTotalBytes = 0;
+        $diskUsedBytes = 0;
+        $freePercent = 0.0;
+        $usedPercent = 0.0;
+    } else {
+        $diskUsedBytes = max(0, $diskTotalBytes - $diskFreeBytes);
+        $freePercent = round(($diskFreeBytes / $diskTotalBytes) * 100, 1);
+        $usedPercent = round(($diskUsedBytes / $diskTotalBytes) * 100, 1);
+    }
+
+    return [
+        'wiki_size_bytes'     => $wikiSizeBytes,
+        'wiki_size_formatted' => formatBytes($wikiSizeBytes),
+        'disk_free_bytes'     => $diskFreeBytes,
+        'disk_free_formatted' => formatBytes($diskFreeBytes),
+        'disk_total_bytes'    => $diskTotalBytes,
+        'disk_total_formatted'=> formatBytes($diskTotalBytes),
+        'disk_used_bytes'     => $diskUsedBytes,
+        'disk_used_formatted' => formatBytes($diskUsedBytes),
+        'free_percent'        => $freePercent,
+        'used_percent'        => $usedPercent,
+        'is_low_space'        => $freePercent < 10.0
+    ];
+}

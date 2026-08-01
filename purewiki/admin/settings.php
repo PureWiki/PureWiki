@@ -575,6 +575,9 @@ require_once __DIR__ . '/layout_head.php';
                         <div class="pw-status-grid-label"><?php echo __('settings.os'); ?></div>
                         <div id="pw-status-os"><?php echo __('common.loading'); ?></div>
 
+                        <div class="pw-status-grid-label"><?php echo __('settings.storage_usage'); ?></div>
+                        <div id="pw-status-storage"><?php echo __('common.loading'); ?></div>
+
                         <div class="pw-status-grid-label"><?php echo __('settings.webp_support'); ?></div>
                         <div id="pw-status-webp"><?php echo __('common.loading'); ?></div>
 
@@ -763,6 +766,19 @@ require_once __DIR__ . '/layout_head.php';
             <div style="display: flex; align-items: center; gap: 10px;">
                 <progress data-field="progress" value="0" max="100" style="flex-grow: 1; height: 8px;"></progress>
                 <span style="font-size: 0.9em; font-weight: 600;" data-field="ratio"></span>
+            </div>
+            <div style="font-size: 0.8em; color: var(--pw-text-muted); margin-top: 4px;" data-field="summary"></div>
+        </div>
+    </template>
+
+    <template id="tpl-storage-stats">
+        <div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <progress data-field="progress" value="0" max="100" class="pw-storage-progress" style="flex-grow: 1; height: 8px;"></progress>
+                <span style="font-size: 0.9em; font-weight: 600;" data-field="ratio"></span>
+                <button id="pw-btn-recalculate-storage" class="pw-btn pw-btn-sm" type="button" title="<?php echo htmlspecialchars(__('settings.recalculate_storage') ?? 'Recalculate'); ?>" style="padding: 2px 6px;">
+                    <iconify-icon icon="mdi:refresh"></iconify-icon>
+                </button>
             </div>
             <div style="font-size: 0.8em; color: var(--pw-text-muted); margin-top: 4px;" data-field="summary"></div>
         </div>

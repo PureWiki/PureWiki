@@ -1620,4 +1620,17 @@ body {
     margin-top: 15px;
 }
 
+progress.pw-progress-danger::-webkit-progress-value {
+    background-color: var(--pw-danger);
+}
+
+progress.pw-progress-danger::-moz-progress-bar {
+    background-color: var(--pw-danger);
+}
+
+progress.pw-progress-danger {
+    accent-color: var(--pw-danger);
+}
+
+
 
