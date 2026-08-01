@@ -12,4 +12,4 @@
 
 defined('PUREWIKI') || die('Direct access denied.');
 
-define('PUREWIKI_VERSION', '0.2.4');
+define('PUREWIKI_VERSION', '0.2.5');
