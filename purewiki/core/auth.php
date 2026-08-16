@@ -87,9 +87,10 @@ function listUsers(): array {
     $result = [];
     foreach ($users as $username => $data) {
         $result[] = [
-            'username'   => $username,
-            'role'       => $data['role'] ?? 'reader',
-            'created_at' => $data['created_at'] ?? ''
+            'username'      => $username,
+            'role'          => $data['role'] ?? 'reader',
+            'created_at'    => $data['created_at'] ?? '',
+            'last_login_at' => $data['last_login_at'] ?? ''
         ];
     }
     return $result;
@@ -187,6 +188,10 @@ function loginUser(string $username, string $password): bool|string {
     $_SESSION['pw_user']       = $username;
     $_SESSION['pw_role']       = $users[$username]['role'] ?? 'reader';
     $_SESSION['pw_login_time'] = time();
+
+    // Write last login timestamp to users.json
+    $users[$username]['last_login_at'] = date('c');
+    writeUsers($users);
 
     require_once __DIR__ . '/activity.php';
     logActivity('user_login', 'auth');

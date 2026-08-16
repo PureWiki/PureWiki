@@ -895,27 +895,27 @@ async function loadUsers() {
     const tbody = document.getElementById('pw-user-list');
     if (!tbody) return;
 
-    tbody.innerHTML = '<tr><td colspan="2" style="padding: 12px; color: var(--pw-text-muted);">' + __('common.loading') + '</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="4" style="padding: 12px; color: var(--pw-text-muted);">' + __('common.loading') + '</td></tr>';
 
     const result = await apiSafe('list_users', {}, { silent: true });
 
     if (result && result.data) {
         renderUserList(result.data);
     } else {
-        tbody.innerHTML = '<tr><td colspan="2" style="padding: 12px; color: var(--pw-danger);">' + __('settings.failed_load_users') + '</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="4" style="padding: 12px; color: var(--pw-danger);">' + __('settings.failed_load_users') + '</td></tr>';
     }
 }
 
 /**
  * Renders the user list into the table body.
- * @param {Array} users - Array of user objects with username and created_at.
+ * @param {Array} users - Array of user objects with username, role, and last_login_at.
  */
 function renderUserList(users) {
     const tbody = document.getElementById('pw-user-list');
     if (!tbody) return;
 
     if (users.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="2" style="padding: 12px; color: var(--pw-text-muted);">' + __('settings.no_users') + '</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="4" style="padding: 12px; color: var(--pw-text-muted);">' + __('settings.no_users') + '</td></tr>';
         return;
     }
 
@@ -927,6 +927,18 @@ function renderUserList(users) {
         const row = rowTpl.content.cloneNode(true);
         row.querySelector('[data-field="username"]').textContent = user.username;
         row.querySelector('[data-field="role"]').textContent = user.role || 'admin';
+
+        // Format last login date
+        const lastLoginEl = row.querySelector('[data-field="last_login"]');
+        if (user.last_login_at) {
+            const d = new Date(user.last_login_at);
+            lastLoginEl.textContent = d.toLocaleDateString(undefined, { year: 'numeric', month: '2-digit', day: '2-digit' }) + ' ' + d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+            lastLoginEl.title = user.last_login_at;
+        } else {
+            lastLoginEl.textContent = '\u2013';
+            lastLoginEl.title = __('settings.never_logged_in');
+        }
+
         const btn = row.querySelector('.pw-user-delete-btn');
         btn.setAttribute('data-username', user.username);
         if (isSingleUser) {

@@ -436,6 +436,8 @@
         "users_heading": "Users",
         "username": "Username",
         "role": "Role",
+        "last_login": "Last Login",
+        "never_logged_in": "Never logged in",
         "add_user": "Add User",
         "add_user_btn": "Add User",
         "password_label": "Password",

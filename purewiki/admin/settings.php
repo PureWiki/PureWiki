@@ -477,6 +477,7 @@ require_once __DIR__ . '/layout_head.php';
                             <tr>
                                 <th><?php echo __('settings.username'); ?></th>
                                 <th><?php echo __('settings.role'); ?></th>
+                                <th><?php echo __('settings.last_login'); ?></th>
                                 <th class="pw-text-right"><?php echo __('settings.actions'); ?></th>
                             </tr>
                         </thead>
@@ -485,6 +486,7 @@ require_once __DIR__ . '/layout_head.php';
                             <tr>
                                 <td>admin</td>
                                 <td>admin</td>
+                                <td>–</td>
                                 <td class="pw-text-right">
                                     <button class="pw-btn pw-btn-danger pw-btn-sm" disabled title="<?php echo __('settings.cannot_delete_last'); ?>" aria-label="<?php echo __('settings.cannot_delete_last'); ?>"><iconify-icon icon="mdi:delete-outline"></iconify-icon></button>
                                 </td>
@@ -723,6 +725,7 @@ require_once __DIR__ . '/layout_head.php';
         <tr>
             <td data-field="username"></td>
             <td><span style="text-transform: capitalize;" data-field="role"></span></td>
+            <td data-field="last_login" style="color: var(--pw-text-muted); font-size: 0.9em;"></td>
             <td class="pw-text-right">
                 <button class="pw-btn pw-btn-danger pw-btn-sm pw-user-delete-btn" aria-label="<?php echo __('common.delete'); ?>" title="<?php echo __('common.delete'); ?>">
                     <iconify-icon icon="mdi:delete-outline"></iconify-icon>
