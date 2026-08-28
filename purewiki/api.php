@@ -98,6 +98,7 @@ $apiRoutes = [
     'drag_drop_page' => 'pages/move.php',
     'rename_folder' => 'pages/rename.php',
     'list_pages' => 'pages/list.php',
+    'list_recent_pages' => 'pages/recent.php',
 
     'list_snippets' => 'snippets/list.php',
     'create_snippet' => 'snippets/create.php',

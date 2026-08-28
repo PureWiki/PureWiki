@@ -764,6 +764,91 @@ function bindSidebarTreeItems(treeItems, mainActions, mainContent, btnAdd, btnDe
                                 });
                             }
                         }
+
+                        // Recent pages section for dashboard startpage
+                        if (path === '/') {
+                            const recentTpl = document.getElementById('tpl-recent-pages-card');
+                            if (recentTpl) {
+                                const recentCard = recentTpl.content.cloneNode(true);
+                                const listContainer = recentCard.querySelector('[data-field="recent-pages-list"]');
+                                const noPagesMsg = recentCard.querySelector('[data-field="no-recent-pages"]');
+
+                                mainContent.appendChild(recentCard);
+
+                                apiSafe('list_recent_pages', { limit: 10 })
+                                .then(res => {
+                                    if (res && res.success && Array.isArray(res.data) && res.data.length > 0) {
+                                        const pages = res.data;
+                                        listContainer.innerHTML = '';
+                                        pages.forEach(p => {
+                                            const row = document.createElement('div');
+                                            row.className = 'pw-recent-page-item';
+
+                                            const left = document.createElement('div');
+                                            left.style.minWidth = '0';
+
+                                            let badgesHtml = '';
+                                            if (p.is_draft) {
+                                                badgesHtml += `<span class="pw-draft-badge" style="font-size:9px;margin-left:6px;">${__('dashboard.draft')}</span>`;
+                                            }
+                                            if (p.is_private) {
+                                                badgesHtml += `<span class="pw-private-badge" style="font-size:9px;margin-left:6px;">${__('dashboard.private')}</span>`;
+                                            }
+
+                                            left.innerHTML = `
+                                                <div><span class="pw-recent-page-title">${escapeHtml(p.title || p.path)}</span>${badgesHtml}</div>
+                                                <div class="pw-recent-page-path">${escapeHtml(p.path)}</div>
+                                            `;
+
+                                            const right = document.createElement('div');
+                                            right.className = 'pw-recent-page-meta';
+
+                                            const dateStr = p.modified ? formatPwDate(new Date(p.modified)) : '—';
+                                            const authorStr = p.author ? ` (${escapeHtml(p.author)})` : '';
+                                            right.innerHTML = `<span>${escapeHtml(dateStr)}${authorStr}</span>`;
+
+                                            const editBtn = document.createElement('button');
+                                            editBtn.className = 'pw-btn pw-recent-page-action-btn';
+                                            editBtn.title = __('dashboard.edit_page') || 'Edit Page';
+                                            editBtn.innerHTML = '<iconify-icon icon="mdi:pencil"></iconify-icon>';
+                                            editBtn.onclick = (e) => {
+                                                e.stopPropagation();
+                                                window.location.href = window.PW_BASE_PATH + '/dashboard/edit?path=' + encodeURIComponent(p.path);
+                                            };
+                                            right.appendChild(editBtn);
+
+                                            if (p.is_published) {
+                                                const viewBtn = document.createElement('button');
+                                                viewBtn.className = 'pw-btn pw-recent-page-action-btn';
+                                                viewBtn.title = __('dashboard.view_live_page') || 'Open Live Page';
+                                                viewBtn.innerHTML = '<iconify-icon icon="mdi:open-in-new"></iconify-icon>';
+                                                viewBtn.onclick = (e) => {
+                                                    e.stopPropagation();
+                                                    const liveUrl = (window.PW_BASE_PATH || '') + (p.path === '/' ? '/' : p.path);
+                                                    window.open(liveUrl, '_blank');
+                                                };
+                                                right.appendChild(viewBtn);
+                                            }
+
+                                            row.appendChild(left);
+                                            row.appendChild(right);
+
+                                            row.onclick = () => {
+                                                const treeItem = document.querySelector(`.pw-tree-item[data-path="${p.path}"]`);
+                                                if (treeItem) {
+                                                    treeItem.click();
+                                                    treeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                                                }
+                                            };
+
+                                            listContainer.appendChild(row);
+                                        });
+                                    } else {
+                                        noPagesMsg.style.display = 'block';
+                                    }
+                                });
+                            }
+                        }
                     } else {
                         const fallback = document.createElement('p');
                         fallback.textContent = __('common.use_buttons');

@@ -1632,5 +1632,56 @@ progress.pw-progress-danger {
     accent-color: var(--pw-danger);
 }
 
+/* Recent Pages Card */
+.pw-recent-pages-list {
+    margin-top: 10px;
+}
+
+.pw-recent-page-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--pw-border);
+    cursor: pointer;
+    border-radius: 4px;
+    gap: 12px;
+    transition: background-color 0.15s ease;
+}
+
+.pw-recent-page-item:last-child {
+    border-bottom: none;
+}
+
+.pw-recent-page-item:hover {
+    background-color: var(--pw-tree-hover);
+}
+
+.pw-recent-page-title {
+    font-weight: 600;
+    color: var(--pw-text);
+    font-size: 0.95rem;
+}
+
+.pw-recent-page-path {
+    font-size: 0.8rem;
+    color: var(--pw-text-muted);
+    font-family: var(--pw-font-mono, monospace);
+}
+
+.pw-recent-page-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: var(--pw-text-muted);
+    flex-shrink: 0;
+}
+
+.pw-recent-page-action-btn {
+    padding: 4px 8px;
+    min-height: unset;
+}
+
 
 

@@ -268,5 +268,17 @@ require_once __DIR__ . '/layout_head.php';
         </div>
     </template>
 
+    <template id="tpl-recent-pages-card">
+        <div class="pw-card pw-recent-pages-card" style="margin-top: 20px;">
+            <h3>
+                <iconify-icon icon="mdi:history" class="pw-icon-left"></iconify-icon>
+                <?php echo __('dashboard.recent_pages_title'); ?>
+            </h3>
+            <div data-field="recent-pages-list" class="pw-recent-pages-list">
+            </div>
+            <p data-field="no-recent-pages" class="pw-text-muted" style="display: none; margin: 10px 0;"><?php echo __('dashboard.no_recent_pages'); ?></p>
+        </div>
+    </template>
+
 </body>
 </html>
