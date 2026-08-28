@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Added login rate-limiting to protect against brute-force attacks by locking out IP addresses and usernames (default 15 minutes after 5 failed attempts).
 - Added "Last Login" entry to the user management table in Global Settings to show date of most recent login.
 
 ## [0.2.5] - 2026-08-01

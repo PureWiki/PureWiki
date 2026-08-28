@@ -80,6 +80,8 @@ function getGlobalConfig(bool $forceReload = false): array {
         'comments_spam_regex'     => [],
         'enable_activity_log'     => false,
         'activity_log_max_entries'=> 1000,
+        'login_max_attempts'      => 5,
+        'login_lockout_duration'  => 900,
         'extensions'              => []
     ];
 

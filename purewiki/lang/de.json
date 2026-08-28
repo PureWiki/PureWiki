@@ -26,7 +26,10 @@
     "login": {
         "username": "Benutzername",
         "password": "Passwort",
-        "submit": "Anmelden"
+        "submit": "Anmelden",
+        "error_required": "Benutzername und Passwort sind erforderlich.",
+        "error_invalid": "Ungültiger Benutzername oder Passwort.",
+        "error_rate_limited": "Zu viele fehlgeschlagene Anmeldeversuche. Bitte versuche es in %d Minute(n) erneut."
     },
     "dashboard": {
         "title": "Globale Einstellungen",

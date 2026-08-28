@@ -13,9 +13,151 @@
 
 defined('PUREWIKI') || die('Direct access denied.');
 
+require_once __DIR__ . '/json.php';
+require_once __DIR__ . '/fs.php';
+require_once __DIR__ . '/config.php';
+
 /** Returns the absolute path to users.json. */
 function getUsersFilePath(): string {
-    return __DIR__ . '/../../config/users.json';
+    return getConfigDir() . '/users.json';
+}
+
+/** Returns the absolute path to login_attempts.json. */
+function getLoginAttemptsFilePath(): string {
+    return getConfigDir() . '/login_attempts.json';
+}
+
+/** Get client IP address */
+function getAuthClientIp(): string {
+    if (!empty($_SERVER['HTTP_CF_CONNECTING_IP'])) {
+        $ip = trim($_SERVER['HTTP_CF_CONNECTING_IP']);
+    } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+        $parts = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
+        $ip = trim($parts[0]);
+    } else {
+        $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+    }
+    return filter_var($ip, FILTER_VALIDATE_IP) ? $ip : '127.0.0.1';
+}
+
+/** Read login attempts and clean expired records. */
+function readLoginAttempts(): array {
+    $file = getLoginAttemptsFilePath();
+    if (!file_exists($file)) {
+        return [];
+    }
+
+    $attempts = readJson($file, []);
+    if (!is_array($attempts)) {
+        return [];
+    }
+
+    $now = time();
+    $config = getGlobalConfig();
+    $lockoutDuration = (int)($config['login_lockout_duration'] ?? 900);
+    $cleanupThreshold = $now - max(3600, $lockoutDuration * 2);
+
+    $cleaned = false;
+    foreach ($attempts as $key => $entry) {
+        $lastAttempt = (int)($entry['last_attempt'] ?? 0);
+        $blockedUntil = (int)($entry['blocked_until'] ?? 0);
+        if ($lastAttempt < $cleanupThreshold && $blockedUntil < $now) {
+            unset($attempts[$key]);
+            $cleaned = true;
+        }
+    }
+
+    if ($cleaned) {
+        writeLoginAttempts($attempts);
+    }
+
+    return $attempts;
+}
+
+/** Writes login attempts array to config/login_attempts.json. */
+function writeLoginAttempts(array $attempts): bool {
+    $dir = getConfigDir();
+    if (!file_exists($dir)) {
+        createDirectory($dir);
+    }
+    return writeJsonFile(getLoginAttemptsFilePath(), $attempts);
+}
+
+/** Checks if a login attempt is rate limited by IP or username. Returns remaining lockout seconds or 0. */
+function isLoginRateLimited(string $username, ?string $ip = null): int {
+    $ip = $ip ?? getAuthClientIp();
+    $attempts = readLoginAttempts();
+    $now = time();
+
+    $keys = ['ip_' . md5($ip)];
+    if (!empty($username)) {
+        $keys[] = 'user_' . md5(strtolower($username));
+    }
+
+    $maxRemaining = 0;
+    foreach ($keys as $key) {
+        if (isset($attempts[$key]['blocked_until'])) {
+            $remaining = (int)$attempts[$key]['blocked_until'] - $now;
+            if ($remaining > $maxRemaining) {
+                $maxRemaining = $remaining;
+            }
+        }
+    }
+
+    return $maxRemaining;
+}
+
+/** Record a failed login attempt for IP and username and activate lockout */
+function recordFailedLoginAttempt(string $username, ?string $ip = null): void {
+    $ip = $ip ?? getAuthClientIp();
+    $attempts = readLoginAttempts();
+    $config = getGlobalConfig();
+    $maxAttempts = (int)($config['login_max_attempts'] ?? 5);
+    $lockoutDuration = (int)($config['login_lockout_duration'] ?? 900);
+    $now = time();
+
+    $keys = ['ip_' . md5($ip)];
+    if (!empty($username)) {
+        $keys[] = 'user_' . md5(strtolower($username));
+    }
+
+    foreach ($keys as $key) {
+        $entry = $attempts[$key] ?? ['count' => 0, 'last_attempt' => 0, 'blocked_until' => 0];
+
+        if ($now - (int)$entry['last_attempt'] > $lockoutDuration) {
+            $entry['count'] = 0;
+        }
+
+        $entry['count'] = ((int)$entry['count']) + 1;
+        $entry['last_attempt'] = $now;
+
+        if ($entry['count'] >= $maxAttempts) {
+            $entry['blocked_until'] = $now + $lockoutDuration;
+        }
+
+        $attempts[$key] = $entry;
+    }
+
+    writeLoginAttempts($attempts);
+}
+
+/** Clears failed login attempts for IP and username on successful login. */
+function clearLoginRateLimit(string $username, ?string $ip = null): void {
+    $ip = $ip ?? getAuthClientIp();
+    $attempts = readLoginAttempts();
+    $keys = ['ip_' . md5($ip), 'user_' . md5(strtolower($username))];
+
+    $changed = false;
+    foreach ($keys as $key) {
+        if (isset($attempts[$key])) {
+            unset($attempts[$key]);
+            $changed = true;
+        }
+    }
+
+    if ($changed) {
+        writeLoginAttempts($attempts);
+    }
 }
 
 /** Reads all users from users.json (array indexed by username). */
@@ -33,7 +175,6 @@ function readUsers(): array {
 function writeUsers(array $users): bool {
     $dir = dirname(getUsersFilePath());
     if (!file_exists($dir)) {
-        require_once __DIR__ . '/fs.php';
         createDirectory($dir);
     }
     writeJsonFile(getUsersFilePath(), $users);
@@ -104,15 +245,17 @@ function startAuth(): void {
         $isSecure = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ||
                     (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https');
 
-        // Hardcoded 30-day lifetime
-        session_set_cookie_params([
-            'lifetime' => 60 * 60 * 24 * 30,
-            'path'     => '/',
-            'secure'   => $isSecure,
-            'httponly' => true,
-            'samesite' => 'Lax'
-        ]);
-        session_start();
+        if (!headers_sent()) {
+            // Hardcoded 30-day lifetime
+            session_set_cookie_params([
+                'lifetime' => 60 * 60 * 24 * 30,
+                'path'     => '/',
+                'secure'   => $isSecure,
+                'httponly' => true,
+                'samesite' => 'Lax'
+            ]);
+        }
+        @session_start();
     }
 }
 
@@ -170,20 +313,37 @@ function loginUser(string $username, string $password): bool|string {
 
     $username = trim($username);
     if (empty($username) || empty($password)) {
-        return 'Username and password are required.';
+        return function_exists('__') ? __('login.error_required') : 'Username and password are required.';
+    }
+
+    $ip = getAuthClientIp();
+    $remainingLockout = isLoginRateLimited($username, $ip);
+    if ($remainingLockout > 0) {
+        $minutes = max(1, (int)ceil($remainingLockout / 60));
+        return function_exists('__')
+            ? __('login.error_rate_limited', $minutes)
+            : "Too many failed login attempts. Please try again in {$minutes} minute(s).";
     }
 
     $users = readUsers();
-    if (!isset($users[$username])) {
-        return 'Invalid username or password.';
+    if (!isset($users[$username]) || !password_verify($password, $users[$username]['password_hash'])) {
+        recordFailedLoginAttempt($username, $ip);
+        $remainingLockout = isLoginRateLimited($username, $ip);
+        if ($remainingLockout > 0) {
+            $minutes = max(1, (int)ceil($remainingLockout / 60));
+            return function_exists('__')
+                ? __('login.error_rate_limited', $minutes)
+                : "Too many failed login attempts. Please try again in {$minutes} minute(s).";
+        }
+        return function_exists('__') ? __('login.error_invalid') : 'Invalid username or password.';
     }
 
-    if (!password_verify($password, $users[$username]['password_hash'])) {
-        return 'Invalid username or password.';
-    }
+    clearLoginRateLimit($username, $ip);
 
     // Prevent session fixation by issuing a new ID after successful login
-    session_regenerate_id(true);
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        session_regenerate_id(true);
+    }
 
     $_SESSION['pw_user']       = $username;
     $_SESSION['pw_role']       = $users[$username]['role'] ?? 'reader';
