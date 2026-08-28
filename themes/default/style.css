@@ -876,7 +876,8 @@ html[data-theme="dark"] .pw-theme-icon-dark {
     border-bottom: none;
 }
 
-.pw-search-result-item:hover {
+.pw-search-result-item:hover,
+.pw-search-result-item.pw-active {
     background: var(--pico-card-background-color);
 }
 

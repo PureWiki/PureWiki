@@ -192,9 +192,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (searchToggle && searchDropdown && searchInput && searchResults) {
         let searchTimer = null;
+        let selectedIndex = -1;
+
+        function updateSelection(items) {
+            items.forEach((item, idx) => {
+                if (idx === selectedIndex) {
+                    item.classList.add('pw-active');
+                    item.scrollIntoView({ block: 'nearest' });
+                } else {
+                    item.classList.remove('pw-active');
+                }
+            });
+        }
 
         function toggleSearch(open) {
             searchDropdown.classList.toggle('pw-open', open);
+            selectedIndex = -1;
             if (open) {
                 setTimeout(() => searchInput.focus(), 50);
             } else {
@@ -220,8 +233,30 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
+        searchInput.addEventListener('keydown', (e) => {
+            const items = searchResults.querySelectorAll('.pw-search-result-item');
+            if (!items.length) return;
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                selectedIndex = (selectedIndex + 1) % items.length;
+                updateSelection(items);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                selectedIndex = selectedIndex <= 0 ? items.length - 1 : selectedIndex - 1;
+                updateSelection(items);
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                const targetIndex = selectedIndex >= 0 ? selectedIndex : 0;
+                if (items[targetIndex]) {
+                    items[targetIndex].click();
+                }
+            }
+        });
+
         searchInput.addEventListener('input', () => {
             clearTimeout(searchTimer);
+            selectedIndex = -1;
             const q = searchInput.value.trim();
             if (!q) {
                 searchResults.innerHTML = '';
@@ -235,6 +270,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const lang = window.PW_CURRENT_LANG || '';
                 const res = await fetch((window.PW_BASE_PATH || '') + '/purewiki/api.php?action=search&q=' + encodeURIComponent(query) + '&lang=' + encodeURIComponent(lang));
                 const data = await res.json();
+                selectedIndex = -1;
                 if (data.success && data.results) {
                     if (data.results.length === 0) {
                         searchResults.innerHTML = '<div class="pw-search-empty">No results found.</div>';
@@ -245,6 +281,14 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <span class="pw-search-result-excerpt">${r.excerpt}</span>
                             </a>`
                         ).join('');
+
+                        const items = searchResults.querySelectorAll('.pw-search-result-item');
+                        items.forEach((item, idx) => {
+                            item.addEventListener('mouseenter', () => {
+                                selectedIndex = idx;
+                                updateSelection(items);
+                            });
+                        });
                     }
                 }
             } catch (e) {
