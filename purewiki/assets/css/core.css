@@ -223,6 +223,32 @@ body {
     gap: 20px;
 }
 
+.pw-dashboard-columns {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.pw-dashboard-column {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    flex: 1;
+    min-width: 0;
+}
+
+.pw-dashboard-column .pw-card {
+    margin-top: 0;
+}
+
+@media (min-width: 1280px) {
+    .pw-dashboard-columns {
+        flex-direction: row;
+        align-items: flex-start;
+    }
+}
+
 .pw-page-meta p {
     margin: 4px 0;
 }

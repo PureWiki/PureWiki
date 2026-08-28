@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Added a two-column layout for the admin dashboard on wide screens.
 - Added a "Recently Modified Pages" list to the dashboard startpage view showing recently edited pages with quick actions to view and edit.
 - Added login rate-limiting to protect against brute-force attacks by locking out IP addresses and usernames (default 15 minutes after 5 failed attempts).
 - Added "Last Login" entry to the user management table in Global Settings to show date of most recent login.

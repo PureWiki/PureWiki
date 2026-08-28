@@ -540,6 +540,19 @@ function bindSidebarTreeItems(treeItems, mainActions, mainContent, btnAdd, btnDe
                         const modified = d.DateModified ? new Date(d.DateModified).toLocaleString() : __('common.na');
                         const desc = d.description || d.Description || __('common.no_description');
 
+                        const columnsContainer = document.createElement('div');
+                        columnsContainer.className = 'pw-dashboard-columns';
+
+                        const colLeft = document.createElement('div');
+                        colLeft.className = 'pw-dashboard-column';
+
+                        const colRight = document.createElement('div');
+                        colRight.className = 'pw-dashboard-column';
+
+                        columnsContainer.appendChild(colLeft);
+                        columnsContainer.appendChild(colRight);
+                        mainContent.appendChild(columnsContainer);
+
                         const infoTpl = document.getElementById('tpl-page-info');
                         if (infoTpl) {
                             const info = infoTpl.content.cloneNode(true);
@@ -556,10 +569,95 @@ function bindSidebarTreeItems(treeItems, mainActions, mainContent, btnAdd, btnDe
                             if (d.isPrivate) {
                                 info.querySelector('[data-field="private-badge"]').style.display = 'inline-block';
                             }
-                            mainContent.appendChild(info);
+                            colLeft.appendChild(info);
                         }
 
-                        // Rename card
+                        // Recent pages section for dashboard startpage (right column)
+                        if (path === '/') {
+                            const recentTpl = document.getElementById('tpl-recent-pages-card');
+                            if (recentTpl) {
+                                const recentCard = recentTpl.content.cloneNode(true);
+                                const listContainer = recentCard.querySelector('[data-field="recent-pages-list"]');
+                                const noPagesMsg = recentCard.querySelector('[data-field="no-recent-pages"]');
+
+                                colRight.appendChild(recentCard);
+
+                                apiSafe('list_recent_pages', { limit: 10 })
+                                .then(res => {
+                                    if (res && res.success && Array.isArray(res.data) && res.data.length > 0) {
+                                        const pages = res.data;
+                                        listContainer.innerHTML = '';
+                                        pages.forEach(p => {
+                                            const row = document.createElement('div');
+                                            row.className = 'pw-recent-page-item';
+
+                                            const left = document.createElement('div');
+                                            left.style.minWidth = '0';
+
+                                            let badgesHtml = '';
+                                            if (p.is_draft) {
+                                                badgesHtml += `<span class="pw-draft-badge" style="font-size:9px;margin-left:6px;">${__('dashboard.draft')}</span>`;
+                                            }
+                                            if (p.is_private) {
+                                                badgesHtml += `<span class="pw-private-badge" style="font-size:9px;margin-left:6px;">${__('dashboard.private')}</span>`;
+                                            }
+
+                                            left.innerHTML = `
+                                                <div><span class="pw-recent-page-title">${escapeHtml(p.title || p.path)}</span>${badgesHtml}</div>
+                                                <div class="pw-recent-page-path">${escapeHtml(p.path)}</div>
+                                            `;
+
+                                            const right = document.createElement('div');
+                                            right.className = 'pw-recent-page-meta';
+
+                                            const dateStr = p.modified ? formatPwDate(new Date(p.modified)) : '—';
+                                            const authorStr = p.author ? ` (${escapeHtml(p.author)})` : '';
+                                            right.innerHTML = `<span>${escapeHtml(dateStr)}${authorStr}</span>`;
+
+                                            const editBtn = document.createElement('button');
+                                            editBtn.className = 'pw-btn pw-recent-page-action-btn';
+                                            editBtn.title = __('dashboard.edit_page') || 'Edit Page';
+                                            editBtn.innerHTML = '<iconify-icon icon="mdi:pencil"></iconify-icon>';
+                                            editBtn.onclick = (e) => {
+                                                e.stopPropagation();
+                                                window.location.href = window.PW_BASE_PATH + '/dashboard/edit?path=' + encodeURIComponent(p.path);
+                                            };
+                                            right.appendChild(editBtn);
+
+                                            if (p.is_published) {
+                                                const viewBtn = document.createElement('button');
+                                                viewBtn.className = 'pw-btn pw-recent-page-action-btn';
+                                                viewBtn.title = __('dashboard.view_live_page') || 'Open Live Page';
+                                                viewBtn.innerHTML = '<iconify-icon icon="mdi:open-in-new"></iconify-icon>';
+                                                viewBtn.onclick = (e) => {
+                                                    e.stopPropagation();
+                                                    const liveUrl = (window.PW_BASE_PATH || '') + (p.path === '/' ? '/' : p.path);
+                                                    window.open(liveUrl, '_blank');
+                                                };
+                                                right.appendChild(viewBtn);
+                                            }
+
+                                            row.appendChild(left);
+                                            row.appendChild(right);
+
+                                            row.onclick = () => {
+                                                const treeItem = document.querySelector(`.pw-tree-item[data-path="${p.path}"]`);
+                                                if (treeItem) {
+                                                    treeItem.click();
+                                                    treeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                                                }
+                                            };
+
+                                            listContainer.appendChild(row);
+                                        });
+                                    } else {
+                                        noPagesMsg.style.display = 'block';
+                                    }
+                                });
+                            }
+                        }
+
+                        // Rename card (right column)
                         if (path !== '/' && !isSystemPage && !isSnippet) {
                             const renameTpl = document.getElementById('tpl-rename-card');
                             if (renameTpl) {
@@ -570,11 +668,11 @@ function bindSidebarTreeItems(treeItems, mainActions, mainContent, btnAdd, btnDe
                                 const rename = renameTpl.content.cloneNode(true);
                                 rename.querySelector('[data-field="parent-path"]').textContent = parentPath;
                                 rename.querySelector('[data-field="current-name"]').value = currentName;
-                                mainContent.appendChild(rename);
+                                colRight.appendChild(rename);
                             }
                         }
 
-                        // Redirect card
+                        // Redirect card (right column)
                         if (path !== '/' && !isSystemPage && !isSnippet) {
                             const redirectTpl = document.getElementById('tpl-redirect-card');
                             if (redirectTpl) {
@@ -585,7 +683,7 @@ function bindSidebarTreeItems(treeItems, mainActions, mainContent, btnAdd, btnDe
                                 if (d.Settings?.redirect_url) {
                                     redirect.querySelector('#pw-input-redirect-url').value = d.Settings.redirect_url;
                                 }
-                                mainContent.appendChild(redirect);
+                                colRight.appendChild(redirect);
 
                                 // Attach PagePicker autocomplete to redirect URL input
                                 const redirectInput = document.getElementById('pw-input-redirect-url');
@@ -595,15 +693,15 @@ function bindSidebarTreeItems(treeItems, mainActions, mainContent, btnAdd, btnDe
                             }
                         }
 
-                        // Move card
+                        // Move card (right column)
                         if (path !== '/' && !isSystemPage && !isSnippet) {
                             const moveTpl = document.getElementById('tpl-move-card');
                             if (moveTpl) {
-                                mainContent.appendChild(moveTpl.content.cloneNode(true));
+                                colRight.appendChild(moveTpl.content.cloneNode(true));
                             }
                         }
 
-                        // Comments sectiom for dashboard
+                        // Comments section for dashboard (left column)
                         if (!isSystemPage && !isSnippet) {
                             const commentsTpl = document.getElementById('tpl-comments-card');
                             if (commentsTpl) {
@@ -612,7 +710,7 @@ function bindSidebarTreeItems(treeItems, mainActions, mainContent, btnAdd, btnDe
                                 const noCommentsMsg = card.querySelector('[data-field="no-comments"]');
                                 const badge = card.querySelector('[data-field="pending-count"]');
 
-                                mainContent.appendChild(card);
+                                colLeft.appendChild(card);
 
                                 // Get comments from API
                                 apiCall('list_comments', { path })
@@ -765,89 +863,9 @@ function bindSidebarTreeItems(treeItems, mainActions, mainContent, btnAdd, btnDe
                             }
                         }
 
-                        // Recent pages section for dashboard startpage
-                        if (path === '/') {
-                            const recentTpl = document.getElementById('tpl-recent-pages-card');
-                            if (recentTpl) {
-                                const recentCard = recentTpl.content.cloneNode(true);
-                                const listContainer = recentCard.querySelector('[data-field="recent-pages-list"]');
-                                const noPagesMsg = recentCard.querySelector('[data-field="no-recent-pages"]');
-
-                                mainContent.appendChild(recentCard);
-
-                                apiSafe('list_recent_pages', { limit: 10 })
-                                .then(res => {
-                                    if (res && res.success && Array.isArray(res.data) && res.data.length > 0) {
-                                        const pages = res.data;
-                                        listContainer.innerHTML = '';
-                                        pages.forEach(p => {
-                                            const row = document.createElement('div');
-                                            row.className = 'pw-recent-page-item';
-
-                                            const left = document.createElement('div');
-                                            left.style.minWidth = '0';
-
-                                            let badgesHtml = '';
-                                            if (p.is_draft) {
-                                                badgesHtml += `<span class="pw-draft-badge" style="font-size:9px;margin-left:6px;">${__('dashboard.draft')}</span>`;
-                                            }
-                                            if (p.is_private) {
-                                                badgesHtml += `<span class="pw-private-badge" style="font-size:9px;margin-left:6px;">${__('dashboard.private')}</span>`;
-                                            }
-
-                                            left.innerHTML = `
-                                                <div><span class="pw-recent-page-title">${escapeHtml(p.title || p.path)}</span>${badgesHtml}</div>
-                                                <div class="pw-recent-page-path">${escapeHtml(p.path)}</div>
-                                            `;
-
-                                            const right = document.createElement('div');
-                                            right.className = 'pw-recent-page-meta';
-
-                                            const dateStr = p.modified ? formatPwDate(new Date(p.modified)) : '—';
-                                            const authorStr = p.author ? ` (${escapeHtml(p.author)})` : '';
-                                            right.innerHTML = `<span>${escapeHtml(dateStr)}${authorStr}</span>`;
-
-                                            const editBtn = document.createElement('button');
-                                            editBtn.className = 'pw-btn pw-recent-page-action-btn';
-                                            editBtn.title = __('dashboard.edit_page') || 'Edit Page';
-                                            editBtn.innerHTML = '<iconify-icon icon="mdi:pencil"></iconify-icon>';
-                                            editBtn.onclick = (e) => {
-                                                e.stopPropagation();
-                                                window.location.href = window.PW_BASE_PATH + '/dashboard/edit?path=' + encodeURIComponent(p.path);
-                                            };
-                                            right.appendChild(editBtn);
-
-                                            if (p.is_published) {
-                                                const viewBtn = document.createElement('button');
-                                                viewBtn.className = 'pw-btn pw-recent-page-action-btn';
-                                                viewBtn.title = __('dashboard.view_live_page') || 'Open Live Page';
-                                                viewBtn.innerHTML = '<iconify-icon icon="mdi:open-in-new"></iconify-icon>';
-                                                viewBtn.onclick = (e) => {
-                                                    e.stopPropagation();
-                                                    const liveUrl = (window.PW_BASE_PATH || '') + (p.path === '/' ? '/' : p.path);
-                                                    window.open(liveUrl, '_blank');
-                                                };
-                                                right.appendChild(viewBtn);
-                                            }
-
-                                            row.appendChild(left);
-                                            row.appendChild(right);
-
-                                            row.onclick = () => {
-                                                const treeItem = document.querySelector(`.pw-tree-item[data-path="${p.path}"]`);
-                                                if (treeItem) {
-                                                    treeItem.click();
-                                                    treeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                                                }
-                                            };
-
-                                            listContainer.appendChild(row);
-                                        });
-                                    } else {
-                                        noPagesMsg.style.display = 'block';
-                                    }
-                                });
-                            }
+                        // Remove empty column if no card
+                        if (colRight.children.length === 0) {
+                            colRight.remove();
                         }
                     } else {
                         const fallback = document.createElement('p');

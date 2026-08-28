@@ -256,7 +256,7 @@ require_once __DIR__ . '/layout_head.php';
     </template>
 
     <template id="tpl-comments-card">
-        <div class="pw-card pw-comments-card" style="margin-top: 20px;">
+        <div class="pw-card pw-comments-card">
             <h3>
                 <iconify-icon icon="mdi:comment-text-multiple-outline" class="pw-icon-left"></iconify-icon> 
                 <?php echo __('comments.title'); ?>
@@ -269,7 +269,7 @@ require_once __DIR__ . '/layout_head.php';
     </template>
 
     <template id="tpl-recent-pages-card">
-        <div class="pw-card pw-recent-pages-card" style="margin-top: 20px;">
+        <div class="pw-card pw-recent-pages-card">
             <h3>
                 <iconify-icon icon="mdi:history" class="pw-icon-left"></iconify-icon>
                 <?php echo __('dashboard.recent_pages_title'); ?>
