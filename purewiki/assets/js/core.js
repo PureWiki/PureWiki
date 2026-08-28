@@ -298,6 +298,143 @@ function closeDialog(result) {
     }
 }
 
+/** header user profile menu dropdown */
+function initUserMenu() {
+    const wrapper = document.getElementById('pw-user-menu-wrapper');
+    const toggleBtn = document.getElementById('pw-user-menu-toggle');
+    const dropdown = document.getElementById('pw-user-dropdown');
+    const btnChangePw = document.getElementById('pw-btn-change-password');
+
+    if (!wrapper || !toggleBtn || !dropdown) return;
+
+    const toggleMenu = (show) => {
+        const shouldShow = show !== undefined ? show : !dropdown.classList.contains('pw-show');
+        dropdown.classList.toggle('pw-show', shouldShow);
+    };
+
+    toggleBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleMenu();
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!wrapper.contains(e.target)) {
+            toggleMenu(false);
+        }
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && dropdown.classList.contains('pw-show')) {
+            toggleMenu(false);
+        }
+    });
+
+    if (btnChangePw) {
+        btnChangePw.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleMenu(false);
+            openChangePasswordDialog();
+        });
+    }
+}
+
+/** Opens dialog to change the current user password */
+async function openChangePasswordDialog() {
+    if (!document.getElementById('pw-dialog-overlay')) {
+        initDialogSystem();
+    }
+
+    const html = `
+        <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 5px;">
+            <div>
+                <label style="display: block; font-size: 13px; margin-bottom: 4px; color: var(--pw-text-muted);">${__('auth.current_password')}</label>
+                <input id="pw-cpw-current" type="password" class="pw-input" autocomplete="current-password" required>
+            </div>
+            <div>
+                <label style="display: block; font-size: 13px; margin-bottom: 4px; color: var(--pw-text-muted);">${__('auth.new_password')}</label>
+                <input id="pw-cpw-new" type="password" class="pw-input" autocomplete="new-password" placeholder="${__('auth.min_chars_hint') || 'Mind. 8 Zeichen'}" required>
+                <div id="pw-cpw-len-hint" style="font-size: 11px; margin-top: 4px; min-height: 14px;"></div>
+            </div>
+            <div>
+                <label style="display: block; font-size: 13px; margin-bottom: 4px; color: var(--pw-text-muted);">${__('auth.confirm_password')}</label>
+                <input id="pw-cpw-confirm" type="password" class="pw-input" autocomplete="new-password" required>
+                <div id="pw-cpw-match-hint" style="font-size: 11px; margin-top: 4px; min-height: 14px;"></div>
+            </div>
+        </div>
+    `;
+
+    const dialogPromise = openDialog({
+        title: __('auth.change_password'),
+        html: html,
+        type: 'confirm',
+        confirmText: __('common.save'),
+        cancelText: __('common.cancel')
+    });
+
+    const currentInput = document.getElementById('pw-cpw-current');
+    const newInput = document.getElementById('pw-cpw-new');
+    const confirmInput = document.getElementById('pw-cpw-confirm');
+    const lenHint = document.getElementById('pw-cpw-len-hint');
+    const matchHint = document.getElementById('pw-cpw-match-hint');
+    const confirmBtn = document.getElementById('pw-dialog-btn-confirm');
+
+    function validateInputs() {
+        const curVal = currentInput?.value || '';
+        const newVal = newInput?.value || '';
+        const confVal = confirmInput?.value || '';
+
+        // Length validation
+        if (newVal.length === 0) {
+            lenHint.textContent = '';
+        } else if (newVal.length < 8) {
+            lenHint.textContent = `${newVal.length} / 8 ${__('auth.min_chars_hint')}`;
+            lenHint.style.color = 'var(--pw-danger)';
+        } else {
+            lenHint.textContent = `✓ ${__('auth.min_chars_hint')}`;
+            lenHint.style.color = 'var(--pw-success)';
+        }
+
+        // Match validation
+        if (confVal.length === 0) {
+            matchHint.textContent = '';
+        } else if (newVal === confVal && newVal.length >= 8) {
+            matchHint.textContent = `✓ ${__('auth.password_match') || 'Passwörter stimmen überein'}`;
+            matchHint.style.color = 'var(--pw-success)';
+        } else {
+            matchHint.textContent = `✗ ${__('auth.error_password_mismatch') || 'Passwörter stimmen nicht überein'}`;
+            matchHint.style.color = 'var(--pw-danger)';
+        }
+
+        const isValid = curVal.length > 0 && newVal.length >= 8 && newVal === confVal;
+        if (confirmBtn) {
+            confirmBtn.disabled = !isValid;
+        }
+    }
+
+    if (confirmBtn) {
+        confirmBtn.disabled = true;
+    }
+
+    [currentInput, newInput, confirmInput].forEach(input => {
+        if (input) input.addEventListener('input', validateInputs);
+    });
+
+    const confirmed = await dialogPromise;
+    if (!confirmed) return;
+
+    const currentPassword = currentInput?.value || '';
+    const newPassword = newInput?.value || '';
+
+    const res = await apiSafe('change_password', {
+        current_password: currentPassword,
+        new_password: newPassword
+    });
+
+    if (res && res.success !== false) {
+        notify(res.message || __('auth.password_changed'), 'success');
+    }
+}
+
 /** Initializes treeview interaction */
 function initTreeview() {
     const toggles = document.querySelectorAll('.pw-tree-toggle');

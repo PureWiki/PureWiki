@@ -237,6 +237,51 @@ function listUsers(): array {
     return $result;
 }
 
+/** Changes the password for an existing user after verifying their current password. */
+function changeUserPassword(string $username, string $currentPassword, string $newPassword): bool|string {
+    $username = trim($username);
+    if (empty($username) || empty($currentPassword) || empty($newPassword)) {
+        return function_exists('__') ? __('auth.error_required') : 'All password fields are required.';
+    }
+
+    if (strlen($newPassword) < 8) {
+        return function_exists('__') ? __('auth.error_password_too_short') : 'Password must be at least 8 characters long.';
+    }
+
+    $users = readUsers();
+    if (!isset($users[$username])) {
+        return function_exists('__') ? __('auth.error_user_not_found') : 'User not found.';
+    }
+
+    if (!password_verify($currentPassword, $users[$username]['password_hash'])) {
+        return function_exists('__') ? __('auth.error_current_password_invalid') : 'Current password is incorrect.';
+    }
+
+    $users[$username]['password_hash'] = password_hash($newPassword, PASSWORD_BCRYPT);
+    writeUsers($users);
+
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        session_regenerate_id(true);
+    }
+
+    return true;
+}
+
+/** Generates a 1-2 character uppercase initials badge string for a username. */
+function getCurrentUserInitials(?string $username = null): string {
+    $user = trim($username ?? ($_SESSION['pw_user'] ?? ''));
+    if ($user === '') {
+        return 'U';
+    }
+
+    $parts = preg_split('/[\s_\-\.]+/', $user, -1, PREG_SPLIT_NO_EMPTY);
+    if (count($parts) >= 2) {
+        return strtoupper(mb_substr($parts[0], 0, 1) . mb_substr($parts[1], 0, 1));
+    }
+
+    return strtoupper(mb_substr($user, 0, min(2, mb_strlen($user))));
+}
+
 /** Starts the PHP session if not already active. */
 function startAuth(): void {
     if (session_status() === PHP_SESSION_NONE) {

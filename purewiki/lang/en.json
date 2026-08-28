@@ -31,6 +31,20 @@
         "error_invalid": "Invalid username or password.",
         "error_rate_limited": "Too many failed login attempts. Please try again in %d minute(s)."
     },
+    "auth": {
+        "change_password": "Change Password",
+        "current_password": "Current Password",
+        "new_password": "New Password",
+        "confirm_password": "Confirm New Password",
+        "min_chars_hint": "At least 8 characters",
+        "password_match": "Passwords match",
+        "password_changed": "Password changed successfully.",
+        "error_required": "All password fields are required.",
+        "error_current_password_invalid": "Current password is incorrect.",
+        "error_password_mismatch": "Passwords do not match.",
+        "error_password_too_short": "Password must be at least 8 characters long.",
+        "error_user_not_found": "User not found."
+    },
     "dashboard": {
         "title": "Global Settings",
         "visit_wiki": "Visit Wiki",

@@ -129,6 +129,7 @@ $apiRoutes = [
     'list_users' => 'system/users.php',
     'create_user' => 'system/users.php',
     'delete_user' => 'system/users.php',
+    'change_password' => 'system/users.php',
     'search' => 'system/search.php',
     'logout' => 'system/auth.php',
     'get_system_status' => 'system/status.php',
@@ -191,7 +192,7 @@ if (!isset($apiRoutes[$action])) {
 // Enforce Authentication and Role-Based Access Control
 // Editor Actions are all available actions except admin actions
 $publicActions = ['search', 'setup_wiki', 'submit_comment'];
-$readerActions = ['logout'];
+$readerActions = ['logout', 'change_password'];
 $adminActions  = [
     'get_config', 'save_config', 'clear_cache', 'list_users', 'create_user', 'delete_user',
     'list_backups', 'start_backup', 'get_backup_status', 'delete_backup', 'download_backup',

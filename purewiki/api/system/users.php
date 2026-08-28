@@ -41,4 +41,18 @@ if ($action === 'list_users') {
     } else {
         $response['message'] = $result;
     }
+} else if ($action === 'change_password') {
+    $currentPassword = $_POST['current_password'] ?? '';
+    $newPassword     = $_POST['new_password'] ?? '';
+    $username        = $_SESSION['pw_user'] ?? '';
+
+    $result = changeUserPassword($username, $currentPassword, $newPassword);
+    if ($result === true) {
+        $response['success'] = true;
+        $response['message'] = function_exists('__') ? __('auth.password_changed') : 'Password changed successfully.';
+        logActivity('user_password_change', 'system', null, ['user' => $username]);
+    } else {
+        $response['message'] = $result;
+    }
 }
+

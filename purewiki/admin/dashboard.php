@@ -20,6 +20,7 @@ require_once __DIR__ . '/../core/i18n.php';
 require_once __DIR__ . '/../core/asset_manager.php';
 require_once __DIR__ . '/../core/fs.php';
 require_once __DIR__ . '/../core/misc.php';
+require_once __DIR__ . '/../core/auth.php';
 
 $pagesDir = getPageDir();
 $tree = getPagesTree($pagesDir);
@@ -47,7 +48,25 @@ require_once __DIR__ . '/layout_head.php';
             <?php if (hasRole('admin')) { ?>
                 <button class="pw-btn" onclick="window.location.href=window.PW_BASE_PATH+'/dashboard/settings'"><iconify-icon icon="mdi:cog"></iconify-icon> <?php echo __('setup.wiki_settings'); ?></button>
             <?php } ?>
-            <button class="pw-btn pw-btn-danger" onclick="logoutAndRedirect()"><iconify-icon icon="mdi:logout"></iconify-icon> <?php echo __('dashboard.logout'); ?></button>
+            <div class="pw-user-menu-wrapper" id="pw-user-menu-wrapper">
+                <button class="pw-user-badge-btn" id="pw-user-menu-toggle" aria-label="User Menu" title="<?php echo htmlspecialchars($_SESSION['pw_user'] ?? ''); ?>">
+                    <?php echo htmlspecialchars(getCurrentUserInitials()); ?>
+                </button>
+                <div class="pw-user-dropdown" id="pw-user-dropdown">
+                    <div class="pw-user-dropdown-header">
+                        <span class="pw-user-dropdown-name"><?php echo htmlspecialchars($_SESSION['pw_user'] ?? ''); ?></span>
+                        <span class="pw-user-dropdown-role"><?php echo htmlspecialchars(ucfirst($_SESSION['pw_role'] ?? '')); ?></span>
+                    </div>
+                    <div class="pw-user-dropdown-divider"></div>
+                    <button class="pw-user-dropdown-item" id="pw-btn-change-password">
+                        <iconify-icon icon="mdi:key-outline"></iconify-icon> <?php echo __('auth.change_password'); ?>
+                    </button>
+                    <div class="pw-user-dropdown-divider"></div>
+                    <button class="pw-user-dropdown-item pw-danger" onclick="logoutAndRedirect()">
+                        <iconify-icon icon="mdi:logout"></iconify-icon> <?php echo __('dashboard.logout'); ?>
+                    </button>
+                </div>
+            </div>
         </div>
     </header>
 
@@ -172,6 +191,7 @@ require_once __DIR__ . '/layout_head.php';
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             initDialogSystem();
+            initUserMenu();
             initTreeview();
             initSnippets();
             initDashboardInteractions();
