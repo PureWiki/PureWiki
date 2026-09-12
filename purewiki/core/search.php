@@ -68,7 +68,6 @@ function _collectSearchEntries(string $dir, string $pagesDir, array &$index, arr
             $data = readJson($jsonPath, null);
             if (is_array($data)) {
                 $relativePath = '/' . ltrim(str_replace(str_replace('\\', '/', $pagesDir), '', str_replace('\\', '/', $dir)), '/');
-                $relativePath = '/' . ltrim($relativePath, '/');
 
                 $textParts = [];
                 if (!empty($data['blocks'])) {
