@@ -275,8 +275,8 @@ if ($action === 'install_update') {
 
     try {
         if (file_exists($sourceRoot . '/index.php')) copy($sourceRoot . '/index.php', $targetRoot . '/index.php');
-        if (is_dir($sourceRoot . '/purewiki')) copyDirectory($sourceRoot . '/purewiki', $targetRoot . '/purewiki', ['pages', 'config', 'Backups', 'cache', '.git']);
-        if (is_dir($sourceRoot . '/themes')) copyDirectory($sourceRoot . '/themes', $targetRoot . '/themes', ['pages', 'config', 'Backups', 'cache', '.git']);
+        if (is_dir($sourceRoot . '/purewiki')) copyDirectory($sourceRoot . '/purewiki', $targetRoot . '/purewiki', ['.git']);
+        if (is_dir($sourceRoot . '/themes/default')) copyDirectory($sourceRoot . '/themes/default', $targetRoot . '/themes/default', ['.git']);
 
         // Force cache rebuild
         if (function_exists('clearCache')) clearCache();
