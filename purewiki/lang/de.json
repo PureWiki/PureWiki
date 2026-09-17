@@ -346,6 +346,8 @@
         "allowed_extensions": "Erlaubte Dateierweiterungen",
         "allowed_extensions_desc": "Kommagetrennte Liste erlaubter Dateierweiterungen für den Medien-Manager (z.B. <code>jpg, png, pdf</code>). Systemdateien und ausführbare Skripte (z.B. <code>.php</code>) sind grundsätzlich verboten.",
         "allowed_extensions_placeholder": "jpg, jpeg, png, gif, svg, webp, pdf, mp4, webm, zip, csv, txt",
+        "links_navigation_title": "Links & Navigation",
+        "open_external_links_new_tab": "Externe Links im neuen Tab öffnen",
         "caching": "Caching",
         "enable_caching": "Caching aktivieren",
         "enable_caching_desc": "Verbessert die Ladegeschwindigkeit durch Zwischenspeicherung der HTML-Ausgabe. Für den Produktivbetrieb empfohlen.",

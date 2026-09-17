@@ -71,6 +71,7 @@ function getGlobalConfig(bool $forceReload = false): array {
         'dev_debug_log_max_size'  => 2,
         'dev_debug_log_max_files' => 3,
         'allowed_file_extensions' => 'jpg, jpeg, png, gif, svg, webp, pdf, mp4, webm, zip, csv, txt',
+        'open_external_links_new_tab' => false,
         'allow_prerelease_updates' => false,
         'i18n_enabled'            => false,
         'i18n_default_lang'       => 'de',

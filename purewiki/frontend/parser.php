@@ -15,6 +15,7 @@ defined('PUREWIKI') || die('Direct access denied.');
 require_once realpath(__DIR__ . '/../extern/parsedown/Parsedown.php');
 require_once realpath(__DIR__ . '/../extern/parsedownExtra/ParsedownExtra.php');
 require_once realpath(__DIR__ . '/../core/fs.php');
+require_once realpath(__DIR__ . '/../core/config.php');
 
 function renderMarkdown(string $text): string {
     static $pd = null;
@@ -37,6 +38,55 @@ function prefixInternalLinks(string $html): string {
         '/\bhref=(["\'])(\/)(?!\/)([^"\']*)\1/i',
         function ($m) use ($prefix) {
             return 'href=' . $m[1] . $prefix . '/' . $m[3] . $m[1];
+        },
+        $html
+    );
+}
+
+/** Processes external links if open_external_links_new_tab is enabled */
+function processExternalLinks(string $html): string {
+    $config = getGlobalConfig();
+    if (empty($config['open_external_links_new_tab'])) {
+        return $html;
+    }
+
+    $currentHost = $_SERVER['HTTP_HOST'] ?? '';
+    $currentHostName = $currentHost !== '' ? strtolower(parse_url('http://' . $currentHost, PHP_URL_HOST) ?? '') : '';
+
+    return preg_replace_callback(
+        '/<a\b([^>]*?)href=(["\'])(.*?)\2([^>]*?)>/i',
+        function ($match) use ($currentHostName) {
+            $beforeHref = $match[1];
+            $quote      = $match[2];
+            $href       = $match[3];
+            $afterHref  = $match[4];
+
+            $decodedHref = html_entity_decode($href, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            $scheme = parse_url($decodedHref, PHP_URL_SCHEME);
+            $host   = parse_url($decodedHref, PHP_URL_HOST);
+
+            if (!$host && str_starts_with($decodedHref, '//')) {
+                $host = parse_url('http:' . $decodedHref, PHP_URL_HOST);
+            }
+
+            // Ignore internal links, mailto, tel and same-host URLs
+            $isExternal = false;
+            if ($host) {
+                $host = strtolower($host);
+                if ($currentHostName === '' || $host !== $currentHostName) {
+                    if (!$scheme || in_array(strtolower($scheme), ['http', 'https'], true)) {
+                        $isExternal = true;
+                    }
+                }
+            }
+            if (!$isExternal) {
+                return $match[0];
+            }
+
+            // Strip existing target and rel to avoid duplicates
+            $otherAttrs = trim(preg_replace('/\s+/', ' ', preg_replace('/\b(target|rel)=(["\']).*?\2/i', '', $beforeHref . ' ' . $afterHref)));
+            $attrs = $otherAttrs !== '' ? ' ' . $otherAttrs : '';
+            return '<a href=' . $quote . $href . $quote . $attrs . ' target="_blank" rel="noopener noreferrer">';
         },
         $html
     );
@@ -537,7 +587,8 @@ function parseBlocksToHtml(array $blocks, string $contextPath = '/', ?array $mai
         }
     }
 
-    return implode(PHP_EOL, $parts);
+    $html = implode(PHP_EOL, $parts);
+    return processExternalLinks($html);
 }
 
 /** Renders the content of another page */

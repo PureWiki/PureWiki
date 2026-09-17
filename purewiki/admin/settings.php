@@ -266,6 +266,13 @@ require_once __DIR__ . '/layout_head.php';
                     <?php
                     renderInput('pw-setting-search-max-results', __('settings.max_results'), __('settings.max_results_desc'), 'number', 'pw-input pw-w-sm', '10', 'min="1" max="100" value="10"', 'pw-setting-description');
                     ?>
+
+                    <hr class="pw-separator">
+
+                    <h3 class="pw-settings-heading"><?php echo __('settings.links_navigation_title'); ?></h3>
+                    <?php
+                    renderToggle('pw-setting-open-external-links-new-tab', __('settings.open_external_links_new_tab'));
+                    ?>
                 </div>
             </div>
             <!-- Appearance Tab Content -->

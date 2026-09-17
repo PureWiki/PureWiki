@@ -24,6 +24,7 @@ const settingsFields = {
     'dashboard_language': 'pw-setting-dashboard-language',
     'dashboard_theme': 'pw-setting-dashboard-theme',
     'allowed_file_extensions': 'pw-setting-allowed-extensions',
+    'open_external_links_new_tab': 'pw-setting-open-external-links-new-tab',
     'current_theme': 'pw-setting-current-theme',
     'enable_cache':  'pw-setting-enable-cache',
     'cache_lifetime':'pw-setting-cache-lifetime',

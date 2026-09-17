@@ -346,6 +346,8 @@
         "allowed_extensions": "Allowed File Extensions",
         "allowed_extensions_desc": "Comma-separated list of permitted file extensions for the Media Manager (e.g., <code>jpg, png, pdf</code>). Note: System files and executable scripts (e.g., <code>.php</code>) are strictly forbidden regardless of this setting.",
         "allowed_extensions_placeholder": "jpg, jpeg, png, gif, svg, webp, pdf, mp4, webm, zip, csv, txt",
+        "links_navigation_title": "Links & Navigation",
+        "open_external_links_new_tab": "Open external links in new tab",
         "caching": "Caching",
         "enable_caching": "Enable Caching",
         "enable_caching_desc": "Improves page load speed by storing the HTML output. Highly recommended for production.",
