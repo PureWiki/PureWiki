@@ -581,8 +581,26 @@ select.pw-editor-ctrl {
 /* Dark-themed number input spinners */
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button {
+    opacity: 0.65;
+    cursor: pointer;
+    filter: invert(0.9);
+    transition: opacity 0.15s ease;
+}
+
+input[type=number]:hover::-webkit-inner-spin-button,
+input[type=number]:focus::-webkit-inner-spin-button {
     opacity: 1;
-    filter: invert(1);
+}
+
+[data-theme="light"] input[type=number]::-webkit-inner-spin-button,
+[data-theme="light"] input[type=number]::-webkit-outer-spin-button {
+    filter: none;
+    opacity: 0.65;
+}
+
+[data-theme="light"] input[type=number]:hover::-webkit-inner-spin-button,
+[data-theme="light"] input[type=number]:focus::-webkit-inner-spin-button {
+    opacity: 1;
 }
 
 /* Shared delete button for block items */

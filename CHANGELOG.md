@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added dynamic dashboard language loading from language files.
 - Added a setting under Global Settings > General to automatically open external links in a new browser tab.
 
+### Changed
+- Improved styling in the dashboard.
+
 ### Fixed
 - Fixed bug in the updater where `purewiki/api/pages/` was skipped during updates due to a directory exclusion. Also restricted theme updates exclusively to `themes/default/`.
 

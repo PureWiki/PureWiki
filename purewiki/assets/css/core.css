@@ -207,6 +207,67 @@ body {
     box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
 }
 
+select.pw-input {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23aaaaaa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 14px 14px;
+    padding-right: 36px;
+    transition: border-color 0.2s, box-shadow 0.2s, background-image 0.15s ease;
+}
+
+select.pw-input:hover,
+select.pw-input:focus {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+}
+
+[data-theme="light"] select.pw-input {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%234b5563' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+}
+
+[data-theme="light"] select.pw-input:hover,
+[data-theme="light"] select.pw-input:focus {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23111827' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+}
+
+select.pw-input option {
+    background-color: var(--pw-bg-panel);
+    color: var(--pw-text);
+}
+
+/* Number Input Spinners */
+input[type="number"] {
+    padding-right: 6px;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    opacity: 0.65;
+    cursor: pointer;
+    filter: invert(0.9);
+    transition: opacity 0.15s ease;
+}
+
+input[type="number"]:hover::-webkit-inner-spin-button,
+input[type="number"]:focus::-webkit-inner-spin-button {
+    opacity: 1;
+}
+
+[data-theme="light"] input[type="number"]::-webkit-inner-spin-button,
+[data-theme="light"] input[type="number"]::-webkit-outer-spin-button {
+    filter: none;
+    opacity: 0.65;
+}
+
+[data-theme="light"] input[type="number"]:hover::-webkit-inner-spin-button,
+[data-theme="light"] input[type="number"]:focus::-webkit-inner-spin-button {
+    opacity: 1;
+}
+
 /* Cards */
 
 .pw-card {
@@ -429,6 +490,25 @@ body {
     gap: 10px;
 }
 
+.pw-dashboard-header .pw-header-right .pw-btn {
+    height: 37px;
+    box-sizing: border-box;
+}
+
+.pw-dashboard-header .pw-header-right #pw-btn-clear-cache {
+    width: 37px;
+    height: 37px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.pw-dashboard-header .pw-header-right #pw-btn-clear-cache iconify-icon {
+    font-size: 18px;
+}
+
 /* User Profile Menu */
 .pw-user-menu-wrapper {
     position: relative;
@@ -464,10 +544,10 @@ body {
     min-width: 180px;
     background: var(--pw-bg-panel);
     border: 1px solid var(--pw-border);
-    border-radius: 6px;
+    border-radius: 8px;
     box-shadow: 0 8px 24px var(--pw-dialog-shadow);
     z-index: 1000;
-    padding: 6px 0;
+    padding: 6px;
 }
 
 .pw-user-dropdown.pw-show {
@@ -475,7 +555,7 @@ body {
 }
 
 .pw-user-dropdown-header {
-    padding: 8px 14px 6px;
+    padding: 6px 10px;
     font-size: 12px;
     color: var(--pw-text-muted);
 }
@@ -498,13 +578,19 @@ body {
     align-items: center;
     gap: 8px;
     width: 100%;
-    padding: 7px 14px;
+    padding: 7px 10px;
+    border-radius: 4px;
     background: none;
     border: none;
     color: var(--pw-text);
     font-size: 13px;
     cursor: pointer;
     transition: background-color 0.1s ease;
+}
+
+.pw-user-dropdown-item iconify-icon {
+    font-size: 16px;
+    flex-shrink: 0;
 }
 
 .pw-user-dropdown-item:hover {
