@@ -66,5 +66,17 @@ if ($action === 'list_users') {
     } else {
         $response['message'] = $result;
     }
+} else if ($action === 'change_theme') {
+    $theme    = trim($_POST['theme'] ?? '');
+    $username = $_SESSION['pw_user'] ?? '';
+
+    $result = changeUserTheme($username, $theme);
+    if ($result === true) {
+        $response['success'] = true;
+        $response['message'] = function_exists('__') ? __('auth.theme_changed') : 'Theme changed successfully.';
+        logActivity('user_theme_change', 'system', null, ['user' => $username, 'theme' => $theme]);
+    } else {
+        $response['message'] = $result;
+    }
 }
 

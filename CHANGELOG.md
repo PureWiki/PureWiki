@@ -7,8 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Added option to change the dashboard language and theme per user account via profile dropdown.
 - Added dynamic dashboard language loading from language files.
-- Added option to change the dashboard language per user account via the user profile dropdown.
 - Added a setting under Global Settings > General to automatically open external links in a new browser tab.
 
 ### Fixed

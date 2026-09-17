@@ -50,7 +50,11 @@
         "change_language": "Change Language",
         "select_language": "Select Language",
         "language_changed": "Language changed successfully.",
-        "error_invalid_language": "Invalid language selected."
+        "error_invalid_language": "Invalid language selected.",
+        "theme_light": "Light Theme",
+        "theme_dark": "Dark Theme",
+        "theme_changed": "Theme changed successfully.",
+        "error_invalid_theme": "Invalid theme selected."
     },
     "dashboard": {
         "title": "Global Settings",
@@ -338,8 +342,8 @@
         "wiki_name_placeholder": "PureWiki",
         "dashboard_language": "Default Dashboard Language",
         "dashboard_language_desc": "Select the default language for the admin dashboard interface. Users can change their language in the profile menu.",
-        "dashboard_theme": "Dashboard Theme",
-        "dashboard_theme_desc": "Select the color theme for the admin dashboard.",
+        "dashboard_theme": "Default Dashboard Theme",
+        "dashboard_theme_desc": "Select the default color theme for the admin dashboard. Users can change their theme in the profile menu.",
         "theme_dark": "Dark (Default)",
         "theme_light": "Light",
         "wiki_logo": "Wiki Logo (URL or Path)",

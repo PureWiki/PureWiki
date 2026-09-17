@@ -50,7 +50,11 @@
         "change_language": "Sprache ändern",
         "select_language": "Sprache auswählen",
         "language_changed": "Sprache erfolgreich geändert.",
-        "error_invalid_language": "Ungültige Sprache ausgewählt."
+        "error_invalid_language": "Ungültige Sprache ausgewählt.",
+        "theme_light": "Helles Theme",
+        "theme_dark": "Dunkles Theme",
+        "theme_changed": "Theme erfolgreich geändert.",
+        "error_invalid_theme": "Ungültiges Theme ausgewählt."
     },
     "dashboard": {
         "title": "Globale Einstellungen",
@@ -338,8 +342,8 @@
         "wiki_name_placeholder": "PureWiki",
         "dashboard_language": "Standard-Dashboard-Sprache",
         "dashboard_language_desc": "Wählen Sie die Standard-Sprache für die Dashboard-Oberfläche. Benutzer können ihre Sprache im Profilmenü anpassen.",
-        "dashboard_theme": "Dashboard-Theme",
-        "dashboard_theme_desc": "Wählen Sie das Farbschema für das Admin-Dashboard.",
+        "dashboard_theme": "Standard-Dashboard-Theme",
+        "dashboard_theme_desc": "Wählen Sie das Standard-Farbschema für das Admin-Dashboard. Benutzer können ihr Theme im Profilmenü anpassen.",
         "theme_dark": "Dunkel (Standard)",
         "theme_light": "Hell",
         "wiki_logo": "Wiki-Logo (URL oder Pfad)",

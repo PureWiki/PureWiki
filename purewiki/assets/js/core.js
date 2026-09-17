@@ -303,6 +303,7 @@ function initUserMenu() {
     const wrapper = document.getElementById('pw-user-menu-wrapper');
     const toggleBtn = document.getElementById('pw-user-menu-toggle');
     const dropdown = document.getElementById('pw-user-dropdown');
+    const btnToggleTheme = document.getElementById('pw-btn-toggle-theme');
     const btnChangeLang = document.getElementById('pw-btn-change-language');
     const btnChangePw = document.getElementById('pw-btn-change-password');
 
@@ -329,6 +330,32 @@ function initUserMenu() {
             toggleMenu(false);
         }
     });
+
+    if (btnToggleTheme) {
+        btnToggleTheme.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const currentTheme = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+
+            if (newTheme === 'light') {
+                document.documentElement.setAttribute('data-theme', 'light');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+            }
+
+            const icon = btnToggleTheme.querySelector('iconify-icon');
+            const label = document.getElementById('pw-user-theme-label');
+            if (icon) {
+                icon.setAttribute('icon', newTheme === 'light' ? 'mdi:weather-night' : 'mdi:weather-sunny');
+            }
+            if (label) {
+                label.textContent = newTheme === 'light' ? __('auth.theme_dark') : __('auth.theme_light');
+            }
+            btnToggleTheme.setAttribute('data-theme', newTheme);
+
+            await apiSafe('change_theme', { theme: newTheme });
+        });
+    }
 
     if (btnChangeLang) {
         btnChangeLang.addEventListener('click', (e) => {

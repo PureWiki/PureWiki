@@ -58,6 +58,11 @@ require_once __DIR__ . '/layout_head.php';
                         <span class="pw-user-dropdown-role"><?php echo htmlspecialchars(ucfirst($_SESSION['pw_role'] ?? '')); ?></span>
                     </div>
                     <div class="pw-user-dropdown-divider"></div>
+                    <?php $currentTheme = $theme ?? (function_exists('getDashboardTheme') ? getDashboardTheme() : 'dark'); ?>
+                    <button class="pw-user-dropdown-item" id="pw-btn-toggle-theme" data-theme="<?php echo htmlspecialchars($currentTheme); ?>">
+                        <iconify-icon icon="<?php echo $currentTheme === 'light' ? 'mdi:weather-night' : 'mdi:weather-sunny'; ?>"></iconify-icon>
+                        <span id="pw-user-theme-label"><?php echo $currentTheme === 'light' ? __('auth.theme_dark') : __('auth.theme_light'); ?></span>
+                    </button>
                     <button class="pw-user-dropdown-item" id="pw-btn-change-language">
                         <iconify-icon icon="mdi:translate"></iconify-icon> <?php echo __('auth.change_language'); ?>
                     </button>

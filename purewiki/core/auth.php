@@ -232,7 +232,8 @@ function listUsers(): array {
             'role'          => $data['role'] ?? 'reader',
             'created_at'    => $data['created_at'] ?? '',
             'last_login_at' => $data['last_login_at'] ?? '',
-            'language'      => $data['language'] ?? ''
+            'language'      => $data['language'] ?? '',
+            'theme'         => $data['theme'] ?? ''
         ];
     }
     return $result;
@@ -296,6 +297,38 @@ function changeUserLanguage(string $username, string $language): bool|string {
             unset($_SESSION['pw_lang']);
         } else {
             $_SESSION['pw_lang'] = $language;
+        }
+    }
+
+    return true;
+}
+
+/** Sets the dashboard theme for an existing user. */
+function changeUserTheme(string $username, string $theme): bool|string {
+    $username = trim($username);
+    $theme = trim($theme);
+
+    if ($theme !== '' && !in_array($theme, ['dark', 'light'], true)) {
+        return function_exists('__') ? __('auth.error_invalid_theme') : 'Invalid theme selected.';
+    }
+
+    $users = readUsers();
+    if (!isset($users[$username])) {
+        return function_exists('__') ? __('auth.error_user_not_found') : 'User not found.';
+    }
+
+    if ($theme === '') {
+        unset($users[$username]['theme']);
+    } else {
+        $users[$username]['theme'] = $theme;
+    }
+    writeUsers($users);
+
+    if (session_status() === PHP_SESSION_ACTIVE && ($_SESSION['pw_user'] ?? '') === $username) {
+        if ($theme === '') {
+            unset($_SESSION['pw_theme']);
+        } else {
+            $_SESSION['pw_theme'] = $theme;
         }
     }
 
@@ -368,6 +401,10 @@ function validateSessionUser(): bool {
         $_SESSION['pw_lang'] = $users[$username]['language'];
     }
 
+    if (!empty($users[$username]['theme'])) {
+        $_SESSION['pw_theme'] = $users[$username]['theme'];
+    }
+
     // Update cache timestamp
     $_SESSION['pw_last_user_check'] = time();
     return true;
@@ -434,6 +471,9 @@ function loginUser(string $username, string $password): bool|string {
     $_SESSION['pw_login_time'] = time();
     if (!empty($users[$username]['language'])) {
         $_SESSION['pw_lang'] = $users[$username]['language'];
+    }
+    if (!empty($users[$username]['theme'])) {
+        $_SESSION['pw_theme'] = $users[$username]['theme'];
     }
 
     // Write last login timestamp to users.json

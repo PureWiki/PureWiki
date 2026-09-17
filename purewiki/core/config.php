@@ -17,6 +17,9 @@ require_once __DIR__ . '/fs.php';
 
 /** Returns the currently configured dashboard theme. */
 function getDashboardTheme(): string {
+    if (session_status() === PHP_SESSION_ACTIVE && !empty($_SESSION['pw_theme'])) {
+        return $_SESSION['pw_theme'];
+    }
     $config = getGlobalConfig();
     return $config['dashboard_theme'] ?? 'dark';
 }
