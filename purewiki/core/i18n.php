@@ -56,6 +56,9 @@ function getDashboardLanguage(): string {
     if (isset($GLOBALS['PW_DASHBOARD_LANG'])) {
         return $GLOBALS['PW_DASHBOARD_LANG'];
     }
+    if (session_status() === PHP_SESSION_ACTIVE && !empty($_SESSION['pw_lang'])) {
+        return $_SESSION['pw_lang'];
+    }
     $config = getGlobalConfig();
     return $config['dashboard_language'] ?? 'en';
 }
@@ -176,6 +179,9 @@ function __($key, ...$args) {
  */
 function getLanguageScript(): string {
     $translations = loadLanguage();
+    $currentLang = getDashboardLanguage();
+    $available = getAvailableLanguages();
     $json = json_encode($translations, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-    return '<script>window.pwLang = ' . $json . ';</script>';
+    $availJson = json_encode($available, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    return '<script>window.pwLang = ' . $json . '; window.PW_CURRENT_LANG = ' . json_encode($currentLang) . '; window.PW_AVAILABLE_LANGS = ' . $availJson . ';</script>';
 }

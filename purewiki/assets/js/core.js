@@ -303,6 +303,7 @@ function initUserMenu() {
     const wrapper = document.getElementById('pw-user-menu-wrapper');
     const toggleBtn = document.getElementById('pw-user-menu-toggle');
     const dropdown = document.getElementById('pw-user-dropdown');
+    const btnChangeLang = document.getElementById('pw-btn-change-language');
     const btnChangePw = document.getElementById('pw-btn-change-password');
 
     if (!wrapper || !toggleBtn || !dropdown) return;
@@ -329,12 +330,70 @@ function initUserMenu() {
         }
     });
 
+    if (btnChangeLang) {
+        btnChangeLang.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleMenu(false);
+            openChangeLanguageDialog();
+        });
+    }
+
     if (btnChangePw) {
         btnChangePw.addEventListener('click', (e) => {
             e.stopPropagation();
             toggleMenu(false);
             openChangePasswordDialog();
         });
+    }
+}
+
+/** Opens dialog to change dashboard language for the current user */
+async function openChangeLanguageDialog() {
+    if (!document.getElementById('pw-dialog-overlay')) {
+        initDialogSystem();
+    }
+
+    const available = window.PW_AVAILABLE_LANGS || {};
+    const current = window.PW_CURRENT_LANG || 'en';
+
+    let optionsHtml = '';
+    for (const [code, name] of Object.entries(available)) {
+        const isSelected = code === current ? 'selected' : '';
+        optionsHtml += `<option value="${escapeHtml(code)}" ${isSelected}>${escapeHtml(name)}</option>`;
+    }
+
+    const html = `
+        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 5px;">
+            <label for="pw-user-lang-select" style="display: block; font-size: 13px; color: var(--pw-text-muted);">${__('auth.select_language')}</label>
+            <select id="pw-user-lang-select" class="pw-input pw-w-full">
+                ${optionsHtml}
+            </select>
+        </div>
+    `;
+
+    const confirmed = await openDialog({
+        title: __('auth.change_language'),
+        html: html,
+        type: 'confirm',
+        confirmText: __('common.save'),
+        cancelText: __('common.cancel')
+    });
+
+    if (!confirmed) return;
+
+    const selectEl = document.getElementById('pw-user-lang-select');
+    const selectedLang = selectEl ? selectEl.value : '';
+    if (!selectedLang || selectedLang === current) return;
+
+    const res = await apiSafe('change_language', {
+        language: selectedLang
+    });
+
+    if (res && res.success !== false) {
+        notify(res.message || __('auth.language_changed'), 'success');
+        setTimeout(() => {
+            window.location.reload();
+        }, 600);
     }
 }
 

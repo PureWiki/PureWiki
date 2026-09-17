@@ -54,5 +54,17 @@ if ($action === 'list_users') {
     } else {
         $response['message'] = $result;
     }
+} else if ($action === 'change_language') {
+    $language = trim($_POST['language'] ?? '');
+    $username = $_SESSION['pw_user'] ?? '';
+
+    $result = changeUserLanguage($username, $language);
+    if ($result === true) {
+        $response['success'] = true;
+        $response['message'] = function_exists('__') ? __('auth.language_changed') : 'Language changed successfully.';
+        logActivity('user_language_change', 'system', null, ['user' => $username, 'language' => $language]);
+    } else {
+        $response['message'] = $result;
+    }
 }
 

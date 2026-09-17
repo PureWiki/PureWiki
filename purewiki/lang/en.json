@@ -46,7 +46,11 @@
         "error_current_password_invalid": "Current password is incorrect.",
         "error_password_mismatch": "Passwords do not match.",
         "error_password_too_short": "Password must be at least 8 characters long.",
-        "error_user_not_found": "User not found."
+        "error_user_not_found": "User not found.",
+        "change_language": "Change Language",
+        "select_language": "Select Language",
+        "language_changed": "Language changed successfully.",
+        "error_invalid_language": "Invalid language selected."
     },
     "dashboard": {
         "title": "Global Settings",
@@ -332,8 +336,8 @@
         "wiki_name": "Wiki Name",
         "wiki_name_desc": "Displayed in the Dashboard header and available as <code>{{ wiki_name }}</code> in the frontend theme.",
         "wiki_name_placeholder": "PureWiki",
-        "dashboard_language": "Dashboard Language",
-        "dashboard_language_desc": "Select the language for the admin dashboard interface.",
+        "dashboard_language": "Default Dashboard Language",
+        "dashboard_language_desc": "Select the default language for the admin dashboard interface. Users can change their language in the profile menu.",
         "dashboard_theme": "Dashboard Theme",
         "dashboard_theme_desc": "Select the color theme for the admin dashboard.",
         "theme_dark": "Dark (Default)",

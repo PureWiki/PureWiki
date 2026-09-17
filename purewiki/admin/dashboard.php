@@ -58,6 +58,9 @@ require_once __DIR__ . '/layout_head.php';
                         <span class="pw-user-dropdown-role"><?php echo htmlspecialchars(ucfirst($_SESSION['pw_role'] ?? '')); ?></span>
                     </div>
                     <div class="pw-user-dropdown-divider"></div>
+                    <button class="pw-user-dropdown-item" id="pw-btn-change-language">
+                        <iconify-icon icon="mdi:translate"></iconify-icon> <?php echo __('auth.change_language'); ?>
+                    </button>
                     <button class="pw-user-dropdown-item" id="pw-btn-change-password">
                         <iconify-icon icon="mdi:key-outline"></iconify-icon> <?php echo __('auth.change_password'); ?>
                     </button>

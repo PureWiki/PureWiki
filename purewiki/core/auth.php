@@ -231,7 +231,8 @@ function listUsers(): array {
             'username'      => $username,
             'role'          => $data['role'] ?? 'reader',
             'created_at'    => $data['created_at'] ?? '',
-            'last_login_at' => $data['last_login_at'] ?? ''
+            'last_login_at' => $data['last_login_at'] ?? '',
+            'language'      => $data['language'] ?? ''
         ];
     }
     return $result;
@@ -262,6 +263,40 @@ function changeUserPassword(string $username, string $currentPassword, string $n
 
     if (session_status() === PHP_SESSION_ACTIVE) {
         session_regenerate_id(true);
+    }
+
+    return true;
+}
+
+/** Sets the dashboard language for an existing user. */
+function changeUserLanguage(string $username, string $language): bool|string {
+    $username = trim($username);
+    $language = trim($language);
+
+    require_once __DIR__ . '/i18n.php';
+    $available = getAvailableLanguages();
+    if ($language !== '' && !isset($available[$language])) {
+        return function_exists('__') ? __('auth.error_invalid_language') : 'Invalid language selected.';
+    }
+
+    $users = readUsers();
+    if (!isset($users[$username])) {
+        return function_exists('__') ? __('auth.error_user_not_found') : 'User not found.';
+    }
+
+    if ($language === '') {
+        unset($users[$username]['language']);
+    } else {
+        $users[$username]['language'] = $language;
+    }
+    writeUsers($users);
+
+    if (session_status() === PHP_SESSION_ACTIVE && ($_SESSION['pw_user'] ?? '') === $username) {
+        if ($language === '') {
+            unset($_SESSION['pw_lang']);
+        } else {
+            $_SESSION['pw_lang'] = $language;
+        }
     }
 
     return true;
@@ -329,6 +364,10 @@ function validateSessionUser(): bool {
         return false;
     }
 
+    if (!empty($users[$username]['language'])) {
+        $_SESSION['pw_lang'] = $users[$username]['language'];
+    }
+
     // Update cache timestamp
     $_SESSION['pw_last_user_check'] = time();
     return true;
@@ -393,6 +432,9 @@ function loginUser(string $username, string $password): bool|string {
     $_SESSION['pw_user']       = $username;
     $_SESSION['pw_role']       = $users[$username]['role'] ?? 'reader';
     $_SESSION['pw_login_time'] = time();
+    if (!empty($users[$username]['language'])) {
+        $_SESSION['pw_lang'] = $users[$username]['language'];
+    }
 
     // Write last login timestamp to users.json
     $users[$username]['last_login_at'] = date('c');

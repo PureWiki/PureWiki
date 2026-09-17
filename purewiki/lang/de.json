@@ -46,7 +46,11 @@
         "error_current_password_invalid": "Das aktuelle Passwort ist nicht korrekt.",
         "error_password_mismatch": "Die neuen Passwörter stimmen nicht überein.",
         "error_password_too_short": "Das neue Passwort muss mindestens 8 Zeichen lang sein.",
-        "error_user_not_found": "Benutzer nicht gefunden."
+        "error_user_not_found": "Benutzer nicht gefunden.",
+        "change_language": "Sprache ändern",
+        "select_language": "Sprache auswählen",
+        "language_changed": "Sprache erfolgreich geändert.",
+        "error_invalid_language": "Ungültige Sprache ausgewählt."
     },
     "dashboard": {
         "title": "Globale Einstellungen",
@@ -332,8 +336,8 @@
         "wiki_name": "Wiki-Name",
         "wiki_name_desc": "Wird im Dashboard-Header angezeigt und ist im Frontend-Theme als <code>{{ wiki_name }}</code> verfügbar.",
         "wiki_name_placeholder": "PureWiki",
-        "dashboard_language": "Dashboard-Sprache",
-        "dashboard_language_desc": "Wählen Sie die Sprache für die Dashboard-Oberfläche.",
+        "dashboard_language": "Standard-Dashboard-Sprache",
+        "dashboard_language_desc": "Wählen Sie die Standard-Sprache für die Dashboard-Oberfläche. Benutzer können ihre Sprache im Profilmenü anpassen.",
         "dashboard_theme": "Dashboard-Theme",
         "dashboard_theme_desc": "Wählen Sie das Farbschema für das Admin-Dashboard.",
         "theme_dark": "Dunkel (Standard)",
