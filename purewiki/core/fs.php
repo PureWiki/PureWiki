@@ -148,6 +148,14 @@ function getConfigDir(): string {
 }
 
 /**
+ * Returns the absolute path to the dashboard language files directory.
+ * @return string
+ */
+function getLangDir(): string {
+    return realpath(__DIR__ . '/../lang') ?: __DIR__ . '/../lang';
+}
+
+/**
  * Returns the absolute path to the snippets directory.
  * @return string
  */

@@ -1,4 +1,7 @@
 {
+    "_meta": {
+        "name": "English"
+    },
     "common": {
         "save": "Save",
         "cancel": "Cancel",

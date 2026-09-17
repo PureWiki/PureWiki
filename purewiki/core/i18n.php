@@ -15,6 +15,39 @@
 defined('PUREWIKI') || die('Direct access denied.');
 
 require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/fs.php';
+require_once __DIR__ . '/json.php';
+
+/**
+ * Returns available dashboard languages as array [code => label].
+ * @return array<string, string>
+ */
+function getAvailableLanguages(): array {
+    static $languages = null;
+    if ($languages !== null) {
+        return $languages;
+    }
+
+    $languages = [];
+    $langDir = getLangDir();
+    $files = glob($langDir . '/*.json') ?: [];
+
+    foreach ($files as $file) {
+        $code = basename($file, '.json');
+        if ($code === '' || str_starts_with($code, '.')) {
+            continue;
+        }
+
+        $data = readJson($file, []);
+        if (is_array($data)) {
+            $languages[$code] = $data['_meta']['name'] ?? $data['language_name'] ?? strtoupper($code);
+        } else {
+            $languages[$code] = strtoupper($code);
+        }
+    }
+
+    return $languages;
+}
 
 /**
  * Returns the currently configured dashboard language code.
@@ -41,7 +74,7 @@ function loadLanguage(?string $lang = null): array {
     $lang = $lang ?? getDashboardLanguage();
 
     if (!isset($cache[$lang])) {
-        $langDir = realpath(__DIR__ . '/../lang') ?: __DIR__ . '/../lang';
+        $langDir = getLangDir();
         $file = $langDir . '/' . $lang . '.json';
 
         // Fallback to English if requested language file missing

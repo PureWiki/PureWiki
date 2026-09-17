@@ -179,7 +179,7 @@ require_once __DIR__ . '/layout_head.php';
                     <?php
                     renderInput('pw-setting-wiki-name', __('settings.wiki_name'), __('settings.wiki_name_desc'), 'text', 'pw-input pw-w-lg', __('settings.wiki_name_placeholder'));
 
-                    renderSelect('pw-setting-dashboard-language', __('settings.dashboard_language'), __('settings.dashboard_language_desc'), ['en' => 'English', 'de' => 'Deutsch']);
+                    renderSelect('pw-setting-dashboard-language', __('settings.dashboard_language'), __('settings.dashboard_language_desc'), getAvailableLanguages());
 
                     renderInput('pw-setting-wiki-logo', __('settings.wiki_logo'), __('settings.wiki_logo_desc'), 'text', 'pw-input pw-w-lg', __('settings.wiki_logo_placeholder'));
 

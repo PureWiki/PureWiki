@@ -204,8 +204,11 @@ require_once __DIR__ . '/layout_head.php';
                 <div class="pw-setup-field">
                     <label for="language" data-i18n="setup.language"><?php echo __('setup.language'); ?></label>
                     <select id="language" name="language" class="pw-input">
-                        <option value="en" <?php echo $lang === 'en' ? 'selected' : ''; ?>>English</option>
-                        <option value="de" <?php echo $lang === 'de' ? 'selected' : ''; ?>>Deutsch</option>
+                        <?php foreach (getAvailableLanguages() as $code => $label): ?>
+                            <option value="<?php echo htmlspecialchars($code); ?>" <?php echo $lang === $code ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($label); ?>
+                            </option>
+                        <?php endforeach; ?>
                     </select>
                 </div>
             </div>
@@ -247,15 +250,13 @@ require_once __DIR__ . '/layout_head.php';
 
     <script src="<?php echo BASE_PATH; ?>/purewiki/assets/js/notify.js"></script>
     <?php
-    require_once realpath(__DIR__ . '/../core/json.php');
-    $enLang = readJsonFile(__DIR__ . '/../lang/en.json');
-    $deLang = readJsonFile(__DIR__ . '/../lang/de.json');
+    $catalogs = [];
+    foreach (array_keys(getAvailableLanguages()) as $code) {
+        $catalogs[$code] = loadLanguage($code);
+    }
     ?>
     <script>
-        const catalogs = {
-            'en': <?php echo json_encode($enLang, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>,
-            'de': <?php echo json_encode($deLang, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>
-        };
+        const catalogs = <?php echo json_encode($catalogs, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>;
 
         /**
          * Updates all translatable elements on the page based on the selected language.
