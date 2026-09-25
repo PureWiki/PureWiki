@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Fixed virtual pages (404, sidebars, footer) failing to load in the editor on fresh installations.
+- Fixed text contrast on delete page button.
 
 ## [0.3.0-alpha.2] - 2026-09-17
 

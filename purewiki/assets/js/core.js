@@ -1243,7 +1243,6 @@ function bindDeletePageAction(btnDelete) {
             isDeleteConfirm = true;
             btnDelete.textContent = __('common.confirm');
             btnDelete.classList.add('pw-confirm-state');
-            btnDelete.style.backgroundColor = 'darkred';
         } else {
             const endpoint = currentSelectedPath.startsWith('/_snippets/') ? 'delete_snippet' : 'delete_page';
             const result = await apiSafe(endpoint, { path: currentSelectedPath });
@@ -1297,7 +1296,6 @@ function resetDeleteButton(btn, isSnippet = false) {
         ? '<iconify-icon icon="mdi:delete"></iconify-icon> ' + (__('dashboard.delete_snippet') || 'Delete Snippet')
         : '<iconify-icon icon="mdi:delete"></iconify-icon> ' + (__('dashboard.delete_page') || 'Delete Page');
     btn.classList.remove('pw-confirm-state');
-    btn.style.backgroundColor = '';
 }
 
 /** Initializes Drag and Drop functionality for treeview. */
