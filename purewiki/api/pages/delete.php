@@ -22,7 +22,7 @@ if (str_starts_with($path, '/_virtual/')) {
     return;
 }
 
-$safePath = sanitizePath($path);
+$safePath = sanitizeRelativePath($path);
 $targetPath = realpath($pagesDir . '/' . $safePath);
 
 if ($targetPath && isPathInDir($targetPath, $pagesDir)) {

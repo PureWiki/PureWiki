@@ -30,7 +30,7 @@ if (str_starts_with($folderName, '_') && $folderName !== '_virtual') {
     return;
 }
 
-$safeParentPath = sanitizePath($parentPath);
+$safeParentPath = sanitizeRelativePath($parentPath);
 $targetPath = $pagesDir . ($safeParentPath ? '/' . $safeParentPath : '') . '/' . $folderName;
 
 if (file_exists($targetPath)) {

@@ -15,7 +15,7 @@ defined('PUREWIKI') || die('Direct access denied.');
 
 if ($action === 'acquire_lock') {
     $lockPath = $_POST['path'] ?? '';
-    $safeLockPath = sanitizePath($lockPath);
+    $safeLockPath = sanitizeRelativePath($lockPath);
     $isVirtual = str_starts_with($safeLockPath, '_');
 
     // create virtual page directories to allow lock file creation
@@ -59,7 +59,7 @@ if ($action === 'acquire_lock') {
 
 } else if ($action === 'release_lock') {
     $lockPath = $_POST['path'] ?? '';
-    $safeLockPath = sanitizePath($lockPath);
+    $safeLockPath = sanitizeRelativePath($lockPath);
 
     $lockDir = $safeLockPath ? realpath($pagesDir . '/' . $safeLockPath) : $pagesDir;
 
@@ -86,7 +86,7 @@ if ($action === 'acquire_lock') {
 
 } else if ($action === 'refresh_lock') {
     $lockPath = $_POST['path'] ?? '';
-    $safeLockPath = sanitizePath($lockPath);
+    $safeLockPath = sanitizeRelativePath($lockPath);
 
     $lockDir = $safeLockPath ? realpath($pagesDir . '/' . $safeLockPath) : $pagesDir;
 

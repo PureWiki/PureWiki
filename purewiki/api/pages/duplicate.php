@@ -33,7 +33,7 @@ if (str_starts_with($folderName, '_')) {
     return;
 }
 
-$safePath = sanitizePath($path);
+$safePath = sanitizeRelativePath($path);
 $sourceDir = realpath($pagesDir . '/' . $safePath);
 
 if ($sourceDir && isPathInDir($sourceDir, $pagesDir) && is_dir($sourceDir)) {

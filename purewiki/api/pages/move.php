@@ -35,8 +35,8 @@ if ($action === 'drag_drop_page') {
         return;
     }
 
-    $safeSource = sanitizePath($sourcePath);
-    $safeTarget = sanitizePath($targetPath);
+    $safeSource = sanitizeRelativePath($sourcePath);
+    $safeTarget = sanitizeRelativePath($targetPath);
 
     $sourceDir = realpath($pagesDir . '/' . $safeSource);
     $targetDir = realpath($pagesDir . '/' . $safeTarget);
@@ -185,7 +185,7 @@ if ($action === 'drag_drop_page') {
         return;
     }
 
-    $safePath = sanitizePath($path);
+    $safePath = sanitizeRelativePath($path);
     $targetDir = realpath($pagesDir . '/' . $safePath);
 
     if ($targetDir && isPathInDir($targetDir, $pagesDir) && is_dir($targetDir)) {
