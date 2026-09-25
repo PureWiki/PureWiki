@@ -17,7 +17,7 @@ require_once __DIR__ . '/../../core/i18n_pages.php';
 
 $path     = $_POST['path'] ?? '';
 $lang     = $_POST['lang'] ?? '';
-$safePath = sanitizePath($path);
+$safePath = sanitizeRelativePath($path);
 $isVirtual = str_starts_with($safePath, '_virtual/');
 
 $targetDir = $safePath ? ($pagesDir . '/' . $safePath) : $pagesDir;

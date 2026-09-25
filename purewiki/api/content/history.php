@@ -19,7 +19,7 @@ if ($action === 'get_page_history') {
         return;
     }
 
-    $safePath = sanitizePath($path);
+    $safePath = sanitizeRelativePath($path);
     $targetDir = $safePath ? realpath($pagesDir . '/' . $safePath) : $pagesDir;
 
     if ($targetDir && isPathInDir($targetDir, $pagesDir) && is_dir($targetDir)) {
@@ -74,7 +74,7 @@ if ($action === 'get_page_history') {
         return;
     }
 
-    $safePath = sanitizePath($path);
+    $safePath = sanitizeRelativePath($path);
     $targetDir = $safePath ? realpath($pagesDir . '/' . $safePath) : $pagesDir;
     $safeFile = basename($file);
 
@@ -111,7 +111,7 @@ if ($action === 'get_page_history') {
         return;
     }
 
-    $safePath = sanitizePath($path);
+    $safePath = sanitizeRelativePath($path);
     $targetDir = $safePath ? realpath($pagesDir . '/' . $safePath) : $pagesDir;
     $safeFile = basename($file);
 

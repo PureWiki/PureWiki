@@ -32,7 +32,7 @@ if ($action === 'save_draft') {
     }
 
     // Clean path securely
-    $safePath = sanitizePath($path);
+    $safePath = sanitizeRelativePath($path);
     $isVirtual = str_starts_with($safePath, '_virtual/');
 
     $targetDir = ($safePath && $safePath !== '.') ? ($pagesDir . '/' . $safePath) : $pagesDir;
@@ -124,7 +124,7 @@ if ($action === 'save_draft') {
         return;
     }
 
-    $safePath = sanitizePath($path);
+    $safePath = sanitizeRelativePath($path);
     $targetDir = $safePath ? realpath($pagesDir . '/' . $safePath) : $pagesDir;
 
     if ($targetDir && isPathInDir($targetDir, $pagesDir) && is_dir($targetDir)) {

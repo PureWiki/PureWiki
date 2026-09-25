@@ -231,6 +231,15 @@ function sanitizePath($path) {
 }
 
 /**
+ * Sanitizes a path and remove leading slash.
+ * @param string $path The path to sanitize.
+ * @return string The sanitized path without leading slash.
+ */
+function sanitizeRelativePath($path) {
+    return ltrim(sanitizePath($path), '/');
+}
+
+/**
  * Safely creates a directory recursively with consistent permissions.
  * @param string $path Path to the directory.
  * @param int $permissions Octal permissions (default 0755).

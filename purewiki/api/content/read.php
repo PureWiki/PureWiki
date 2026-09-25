@@ -19,7 +19,7 @@ if (!$path) {
     return;
 }
 
-$safePath = sanitizePath($path);
+$safePath = sanitizeRelativePath($path);
 $userDir = realpath($pagesDir . '/' . $safePath);
 
 if ($action === 'get_page_langs') {
