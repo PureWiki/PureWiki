@@ -174,6 +174,7 @@ require_once __DIR__ . '/layout_head.php';
     <script src="<?php echo BASE_PATH; ?>/purewiki/editorPlugins/editor-block.js"></script>
     <script src="<?php echo BASE_PATH; ?>/purewiki/editorPlugins/editor-inline-code.js"></script>
     <script src="<?php echo BASE_PATH; ?>/purewiki/editorPlugins/editor-math.js"></script>
+    <script src="<?php echo BASE_PATH; ?>/purewiki/editorPlugins/editor-icon.js"></script>
 
 <?php if (class_exists('ExtensionLoader')):
     foreach (ExtensionLoader::getAll() as $extId):

@@ -70,6 +70,7 @@ function getGlobalConfig(bool $forceReload = false): array {
         'editor_show_accordion' => true,
         'editor_show_grid' => true,
         'editor_show_math' => true,
+        'editor_show_icon' => true,
         'dev_debug_output'        => false,
         'dev_debug_log_max_size'  => 2,
         'dev_debug_log_max_files' => 3,

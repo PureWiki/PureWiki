@@ -1091,3 +1091,21 @@ html[data-theme="dark"] .pw-theme-icon-dark {
     background: rgba(248, 81, 73, 0.08);
     color: #f85149;
 }
+
+/* Icon Block & Inline Icon */
+.pw-icon-block {
+    display: flex;
+    align-items: center;
+    margin: 1rem 0;
+}
+.pw-icon-block--center {
+    justify-content: center;
+}
+.pw-icon-block--right {
+    justify-content: flex-end;
+}
+.pw-inline-icon {
+    display: inline-flex;
+    vertical-align: -0.15em;
+    line-height: 1;
+}

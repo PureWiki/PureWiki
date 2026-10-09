@@ -170,6 +170,53 @@ function sanitizeInlineHtml(string $text): string {
         $html
     );
 
+    // Restore </iconify-icon>
+    $html = str_replace('&lt;/iconify-icon&gt;', '</iconify-icon>', $html);
+
+    // Restore <iconify-icon ...> with all attributes
+    $html = preg_replace_callback(
+        '/&lt;iconify-icon\s+([^>]*?)&gt;/i',
+        static function (array $m): string {
+            $attrStr = html_entity_decode($m[1], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            $allowed = [];
+
+            if (preg_match('/icon="([a-zA-Z0-9_\-:]+)"/i', $attrStr, $iconMatch)) {
+                $allowed[] = 'icon="' . htmlspecialchars($iconMatch[1], ENT_QUOTES) . '"';
+            }
+
+            if (preg_match('/class="([a-zA-Z0-9_\-\s]+)"/i', $attrStr, $classMatch)) {
+                $allowed[] = 'class="' . htmlspecialchars($classMatch[1], ENT_QUOTES) . '"';
+            }
+
+            if (preg_match('/style="([^"]+)"/i', $attrStr, $styleMatch)) {
+                $safeRules = [];
+                $declarations = explode(';', $styleMatch[1]);
+                foreach ($declarations as $decl) {
+                    $parts = explode(':', $decl, 2);
+                    if (count($parts) === 2) {
+                        $prop = strtolower(trim($parts[0]));
+                        $val  = trim($parts[1]);
+                        if (in_array($prop, ['font-size', 'color', 'padding', 'margin', 'vertical-align', 'display'], true)) {
+                            if (!preg_match('/[<>()\'"\\\\]|url|expression/i', $val)) {
+                                $safeRules[] = $prop . ': ' . $val;
+                            }
+                        }
+                    }
+                }
+                if (!empty($safeRules)) {
+                    $allowed[] = 'style="' . htmlspecialchars(implode('; ', $safeRules), ENT_QUOTES) . '"';
+                }
+            }
+
+            if (empty($allowed)) {
+                return '';
+            }
+
+            return '<iconify-icon ' . implode(' ', $allowed) . '>';
+        },
+        $html
+    );
+
     return $html;
 }
 
@@ -567,6 +614,37 @@ function parseBlocksToHtml(array $blocks, string $contextPath = '/', ?array $mai
                     . '</div>';
                 break;
 
+            case 'icon':
+                AssetManager::requireIconify();
+                $iconName = htmlspecialchars($data['icon'] ?? '', ENT_QUOTES);
+                if ($iconName !== '') {
+                    $size    = trim($data['size'] ?? '');
+                    $color   = trim($data['color'] ?? '');
+                    $padding = trim($data['padding'] ?? '');
+                    $align   = trim($data['align'] ?? 'left');
+
+                    $styleParts = [];
+                    if ($size !== '') {
+                        $sizeVal = is_numeric($size) ? $size . 'px' : $size;
+                        $styleParts[] = 'font-size: ' . htmlspecialchars($sizeVal, ENT_QUOTES);
+                    }
+                    if ($color !== '') {
+                        $styleParts[] = 'color: ' . htmlspecialchars($color, ENT_QUOTES);
+                    }
+                    if ($padding !== '') {
+                        $paddingVal = is_numeric($padding) ? $padding . 'px' : $padding;
+                        $styleParts[] = 'padding: ' . htmlspecialchars($paddingVal, ENT_QUOTES);
+                    }
+
+                    $styleAttr = !empty($styleParts) ? ' style="' . implode('; ', $styleParts) . '"' : '';
+                    $alignClass = in_array($align, ['center', 'right'], true) ? ' pw-icon-block--' . $align : '';
+
+                    $parts[] = '<div class="pw-icon-block' . $alignClass . '">'
+                        . '<iconify-icon icon="' . $iconName . '"' . $styleAttr . '></iconify-icon>'
+                        . '</div>';
+                }
+                break;
+
             default:
                 break;
         }
@@ -588,6 +666,9 @@ function parseBlocksToHtml(array $blocks, string $contextPath = '/', ?array $mai
     }
 
     $html = implode(PHP_EOL, $parts);
+    if (str_contains($html, '<iconify-icon')) {
+        AssetManager::requireIconify();
+    }
     return processExternalLinks($html);
 }
 

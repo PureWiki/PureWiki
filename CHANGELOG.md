@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- New icon editor tool using the Iconify Icon library, supporting block and inline icons with customizable size, color, padding, and alignment.
+- Added dynamic Iconify asset loading when `<iconify-icon>` tags are used on a page.
+
 ### Fixed
 - Fixed scroll-to-top button icon by replacing Iconify with an inline SVG in the default theme.
 - Fixed virtual pages (404, sidebars, footer) failing to load in the editor on fresh installations.

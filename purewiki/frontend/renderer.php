@@ -170,13 +170,12 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
     // Inject BASE_PATH and CURRENT_LANG into the frontend so JS can use it
     $pwBasePathScript = "<script>window.PW_BASE_PATH = '" . addslashes(BASE_PATH) . "'; window.PW_CURRENT_LANG = '" . addslashes(defined('CURRENT_LANG') ? CURRENT_LANG : '') . "';</script>";
 
-    $assetsHead = $pwBasePathScript . "\n" . AssetManager::getStyles() . AssetManager::getScripts('head') . "\n" . $customCss . "\n" . $customHtmlHead . "\n" . $customJsHead;
-
+    $extHead = '';
     if (class_exists('ExtensionLoader')) {
         ob_start();
         ExtensionLoader::doAction('frontend.head_css');
         ExtensionLoader::doAction('frontend.head_js');
-        $assetsHead .= ob_get_clean();
+        $extHead = ob_get_clean();
     }
 
     // SEO Meta Tags Generation
@@ -283,24 +282,12 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
         $seoTags[] = '<script type="application/ld+json">' . json_encode($schemaData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . '</script>';
     }
 
-    if (!empty($seoTags)) {
-        $assetsHead .= implode("\n", $seoTags) . "\n";
-    }
-
     $titleFormat = $config['seo_title_format'] ?? '{{ page_title }} - {{ wiki_name }}';
     $renderedTitle = str_replace(
         ['{{ page_title }}', '{{ wiki_name }}'],
         [$title, $wikiName],
         $titleFormat
     );
-
-    $assetsFooter = AssetManager::getScripts('footer') . AssetManager::getInlineScripts() . "\n" . $customHtmlFooter . "\n" . $customJsFooter;
-
-    if (class_exists('ExtensionLoader')) {
-        ob_start();
-        ExtensionLoader::doAction('frontend.footer_js');
-        $assetsFooter .= ob_get_clean();
-    }
 
     $finalOutput = $themeTemplate;
 
@@ -314,6 +301,25 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
 
     // Resolve Virtual Pages
     $finalOutput = resolveVirtualPages($finalOutput, $pageData ?: [], $contextPath);
+
+    // Check if any icon is present in output or content
+    if (str_contains($finalOutput, '<iconify-icon') || str_contains($contentHtml, '<iconify-icon')) {
+        AssetManager::requireIconify();
+    }
+
+    $extFooter = '';
+    if (class_exists('ExtensionLoader')) {
+        ob_start();
+        ExtensionLoader::doAction('frontend.footer_js');
+        $extFooter = ob_get_clean();
+    }
+
+    $assetsHead = $pwBasePathScript . "\n" . AssetManager::getStyles() . AssetManager::getScripts('head') . "\n" . $customCss . "\n" . $customHtmlHead . "\n" . $customJsHead . $extHead;
+    if (!empty($seoTags)) {
+        $assetsHead .= "\n" . implode("\n", $seoTags) . "\n";
+    }
+
+    $assetsFooter = AssetManager::getScripts('footer') . AssetManager::getInlineScripts() . "\n" . $customHtmlFooter . "\n" . $customJsFooter . $extFooter;
 
     // Replace all placeholders
     $vars = [

@@ -188,7 +188,7 @@ function initEditorJS(blocksData) {
         }
 
         // Shared tool config for nested editors
-        const commonInlineToolbar = ['bold', 'italic', 'underline', 'marker', 'inlineCode', 'link'];
+        const commonInlineToolbar = ['bold', 'italic', 'underline', 'marker', 'inlineCode', 'inlineIcon', 'link'];
         const textSanitizer = {
             b: true,
             strong: true,
@@ -197,7 +197,12 @@ function initEditorJS(blocksData) {
             u: true,
             mark: true,
             a: { href: true },
-            code: true
+            code: true,
+            'iconify-icon': {
+                icon: true,
+                style: true,
+                class: true
+            }
         };
 
         window.PW_EDITOR_TOOLS = {
@@ -228,6 +233,7 @@ function initEditorJS(blocksData) {
                 sanitize: textSanitizer
             },
             inlineCode: currentGlobalConfig.editor_show_inlineCode !== false ? { class: InlineCode } : { class: InlineCode, toolbox: false },
+            inlineIcon: currentGlobalConfig.editor_show_icon !== false ? { class: InlineIconTool } : { class: InlineIconTool, toolbox: false },
             underline: currentGlobalConfig.editor_show_underline !== false ? Underline : { class: Underline, toolbox: false },
             marker: currentGlobalConfig.editor_show_marker !== false ? Marker : { class: Marker, toolbox: false },
             link: {
@@ -244,6 +250,7 @@ function initEditorJS(blocksData) {
             pageinclude: currentGlobalConfig.editor_show_pageinclude !== false ? PageIncludeTool : { class: PageIncludeTool, toolbox: false },
             snippet: currentGlobalConfig.editor_show_snippet !== false ? SnippetTool : { class: SnippetTool, toolbox: false },
             math: currentGlobalConfig.editor_show_math !== false ? MathTool : { class: MathTool, toolbox: false },
+            icon: currentGlobalConfig.editor_show_icon !== false ? IconTool : { class: IconTool, toolbox: false },
         };
 
         window.PW_EDITOR_I18N_CONFIG = getEditorI18nConfig();
@@ -1235,7 +1242,7 @@ function getEditorI18nConfig() {
                 "Bold": __('editor.tool_bold'), "Italic": __('editor.tool_italic'), "Underline": __('editor.tool_underline'), "Strikethrough": __('editor.tool_strikethrough'),
                 "Markdown": __('editor.tool_markdown'), "Live Markdown": __('editor.tool_livemarkdown'), "Page List": __('editor.tool_pagelist'), "Table of Contents": __('editor.tool_toc'),
                 "Callout": __('editor.tool_callout'), "Container": __('editor.tool_block'), "Page Include": __('editor.tool_pageinclude'), "Snippet": __('editor.tool_snippet'),
-                "Accordion": __('editor.tool_accordion'), "Grid": __('editor.tool_grid'), "textAlign": __('plugins.text_align'), "Alignment": __('plugins.text_align')
+                "Accordion": __('editor.tool_accordion'), "Grid": __('editor.tool_grid'), "textAlign": __('plugins.text_align'), "Alignment": __('plugins.text_align'), "Icon": __('editor.tool_icon')
             },
             blockTunes: {
                 "delete": { "Delete": __('editor.ui_delete') }, "moveUp": { "Move up": __('editor.ui_move_up') }, "moveDown": { "Move down": __('editor.ui_move_down') },
