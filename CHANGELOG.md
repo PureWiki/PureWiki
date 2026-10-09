@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
+- Fixed scroll-to-top button icon by replacing Iconify with an inline SVG in the default theme.
 - Fixed virtual pages (404, sidebars, footer) failing to load in the editor on fresh installations.
 - Fixed text contrast on delete page button.
 

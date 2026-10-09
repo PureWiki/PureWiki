@@ -760,6 +760,8 @@ html[data-theme="dark"] .pw-theme-icon-dark {
     right: 30px;
     width: 45px;
     height: 45px;
+    padding: 0; 
+    border: none;
     background-color: var(--pico-primary-background);
     color: var(--pico-primary-inverse);
     border-radius: 50%;
