@@ -28,16 +28,29 @@ function renderMarkdown(string $text): string {
 
 /** Adds BASE_PATH and CURRENT_LANG to internal href elements */
 function prefixInternalLinks(string $html): string {
-    $langPrefix = (defined('CURRENT_LANG') && CURRENT_LANG !== '') ? '/' . CURRENT_LANG : '';
-    $prefix = BASE_PATH . $langPrefix;
+    $currentLang = (defined('CURRENT_LANG') && CURRENT_LANG !== '') ? CURRENT_LANG : '';
+    $langPrefix  = $currentLang !== '' ? '/' . $currentLang : '';
+    $prefix      = BASE_PATH . $langPrefix;
 
     if ($prefix === '') {
         return $html;
     }
     return preg_replace_callback(
         '/\bhref=(["\'])(\/)(?!\/)([^"\']*)\1/i',
-        function ($m) use ($prefix) {
-            return 'href=' . $m[1] . $prefix . '/' . $m[3] . $m[1];
+        function ($m) use ($prefix, $currentLang) {
+            $path = $m[3];
+
+            // Avoid duplicate language prefixes
+            $alreadyHasLang = ($currentLang !== '' && ($path === $currentLang || str_starts_with($path, $currentLang . '/')));
+            if (!$alreadyHasLang && function_exists('detectLangFromPath')) {
+                $alreadyHasLang = detectLangFromPath('/' . $path) !== '';
+            }
+
+            if ($alreadyHasLang) {
+                return 'href=' . $m[1] . BASE_PATH . '/' . $path . $m[1];
+            }
+
+            return 'href=' . $m[1] . $prefix . '/' . $path . $m[1];
         },
         $html
     );
