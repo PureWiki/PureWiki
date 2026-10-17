@@ -1135,7 +1135,7 @@ function bindSidebarTreeItems(treeItems, mainActions, mainContent, btnAdd, btnDe
                             }
                         }
 
-                        // Backlinks card (right column)
+                        // Backlinks card (left column)
                         if (!isSystemPage && !isSnippet) {
                             const backlinksTpl = document.getElementById('tpl-backlinks-card');
                             if (backlinksTpl) {
@@ -1146,7 +1146,7 @@ function bindSidebarTreeItems(treeItems, mainActions, mainContent, btnAdd, btnDe
                                 const toggleWrapper = card.querySelector('[data-field="backlinks-toggle-wrapper"]');
                                 const toggleBtn = card.querySelector('[data-field="backlinks-toggle-btn"]');
 
-                                colRight.appendChild(card);
+                                colLeft.appendChild(card);
 
                                 apiCall('get_backlinks', { path }).then(res => {
                                     if (res && res.enabled === false) {
