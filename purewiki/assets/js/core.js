@@ -965,8 +965,57 @@ function bindSidebarTreeItems(treeItems, mainActions, mainContent, btnAdd, btnDe
                                 const parentPath = pathParts.length > 0 ? '/' + pathParts.join('/') + '/' : '/';
 
                                 const rename = renameTpl.content.cloneNode(true);
-                                rename.querySelector('[data-field="parent-path"]').textContent = parentPath;
-                                rename.querySelector('[data-field="current-name"]').value = currentName;
+                                const parentSpan = rename.querySelector('[data-field="parent-path"]');
+                                const renameInput = rename.querySelector('#pw-input-rename-folder');
+                                const btnRename = rename.querySelector('#pw-btn-rename-folder');
+
+                                if (parentSpan) parentSpan.textContent = parentPath;
+                                if (renameInput) renameInput.value = currentName;
+                                if (btnRename) btnRename.disabled = true;
+
+                                const checkRenameChanged = () => {
+                                    if (!renameInput || !btnRename) return;
+                                    const val = renameInput.value.trim();
+                                    btnRename.disabled = (val === '' || val === currentName);
+                                };
+
+                                if (renameInput) {
+                                    renameInput.addEventListener('input', checkRenameChanged);
+                                    renameInput.addEventListener('change', checkRenameChanged);
+                                    renameInput.addEventListener('keydown', (e) => {
+                                        if (e.key === 'Enter' && btnRename && !btnRename.disabled) {
+                                            e.preventDefault();
+                                            btnRename.click();
+                                        }
+                                    });
+                                }
+
+                                if (btnRename) {
+                                    btnRename.addEventListener('click', async () => {
+                                        if (btnRename.disabled) return;
+                                        const newName = renameInput.value.trim();
+                                        if (!newName || newName === currentName) {
+                                            btnRename.disabled = true;
+                                            return;
+                                        }
+
+                                        if (newName.startsWith('_')) {
+                                            notify(__('dashboard.error_no_underscore'), 'error');
+                                            return;
+                                        }
+
+                                        btnRename.disabled = true;
+                                        const result = await apiSafe('rename_folder', { path, new_name: newName });
+                                        if (result && result.new_path) {
+                                            sessionStorage.setItem('pw_active_page', result.new_path);
+                                            sessionStorage.setItem('pw-notify', JSON.stringify({ text: __('dashboard.folder_renamed'), type: 'success' }));
+                                            window.location.reload();
+                                        } else {
+                                            btnRename.disabled = false;
+                                        }
+                                    });
+                                }
+
                                 colRight.appendChild(rename);
                             }
                         }
@@ -1349,25 +1398,7 @@ function bindSidebarTreeItems(treeItems, mainActions, mainContent, btnAdd, btnDe
                     if (btnMoveUp) btnMoveUp.addEventListener('click', () => handleMove('up'));
                     if (btnMoveDown) btnMoveDown.addEventListener('click', () => handleMove('down'));
 
-                    const btnRename = document.getElementById('pw-btn-rename-folder');
-                    if (btnRename) {
-                        btnRename.addEventListener('click', async () => {
-                            const newName = document.getElementById('pw-input-rename-folder').value.trim();
-                            if (!newName) return;
 
-                            if (newName.startsWith('_')) {
-                                notify(__('dashboard.error_no_underscore'), 'error');
-                                return;
-                            }
-
-                            const result = await apiSafe('rename_folder', { path, new_name: newName });
-                            if (result) {
-                                sessionStorage.setItem('pw_active_page', result.new_path);
-                                sessionStorage.setItem('pw-notify', JSON.stringify({text: __('dashboard.folder_renamed'), type: 'success'}));
-                                window.location.reload();
-                            }
-                        });
-                    }
 
 
                 })

@@ -268,7 +268,7 @@ require_once __DIR__ . '/layout_head.php';
             <div class="pw-form-row pw-w-xlg">
                 <span class="pw-muted-mono" data-field="parent-path"></span>
                 <input type="text" id="pw-input-rename-folder" class="pw-input" autocomplete="off" style="flex:1;" data-field="current-name">
-                <button id="pw-btn-rename-folder" class="pw-btn pw-btn-primary"><?php echo __('common.save'); ?></button>
+                <button id="pw-btn-rename-folder" class="pw-btn pw-btn-primary" disabled><?php echo __('common.save'); ?></button>
             </div>
             <p class="pw-hint-small"><?php echo __('dashboard.rename_warning'); ?></p>
         </div>

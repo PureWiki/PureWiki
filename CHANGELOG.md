@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added resizable dashboard sidebar with drag handle.
 - Added dashboard favicon support with fallback to the default PureWiki favicon
 
+### Changed
+- Improved styling and usability of dashboard redirect and folder rename cards.
+
 ## [0.3.0-alpha.4] - 2026-10-17
 
 ### Added
