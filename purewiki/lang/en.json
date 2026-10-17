@@ -24,7 +24,10 @@
         "failed_load_details": "Failed to load details.",
         "error": "Error",
         "yes": "Yes",
-        "no": "No"
+        "no": "No",
+        "enable": "Enable",
+        "disable": "Disable",
+        "active": "Active"
     },
     "login": {
         "username": "Username",

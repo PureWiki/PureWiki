@@ -24,7 +24,10 @@
         "failed_load_details": "Details konnten nicht geladen werden.",
         "error": "Fehler",
         "yes": "Ja",
-        "no": "Nein"
+        "no": "Nein",
+        "enable": "Aktivieren",
+        "disable": "Deaktivieren",
+        "active": "Aktiv"
     },
     "login": {
         "username": "Benutzername",

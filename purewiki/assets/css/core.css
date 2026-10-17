@@ -373,6 +373,18 @@ input[type="number"]:focus::-webkit-inner-spin-button {
     margin-bottom: 2px;
 }
 
+.pw-checkbox:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    border-color: var(--pw-border);
+    pointer-events: none;
+}
+
+.pw-toggle-label:has(.pw-checkbox:disabled) {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 /* Custom Dialog Box */
 .pw-dialog-overlay {
     position: fixed;

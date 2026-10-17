@@ -976,18 +976,104 @@ function bindSidebarTreeItems(treeItems, mainActions, mainContent, btnAdd, btnDe
                             const redirectTpl = document.getElementById('tpl-redirect-card');
                             if (redirectTpl) {
                                 const redirect = redirectTpl.content.cloneNode(true);
-                                if (d.Settings?.enable_redirect) {
-                                    redirect.querySelector('#pw-check-enable-redirect').checked = true;
-                                }
-                                if (d.Settings?.redirect_url) {
-                                    redirect.querySelector('#pw-input-redirect-url').value = d.Settings.redirect_url;
-                                }
+                                const redirectInput = redirect.querySelector('#pw-input-redirect-url');
+                                const btnToggleRedirect = redirect.querySelector('#pw-btn-toggle-redirect');
+                                const badgeRedirectActive = redirect.querySelector('#pw-badge-redirect-active');
+
+                                let savedUrl = (d.Settings?.redirect_url || '').trim();
+                                let isRedirectActive = !!(d.Settings?.enable_redirect && savedUrl !== '');
+
+                                const renderRedirectState = () => {
+                                    if (isRedirectActive) {
+                                        redirectInput.value = savedUrl;
+                                        redirectInput.disabled = true;
+                                        btnToggleRedirect.disabled = false;
+                                        btnToggleRedirect.textContent = __('common.disable') || 'Disable';
+                                        btnToggleRedirect.className = 'pw-btn pw-btn-danger';
+                                        if (badgeRedirectActive) {
+                                            badgeRedirectActive.textContent = __('common.active') || 'Aktiv';
+                                            badgeRedirectActive.style.display = 'inline-block';
+                                        }
+                                    } else {
+                                        redirectInput.value = savedUrl;
+                                        redirectInput.disabled = false;
+                                        btnToggleRedirect.disabled = (redirectInput.value.trim() === '');
+                                        btnToggleRedirect.textContent = __('common.enable') || 'Enable';
+                                        btnToggleRedirect.className = 'pw-btn pw-btn-primary';
+                                        if (badgeRedirectActive) {
+                                            badgeRedirectActive.style.display = 'none';
+                                        }
+                                    }
+                                };
+
+                                const onInputChange = () => {
+                                    if (isRedirectActive) return;
+                                    btnToggleRedirect.disabled = (redirectInput.value.trim() === '');
+                                };
+
+                                redirectInput.addEventListener('input', onInputChange);
+                                redirectInput.addEventListener('change', onInputChange);
+
+                                redirectInput.addEventListener('keydown', (e) => {
+                                    if (e.key === 'Enter' && !btnToggleRedirect.disabled) {
+                                        e.preventDefault();
+                                        btnToggleRedirect.click();
+                                    }
+                                });
+
+                                btnToggleRedirect.addEventListener('click', async () => {
+                                    if (btnToggleRedirect.disabled) return;
+
+                                    btnToggleRedirect.disabled = true;
+
+                                    if (isRedirectActive) {
+                                        // Disable redirect
+                                        const result = await apiSafe('save_page_settings', {
+                                            path,
+                                            enable_redirect: false,
+                                            redirect_url: savedUrl
+                                        });
+
+                                        if (result && result.success !== false) {
+                                            notify(__('dashboard.redirect_saved'), 'success');
+                                            isRedirectActive = false;
+                                            renderRedirectState();
+                                            redirectInput.focus();
+                                        } else {
+                                            btnToggleRedirect.disabled = false;
+                                        }
+                                    } else {
+                                        // Enable redirect with the typed URL
+                                        const url = redirectInput.value.trim();
+                                        if (!url) {
+                                            btnToggleRedirect.disabled = true;
+                                            return;
+                                        }
+
+                                        const result = await apiSafe('save_page_settings', {
+                                            path,
+                                            enable_redirect: true,
+                                            redirect_url: url
+                                        });
+
+                                        if (result && result.success !== false) {
+                                            notify(__('dashboard.redirect_saved'), 'success');
+                                            savedUrl = url;
+                                            isRedirectActive = true;
+                                            renderRedirectState();
+                                        } else {
+                                            btnToggleRedirect.disabled = false;
+                                        }
+                                    }
+                                });
+
+                                renderRedirectState();
                                 colRight.appendChild(redirect);
 
                                 // Attach PagePicker autocomplete to redirect URL input
-                                const redirectInput = document.getElementById('pw-input-redirect-url');
-                                if (redirectInput && typeof PagePicker !== 'undefined') {
-                                    new PagePicker(redirectInput);
+                                const mountedInput = colRight.querySelector('#pw-input-redirect-url');
+                                if (mountedInput && typeof PagePicker !== 'undefined') {
+                                    new PagePicker(mountedInput);
                                 }
                             }
                         }
@@ -1283,22 +1369,7 @@ function bindSidebarTreeItems(treeItems, mainActions, mainContent, btnAdd, btnDe
                         });
                     }
 
-                    const btnSaveRedirect = document.getElementById('pw-btn-save-redirect');
-                    if (btnSaveRedirect) {
-                        btnSaveRedirect.addEventListener('click', async () => {
-                            const isEnabled = document.getElementById('pw-check-enable-redirect').checked;
-                            const url = document.getElementById('pw-input-redirect-url').value.trim();
 
-                            const result = await apiSafe('save_page_settings', {
-                                path,
-                                enable_redirect: isEnabled,
-                                redirect_url: url
-                            });
-                            if (result) {
-                                notify(__('dashboard.redirect_saved'), 'success');
-                            }
-                        });
-                    }
                 })
                 .catch(err => {
                     if (loadingP.parentNode) loadingP.remove();

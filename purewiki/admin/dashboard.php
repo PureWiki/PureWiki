@@ -293,15 +293,11 @@ require_once __DIR__ . '/layout_head.php';
             <h3>
                 <iconify-icon icon="mdi:call-split" class="pw-icon-left"></iconify-icon>
                 <?php echo __('dashboard.redirect_link'); ?>
+                <span id="pw-badge-redirect-active" class="pw-badge pw-badge-success" style="display: none; font-size: 0.8rem; margin-left: 8px;"><?php echo __('common.active'); ?></span>
             </h3>
             <div class="pw-form-row pw-w-xlg">
-                <label class="pw-toggle-label">
-                    <input type="checkbox" id="pw-check-enable-redirect" class="pw-checkbox"> <?php echo __('dashboard.enable_redirect'); ?>
-                </label>
-            </div>
-            <div class="pw-form-row pw-w-xlg">
                 <input type="text" class="pw-input" id="pw-input-redirect-url" autocomplete="off" placeholder="<?php echo __('dashboard.redirect_placeholder'); ?>" style="flex:1;">
-                <button id="pw-btn-save-redirect" class="pw-btn pw-btn-primary"><?php echo __('common.save'); ?></button>
+                <button id="pw-btn-toggle-redirect" class="pw-btn pw-btn-primary" disabled><?php echo __('common.enable'); ?></button>
             </div>
             <p class="pw-hint-small"><?php echo __('dashboard.redirect_hint'); ?></p>
         </div>
