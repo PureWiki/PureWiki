@@ -23,6 +23,16 @@ $themeAttr = $theme === 'light' ? ' data-theme="light"' : '';
 if (!isset($pageTitle)) {
     $pageTitle = 'PureWiki';
 }
+
+$dashboardConfig = function_exists('getGlobalConfig') ? getGlobalConfig() : [];
+if (!empty($dashboardConfig['wiki_favicon'])) {
+    $dashboardFavicon = $dashboardConfig['wiki_favicon'];
+    if (str_starts_with($dashboardFavicon, '/')) {
+        $dashboardFavicon = BASE_PATH . $dashboardFavicon;
+    }
+} else {
+    $dashboardFavicon = BASE_PATH . '/purewiki/assets/icons/favicon.svg';
+}
 ?>
 <!DOCTYPE html>
 <html lang="<?php echo htmlspecialchars($lang); ?>"<?php echo $themeAttr; ?>>
@@ -31,6 +41,7 @@ if (!isset($pageTitle)) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="<?php echo htmlspecialchars(getCsrfToken(), ENT_QUOTES, 'UTF-8'); ?>">
     <title><?php echo htmlspecialchars($pageTitle); ?></title>
+    <link rel="icon" href="<?php echo htmlspecialchars($dashboardFavicon); ?>">
     <link rel="stylesheet" href="<?php echo BASE_PATH; ?>/purewiki/assets/css/core.css">
 <?php
 if (!isset($skipNotifyCss) || !$skipNotifyCss) {
