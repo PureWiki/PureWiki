@@ -231,7 +231,9 @@ require_once __DIR__ . '/layout_head.php';
 
     <template id="tpl-page-info">
         <div class="pw-card pw-page-meta">
-            <h3><?php echo __('dashboard.page_info'); ?> 
+            <h3>
+                <iconify-icon icon="mdi:information-outline" class="pw-icon-left"></iconify-icon>
+                <?php echo __('dashboard.page_info'); ?> 
                 <span class="pw-draft-badge" data-field="draft-badge" style="display:none; font-size:10px; margin-left:10px;"><?php echo __('dashboard.draft'); ?></span>
                 <span class="pw-private-badge" data-field="private-badge" style="display:none; font-size:10px; margin-left:10px;"><?php echo __('dashboard.private'); ?></span>
             </h3>
@@ -246,7 +248,10 @@ require_once __DIR__ . '/layout_head.php';
 
     <template id="tpl-rename-card">
         <div class="pw-card">
-            <h3><?php echo __('dashboard.url_folder_name'); ?></h3>
+            <h3>
+                <iconify-icon icon="mdi:folder-edit-outline" class="pw-icon-left"></iconify-icon>
+                <?php echo __('dashboard.url_folder_name'); ?>
+            </h3>
             <div class="pw-form-row pw-w-xlg">
                 <span class="pw-muted-mono" data-field="parent-path"></span>
                 <input type="text" id="pw-input-rename-folder" class="pw-input" autocomplete="off" style="flex:1;" data-field="current-name">
@@ -258,7 +263,10 @@ require_once __DIR__ . '/layout_head.php';
 
     <template id="tpl-move-card">
         <div class="pw-card">
-            <h3><?php echo __('dashboard.move_page'); ?></h3>
+            <h3>
+                <iconify-icon icon="mdi:swap-vertical" class="pw-icon-left"></iconify-icon>
+                <?php echo __('dashboard.move_page'); ?>
+            </h3>
             <div class="pw-form-row">
                 <button id="pw-btn-move-up" class="pw-btn" data-dir="up"><iconify-icon icon="mdi:arrow-up"></iconify-icon> <?php echo __('dashboard.move_up'); ?></button>
                 <button id="pw-btn-move-down" class="pw-btn" data-dir="down"><iconify-icon icon="mdi:arrow-down"></iconify-icon> <?php echo __('dashboard.move_down'); ?></button>
@@ -269,7 +277,10 @@ require_once __DIR__ . '/layout_head.php';
 
     <template id="tpl-redirect-card">
         <div class="pw-card">
-            <h3><?php echo __('dashboard.redirect_link'); ?></h3>
+            <h3>
+                <iconify-icon icon="mdi:call-split" class="pw-icon-left"></iconify-icon>
+                <?php echo __('dashboard.redirect_link'); ?>
+            </h3>
             <div class="pw-form-row pw-w-xlg">
                 <label class="pw-toggle-label">
                     <input type="checkbox" id="pw-check-enable-redirect" class="pw-checkbox"> <?php echo __('dashboard.enable_redirect'); ?>
