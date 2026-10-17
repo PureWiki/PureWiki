@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixed duplicate language prefixes in internal links when links already contain a language prefix.
 - Fixed startpage treeview chevron showing when no subpages exist.
+- Fixed Apache 500 errors on shared hosting caused by disallowed options and missing rewrite base.
+
+### Security
+- Improved security in `.htaccess` by blocking sensitive paths and hidden files before router execution.
 
 ## [0.3.0-alpha.3] - 2026-10-09
 

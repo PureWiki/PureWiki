@@ -3,21 +3,29 @@
 # ----------------------------------------------------------------------
 
 # URL Rewriting (PHP Router)
-Options +FollowSymLinks -MultiViews
+Options -MultiViews
+
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
-    # i18n Language prefix routing
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^([a-z]{2})(/.*)?$ index.php [QSA,L]
+    # Determine the RewriteBase automatically and set it as environment variable
+    RewriteCond %{REQUEST_URI}::$1 ^(/.+)/(.*)::\2$
+    RewriteRule ^(.*) - [E=BASE:%1]
+
+    # Block access to hidden files and directories
+    RewriteCond %{SCRIPT_FILENAME} -d [OR]
+    RewriteCond %{SCRIPT_FILENAME} -f
+    RewriteRule "(^|/)\." - [F]
+
+    # Block access to sensitive directories
+    RewriteRule ^(.dev|config|cache|backups|purewiki/admin|purewiki/core|purewiki/api|purewiki/lang|purewiki/data|purewiki/extern|purewiki/frontend|purewiki/logs)/ - [F,L]
 
     # If the requested file or directory exists, serve it directly.
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
 
     # Otherwise, route everything to index.php.
-    RewriteRule ^ index.php [QSA,L]
+    RewriteRule ^ %{ENV:BASE}/index.php [QSA,L]
 </IfModule>
 
 # Fallback DirectoryIndex (prevents AH01276 if mod_rewrite is unavailable)
@@ -108,17 +116,6 @@ DirectoryIndex index.php
     Header set X-Frame-Options "SAMEORIGIN"
 </IfModule>
 
-# Block Access to Hidden Files and Directories
-<IfModule mod_rewrite.c>
-    RewriteCond %{SCRIPT_FILENAME} -d [OR]
-    RewriteCond %{SCRIPT_FILENAME} -f
-    RewriteRule "(^|/)\." - [F]
-</IfModule>
-
-# Block access to sensitive directories
-<IfModule mod_rewrite.c>
-    RewriteRule ^(.dev|config|cache|backups|purewiki/admin|purewiki/core|purewiki/api|purewiki/lang|purewiki/data|purewiki/extern|purewiki/frontend|purewiki/logs)/ - [F,L]
-</IfModule>
 
 # Block specific extensions or files from direct access
 <FilesMatch "\.(md|json|log|sh|ini|env|bak|swp)$|^\.(git)|^(CODE_OF_CONDUCT|CONTRIBUTING|LICENSE|README)">
