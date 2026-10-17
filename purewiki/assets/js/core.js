@@ -565,6 +565,13 @@ function initTreeSearch() {
             allNodes.forEach(node => node.classList.remove('pw-tree-hidden'));
             restoreExpandState();
             savedExpandState = null;
+            ['pw-section-virtual-pages', 'pw-section-snippets'].forEach(secId => {
+                const sec = document.getElementById(secId);
+                if (sec) {
+                    const key = secId === 'pw-section-virtual-pages' ? 'pw_sidebar_virtual_expanded' : 'pw_sidebar_snippets_expanded';
+                    sec.classList.toggle('pw-expanded', localStorage.getItem(key) === 'true');
+                }
+            });
             return;
         }
 
@@ -589,6 +596,11 @@ function initTreeSearch() {
                     parent.classList.remove('pw-tree-hidden');
                     parent.classList.add('pw-expanded');
                     parent = parent.parentElement.closest('.pw-tree-node');
+                }
+
+                const section = node.closest('.pw-sidebar-section');
+                if (section) {
+                    section.classList.add('pw-expanded');
                 }
             }
         });
@@ -655,12 +667,76 @@ function initDashboardInteractions() {
     restoreActivePageState();
 }
 
+/** Initializes collapsible sidebar sections */
+function initCollapsibleSidebarSections() {
+    const sections = [
+        {
+            id: 'pw-section-virtual-pages',
+            headerId: 'pw-header-virtual-pages',
+            storageKey: 'pw_sidebar_virtual_expanded'
+        },
+        {
+            id: 'pw-section-snippets',
+            headerId: 'pw-header-snippets',
+            storageKey: 'pw_sidebar_snippets_expanded'
+        }
+    ];
+
+    sections.forEach(({ id, headerId, storageKey }) => {
+        const section = document.getElementById(id);
+        const header = document.getElementById(headerId);
+        if (!section || !header) return;
+
+        // Load last state from localStorage
+        const isExpanded = localStorage.getItem(storageKey) === 'true';
+        section.classList.toggle('pw-expanded', isExpanded);
+
+        const toggle = () => {
+            const nowExpanded = section.classList.toggle('pw-expanded');
+            try {
+                localStorage.setItem(storageKey, nowExpanded ? 'true' : 'false');
+            } catch (e) {}
+        };
+
+        header.addEventListener('click', (e) => {
+            if (e.target.closest('#pw-btn-add-snippet')) return;
+            toggle();
+        });
+
+        header.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                if (e.target.closest('#pw-btn-add-snippet')) return;
+                e.preventDefault();
+                toggle();
+            }
+        });
+    });
+
+    // Expand section if item inside is clicked
+    const treeItems = document.querySelectorAll('.pw-sidebar-section .pw-tree-item');
+    treeItems.forEach(item => {
+        item.addEventListener('click', () => {
+            const section = item.closest('.pw-sidebar-section');
+            if (section && !section.classList.contains('pw-expanded')) {
+                section.classList.add('pw-expanded');
+                const key = section.id === 'pw-section-virtual-pages'
+                    ? 'pw_sidebar_virtual_expanded'
+                    : 'pw_sidebar_snippets_expanded';
+                try {
+                    localStorage.setItem(key, 'true');
+                } catch (e) {}
+            }
+        });
+    });
+}
+
 /** Initializes snippet create button logic */
 function initSnippets() {
     const btnAddSnippet = document.getElementById('pw-btn-add-snippet');
 
     if (btnAddSnippet) {
-        btnAddSnippet.addEventListener('click', async () => {
+        btnAddSnippet.addEventListener('click', async (e) => {
+            e.stopPropagation();
             const newSnippetData = await openDialog({
                 title: __('dashboard.add_snippet') || 'Add Snippet',
                 text: __('dashboard.enter_snippet_title') || 'Enter a title for the new snippet:',
@@ -1401,6 +1477,10 @@ function restoreActivePageState() {
             while (parentNode) {
                 parentNode.classList.add('pw-expanded');
                 parentNode = parentNode.parentElement.closest('.pw-tree-node');
+            }
+            const section = targetItem.closest('.pw-sidebar-section');
+            if (section) {
+                section.classList.add('pw-expanded');
             }
             // Trigger click to load content
             targetItem.click();

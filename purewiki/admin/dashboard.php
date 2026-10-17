@@ -95,56 +95,65 @@ require_once __DIR__ . '/layout_head.php';
                         <?php echo buildAdminTree($tree); ?>
                     </li>
                 </ul>
-                <hr style="border: 0; border-top: 1px solid var(--pw-border); margin: 15px 0;">
                 <!-- Virtual System Pages -->
-                <div style="padding: 0 10px; margin-bottom: 8px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: var(--pw-text-muted);">
-                    <?php echo __('dashboard.virtual_system_pages'); ?>
+                <div class="pw-sidebar-section" id="pw-section-virtual-pages">
+                    <div class="pw-sidebar-section-header" id="pw-header-virtual-pages" role="button" tabindex="0">
+                        <span class="pw-sidebar-section-title">
+                            <iconify-icon icon="mdi:chevron-right" class="pw-sidebar-section-chevron"></iconify-icon>
+                            <?php echo __('dashboard.virtual_system_pages'); ?>
+                        </span>
+                    </div>
+                    <ul class="pw-sidebar-section-list" id="pw-virtual-pages-list">
+                        <li class="pw-tree-node">
+                            <div class="pw-tree-item" data-path="/_virtual/left_sidebar">
+                                <span class="pw-tree-label"><iconify-icon icon="mdi:page-layout-sidebar-left" style="margin-right: 5px;"></iconify-icon> <?php echo __('dashboard.left_sidebar'); ?></span>
+                            </div>
+                        </li>
+                        <li class="pw-tree-node">
+                            <div class="pw-tree-item" data-path="/_virtual/right_sidebar">
+                                <span class="pw-tree-label"><iconify-icon icon="mdi:page-layout-sidebar-right" style="margin-right: 5px;"></iconify-icon> <?php echo __('dashboard.right_sidebar'); ?></span>
+                            </div>
+                        </li>
+                        <li class="pw-tree-node">
+                            <div class="pw-tree-item" data-path="/_virtual/mobile_sidebar">
+                                <span class="pw-tree-label"><iconify-icon icon="mdi:cellphone" style="margin-right: 5px;"></iconify-icon> <?php echo __('dashboard.mobile_sidebar'); ?></span>
+                            </div>
+                        </li>
+                        <li class="pw-tree-node">
+                            <div class="pw-tree-item" data-path="/_virtual/footer">
+                                <span class="pw-tree-label"><iconify-icon icon="mdi:page-layout-footer" style="margin-right: 5px;"></iconify-icon> <?php echo __('dashboard.footer'); ?></span>
+                            </div>
+                        </li>
+                        <li class="pw-tree-node">
+                            <div class="pw-tree-item" data-path="/_virtual/404">
+                                <span class="pw-tree-label"><iconify-icon icon="mdi:file-document-error" style="margin-right: 5px;"></iconify-icon> <?php echo __('dashboard.not_found_page'); ?></span>
+                            </div>
+                        </li>
+                    </ul>
                 </div>
-                <ul style="margin-top: 10px; max-height: 25%; min-height: 20%; overflow-y: auto;">
-                    <li class="pw-tree-node">
-                        <div class="pw-tree-item" data-path="/_virtual/left_sidebar">
-                            <span class="pw-tree-label"><iconify-icon icon="mdi:page-layout-sidebar-left" style="margin-right: 5px;"></iconify-icon> <?php echo __('dashboard.left_sidebar'); ?></span>
-                        </div>
-                    </li>
-                    <li class="pw-tree-node">
-                        <div class="pw-tree-item" data-path="/_virtual/right_sidebar">
-                            <span class="pw-tree-label"><iconify-icon icon="mdi:page-layout-sidebar-right" style="margin-right: 5px;"></iconify-icon> <?php echo __('dashboard.right_sidebar'); ?></span>
-                        </div>
-                    </li>
-                    <li class="pw-tree-node">
-                        <div class="pw-tree-item" data-path="/_virtual/mobile_sidebar">
-                            <span class="pw-tree-label"><iconify-icon icon="mdi:cellphone" style="margin-right: 5px;"></iconify-icon> <?php echo __('dashboard.mobile_sidebar'); ?></span>
-                        </div>
-                    </li>
-                    <li class="pw-tree-node">
-                        <div class="pw-tree-item" data-path="/_virtual/footer">
-                            <span class="pw-tree-label"><iconify-icon icon="mdi:page-layout-footer" style="margin-right: 5px;"></iconify-icon> <?php echo __('dashboard.footer'); ?></span>
-                        </div>
-                    </li>
-                    <li class="pw-tree-node">
-                        <div class="pw-tree-item" data-path="/_virtual/404">
-                            <span class="pw-tree-label"><iconify-icon icon="mdi:file-document-error" style="margin-right: 5px;"></iconify-icon> <?php echo __('dashboard.not_found_page'); ?></span>
-                        </div>
-                    </li>
-                </ul>
-                <hr style="border: 0; border-top: 1px solid var(--pw-border); margin: 15px 0;">
+
                 <!-- Snippets -->
-                <div style="padding: 0 10px; margin-bottom: 8px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: var(--pw-text-muted); display: flex; align-items: center; justify-content: space-between;">
-                    <?php echo __('dashboard.snippets') ?? 'Snippets'; ?>
-                    <button id="pw-btn-add-snippet" class="pw-btn" style="padding: 2px 5px; min-height: unset; font-size: 1.1em;" title="<?php echo __('dashboard.add_snippet') ?? 'Add Snippet'; ?>" aria-label="<?php echo __('dashboard.add_snippet') ?? 'Add Snippet'; ?>"><iconify-icon icon="mdi:plus"></iconify-icon></button>
+                <div class="pw-sidebar-section" id="pw-section-snippets">
+                    <div class="pw-sidebar-section-header" id="pw-header-snippets" role="button" tabindex="0">
+                        <span class="pw-sidebar-section-title">
+                            <iconify-icon icon="mdi:chevron-right" class="pw-sidebar-section-chevron"></iconify-icon>
+                            <?php echo __('dashboard.snippets') ?? 'Snippets'; ?>
+                        </span>
+                        <button id="pw-btn-add-snippet" class="pw-btn pw-sidebar-section-action-btn" title="<?php echo __('dashboard.add_snippet') ?? 'Add Snippet'; ?>" aria-label="<?php echo __('dashboard.add_snippet') ?? 'Add Snippet'; ?>"><iconify-icon icon="mdi:plus"></iconify-icon></button>
+                    </div>
+                    <ul class="pw-sidebar-section-list" id="pw-snippets-list">
+                        <?php
+                        $snippetsDir = realpath(__DIR__ . '/../../pages/_snippets');
+                        $snippets = getSnippetsList($snippetsDir);
+                        foreach ($snippets as $snippet) {
+                            echo '<li class="pw-tree-node">';
+                            echo '<div class="pw-tree-item" data-path="' . htmlspecialchars($snippet['path']) . '">';
+                            echo '<span class="pw-tree-label"><iconify-icon icon="mdi:code-tags" style="margin-right: 5px;"></iconify-icon> ' . htmlspecialchars($snippet['name']) . '</span>';
+                            echo '</div></li>';
+                        }
+                        ?>
+                    </ul>
                 </div>
-                <ul id="pw-snippets-list" style="margin-top: 10px; max-height: 25%; min-height: 20%; overflow-y: auto;">
-                    <?php
-                    $snippetsDir = realpath(__DIR__ . '/../../pages/_snippets');
-                    $snippets = getSnippetsList($snippetsDir);
-                    foreach ($snippets as $snippet) {
-                        echo '<li class="pw-tree-node">';
-                        echo '<div class="pw-tree-item" data-path="' . htmlspecialchars($snippet['path']) . '">';
-                        echo '<span class="pw-tree-label"><iconify-icon icon="mdi:code-tags" style="margin-right: 5px;"></iconify-icon> ' . htmlspecialchars($snippet['name']) . '</span>';
-                        echo '</div></li>';
-                    }
-                    ?>
-                </ul>
             </div>
             <?php if (hasRole('admin')) { ?>
             <div class="pw-sidebar-bottom">
@@ -201,6 +210,7 @@ require_once __DIR__ . '/layout_head.php';
             initDialogSystem();
             initUserMenu();
             initTreeview();
+            initCollapsibleSidebarSections();
             initSnippets();
             initDashboardInteractions();
             initTreeDragAndDrop();
@@ -211,6 +221,8 @@ require_once __DIR__ . '/layout_head.php';
             if (savedPath) {
                 const item = document.querySelector(`.pw-tree-item[data-path="${savedPath}"]`);
                 if (item) {
+                    const sec = item.closest('.pw-sidebar-section');
+                    if (sec) sec.classList.add('pw-expanded');
                     item.click();
                 }
             }

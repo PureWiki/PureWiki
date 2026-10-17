@@ -626,7 +626,7 @@ input[type="number"]:focus::-webkit-inner-spin-button {
 .pw-treeview {
     flex: 1;
     overflow-y: auto;
-    padding-bottom: 20px;
+    padding-bottom: 6px;
     display: flex;
     flex-direction: column;
 }
@@ -767,6 +767,73 @@ input[type="number"]:focus::-webkit-inner-spin-button {
     min-height: 0;
 }
 
+/* Sidebar Collapsible Sections */
+.pw-sidebar-section {
+    border-top: 1px solid var(--pw-border);
+    margin-top: 6px;
+    padding-top: 6px;
+    flex-shrink: 0;
+}
+
+.pw-sidebar-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 8px;
+    font-weight: 500;
+    color: var(--pw-text-muted);
+    cursor: pointer;
+    user-select: none;
+    border-radius: 4px;
+    transition: background-color 0.1s ease, color 0.1s ease;
+}
+
+.pw-sidebar-section-header:hover {
+    background-color: var(--pw-tree-hover);
+    color: var(--pw-text);
+}
+
+.pw-sidebar-section-title {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex: 1;
+    min-width: 0;
+}
+
+.pw-sidebar-section-chevron {
+    font-size: 1rem;
+    color: var(--pw-text-muted);
+    transition: transform 0.15s ease, color 0.15s ease;
+    flex-shrink: 0;
+}
+
+.pw-sidebar-section-header:hover .pw-sidebar-section-chevron {
+    color: var(--pw-text);
+}
+
+.pw-sidebar-section.pw-expanded .pw-sidebar-section-chevron {
+    transform: rotate(90deg);
+}
+
+.pw-sidebar-section-list {
+    display: none;
+    margin-top: 4px;
+    max-height: 220px;
+    overflow-y: auto;
+}
+
+.pw-sidebar-section.pw-expanded .pw-sidebar-section-list {
+    display: block;
+}
+
+.pw-sidebar-section-action-btn {
+    padding: 2px 5px !important;
+    min-height: unset !important;
+    font-size: 1.1em !important;
+    line-height: 1;
+}
+
 /* Main Content Area */
 .pw-content-actions {
     display: flex;
@@ -796,6 +863,9 @@ input[type="number"]:focus::-webkit-inner-spin-button {
 /* Editor Container */
 .pw-tree-label {
     flex-grow: 1;
+    display: flex;
+    align-items: center;
+    gap: 4px;
     cursor: pointer;
     user-select: none;
     white-space: nowrap;
@@ -1638,6 +1708,8 @@ input[type="number"]:focus::-webkit-inner-spin-button {
 }
 
 .pw-sidebar-trash-btn {
+    font-size: 1rem;
+    font-weight: 500;
     width: 100%;
     padding: 6px 10px;
     justify-content: flex-start;
