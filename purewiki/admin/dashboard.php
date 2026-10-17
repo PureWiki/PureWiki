@@ -87,7 +87,7 @@ require_once __DIR__ . '/layout_head.php';
             </div>
             <div class="pw-treeview">
                 <ul class="pw-treeview-pages">
-                    <li class="pw-tree-node pw-has-children pw-expanded">
+                    <li class="pw-tree-node<?php echo !empty($tree) ? ' pw-has-children pw-expanded' : ''; ?>">
                         <div class="pw-tree-item pw-tree-active" data-path="/">
                             <span class="pw-tree-toggle"></span>
                             <span class="pw-tree-label"><?php echo __('dashboard.startpage'); ?></span>

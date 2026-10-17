@@ -51,16 +51,16 @@ require_once __DIR__ . '/layout_head.php';
                             <span class="pw-tree-label"><?php echo __('media.global_label'); ?></span>
                         </div>
                     </li>
-                    <li class="pw-tree-node pw-has-children pw-expanded">
+                    <?php 
+                    $pagesDir = getPageDir();
+                    $tree = getCachedPagesTree($pagesDir);
+                    ?>
+                    <li class="pw-tree-node<?php echo !empty($tree) ? ' pw-has-children pw-expanded' : ''; ?>">
                         <div class="pw-tree-item" data-path="/">
                             <span class="pw-tree-toggle"></span>
                             <span class="pw-tree-label"><?php echo __('media.pages_label'); ?></span>
                         </div>
-                        <?php 
-                        $pagesDir = getPageDir();
-                        $tree = getCachedPagesTree($pagesDir);
-                        echo buildAdminTree($tree);
-                        ?>
+                        <?php echo buildAdminTree($tree); ?>
                     </li>
                 </ul>
             </div>
