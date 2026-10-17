@@ -28,6 +28,7 @@ const settingsFields = {
     'current_theme': 'pw-setting-current-theme',
     'enable_cache':  'pw-setting-enable-cache',
     'cache_lifetime':'pw-setting-cache-lifetime',
+    'enable_backlinks': 'pw-setting-enable-backlinks',
     'breadcrumbs_show_start_page': 'pw-setting-breadcrumbs-show-start-page',
     'enable_admin_menu': 'pw-setting-enable-admin-menu',
     'custom_css': 'pw-setting-custom-css',
@@ -102,6 +103,12 @@ async function loadSettings() {
                     el.value = result.data[key];
                 }
             }
+        }
+
+        const rebuildField = document.getElementById('pw-field-rebuild-backlinks');
+        if (rebuildField && result.data.enable_backlinks !== undefined) {
+            const isEnabled = result.data.enable_backlinks === true || result.data.enable_backlinks === 'true';
+            rebuildField.style.display = isEnabled ? 'block' : 'none';
         }
     }
 }

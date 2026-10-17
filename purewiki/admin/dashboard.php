@@ -308,5 +308,22 @@ require_once __DIR__ . '/layout_head.php';
         </div>
     </template>
 
+    <template id="tpl-backlinks-card">
+        <div class="pw-card pw-backlinks-card">
+            <h3>
+                <iconify-icon icon="mdi:link-variant" class="pw-icon-left"></iconify-icon>
+                <?php echo __('dashboard.backlinks_title'); ?>
+            </h3>
+            <div data-field="backlinks-list" class="pw-backlinks-list">
+            </div>
+            <p data-field="no-backlinks" class="pw-text-muted" style="display: none; margin: 10px 0;"><?php echo __('dashboard.no_backlinks'); ?></p>
+            <div data-field="backlinks-toggle-wrapper" style="display: none; text-align: center; margin-top: 10px;">
+                <button type="button" class="pw-btn pw-btn-sm pw-btn-text" data-field="backlinks-toggle-btn" title="<?php echo __('dashboard.show_more_backlinks'); ?>" aria-label="<?php echo __('dashboard.show_more_backlinks'); ?>" style="padding: 4px 12px; min-height: unset;">
+                    <iconify-icon icon="mdi:chevron-down" style="font-size: 1.4rem; vertical-align: middle;"></iconify-icon>
+                </button>
+            </div>
+        </div>
+    </template>
+
 </body>
 </html>

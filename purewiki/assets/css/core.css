@@ -1889,5 +1889,31 @@ progress.pw-progress-danger {
     min-height: unset;
 }
 
+/* Backlinks Card */
+.pw-backlinks-list:not(.pw-expanded) .pw-backlink-row:nth-child(n+6) {
+    display: none;
+}
 
+.pw-backlink-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 2px;
+    margin-bottom: 3px;
+    border-radius: var(--pw-radius);
+    background-color: transparent;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+    text-decoration: none;
+    color: inherit;
+}
 
+.pw-backlink-row:hover {
+    background-color: var(--pw-tree-hover) !important;
+    border-color: var(--pw-border) !important;
+}
+
+.pw-backlink-row:hover iconify-icon[icon="mdi:chevron-right"] {
+    color: var(--pw-text);
+}

@@ -1,7 +1,7 @@
 /**
  * PureWiki - Cache Clear Event Handler
  *
- * Handles cache clearing actions within the dashboard
+ * Handles cache and backlinks clearing actions within the dashboard
  *
  * @package   PureWiki
  * @author    Oliver Weinhold <oliverweinhold.de>
@@ -18,6 +18,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 notify(__('settings.cache_cleared'), 'success');
             } else {
                 notify(__('settings.failed_clear_cache'), 'error');
+            }
+        });
+    }
+
+    const btnRebuildBacklinks = document.getElementById('pw-btn-rebuild-backlinks');
+    if (btnRebuildBacklinks) {
+        btnRebuildBacklinks.addEventListener('click', async () => {
+            btnRebuildBacklinks.disabled = true;
+            const res = await apiSafe('rebuild_backlinks');
+            btnRebuildBacklinks.disabled = false;
+            if (res && res.success) {
+                notify(__('settings.backlinks_rebuilt'), 'success');
+            } else {
+                notify(__('settings.failed_rebuild_backlinks'), 'error');
             }
         });
     }

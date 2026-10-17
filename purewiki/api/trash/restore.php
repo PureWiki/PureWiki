@@ -51,6 +51,7 @@ if (!rename($sourcePath, $destPath)) {
 invalidateTreeCache();
 rebuildNavLinksCache();
 invalidateSearchIndex();
+invalidateBacklinksCache();
 
 $response['success']    = true;
 $response['new_slug']   = $destSlug;

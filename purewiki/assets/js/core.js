@@ -924,6 +924,83 @@ function bindSidebarTreeItems(treeItems, mainActions, mainContent, btnAdd, btnDe
                             }
                         }
 
+                        // Backlinks card (right column)
+                        if (!isSystemPage && !isSnippet) {
+                            const backlinksTpl = document.getElementById('tpl-backlinks-card');
+                            if (backlinksTpl) {
+                                const card = backlinksTpl.content.cloneNode(true);
+                                const cardContainer = card.firstElementChild;
+                                const listContainer = card.querySelector('[data-field="backlinks-list"]');
+                                const noBacklinksMsg = card.querySelector('[data-field="no-backlinks"]');
+                                const toggleWrapper = card.querySelector('[data-field="backlinks-toggle-wrapper"]');
+                                const toggleBtn = card.querySelector('[data-field="backlinks-toggle-btn"]');
+
+                                colRight.appendChild(card);
+
+                                apiCall('get_backlinks', { path }).then(res => {
+                                    if (res && res.enabled === false) {
+                                        if (cardContainer && cardContainer.parentNode) {
+                                            cardContainer.remove();
+                                        }
+                                        return;
+                                    }
+
+                                    if (!res || !res.success || !Array.isArray(res.backlinks) || res.backlinks.length === 0) {
+                                        noBacklinksMsg.style.display = 'block';
+                                        return;
+                                    }
+
+                                    const backlinks = res.backlinks;
+                                    listContainer.innerHTML = backlinks.map(b => {
+                                        const subtitle = (b.title && b.title !== b.path) ? `<span style="color: var(--pw-text-muted); font-size: 0.8em; margin-left: 6px;">(${escapeHtml(b.path)})</span>` : '';
+                                        return `<div class="pw-backlink-row" data-path="${escapeHtml(b.path)}">
+                                            <div style="display: flex; align-items: center; gap: 8px; min-width: 0; overflow: hidden;">
+                                                <iconify-icon icon="mdi:file-document-outline" style="color: var(--pw-text-muted); flex-shrink: 0;"></iconify-icon>
+                                                <span style="min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.875rem;">
+                                                    <strong style="font-weight: 500;">${escapeHtml(b.title || b.path)}</strong>${subtitle}
+                                                </span>
+                                            </div>
+                                            <iconify-icon icon="mdi:chevron-right" style="color: var(--pw-text-muted); flex-shrink: 0;"></iconify-icon>
+                                        </div>`;
+                                    }).join('');
+
+                                    listContainer.onclick = (e) => {
+                                        const row = e.target.closest('.pw-backlink-row');
+                                        if (!row) return;
+                                        const targetPath = row.getAttribute('data-path') || '';
+                                        const cleanPath = (targetPath === '/' || targetPath.startsWith('/_')) ? targetPath : targetPath.replace(/^\//, '');
+                                        const slashedPath = targetPath.startsWith('/') ? targetPath : '/' + targetPath;
+
+                                        const treeItem = document.querySelector(`.pw-tree-item[data-path="${cleanPath}"], .pw-tree-item[data-path="${slashedPath}"]`);
+                                        if (treeItem) {
+                                            let parentNode = treeItem.closest('.pw-tree-node');
+                                            while (parentNode) {
+                                                parentNode.classList.add('pw-expanded');
+                                                parentNode = parentNode.parentElement ? parentNode.parentElement.closest('.pw-tree-node') : null;
+                                            }
+                                            treeItem.click();
+                                            treeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                                        } else {
+                                            sessionStorage.setItem('pw_active_page', cleanPath);
+                                            window.location.reload();
+                                        }
+                                    };
+
+                                    if (backlinks.length > 5) {
+                                        toggleWrapper.style.display = 'block';
+                                        const chevron = toggleBtn.querySelector('iconify-icon');
+                                        toggleBtn.onclick = () => {
+                                            const isExpanded = listContainer.classList.toggle('pw-expanded');
+                                            if (chevron) {
+                                                chevron.setAttribute('icon', isExpanded ? 'mdi:chevron-up' : 'mdi:chevron-down');
+                                            }
+                                            toggleBtn.setAttribute('title', isExpanded ? __('dashboard.show_less_backlinks') : __('dashboard.show_more_backlinks'));
+                                        };
+                                    }
+                                });
+                            }
+                        }
+
                         // Comments section for dashboard (left column)
                         if (!isSystemPage && !isSnippet) {
                             const commentsTpl = document.getElementById('tpl-comments-card');
@@ -1237,6 +1314,48 @@ function bindDeletePageAction(btnDelete) {
         if (currentSelectedPath === '/') {
             await openDialog({ title: __('dashboard.action_denied'), text: __('dashboard.cannot_delete_root'), type: 'alert' });
             return;
+        }
+
+        // Check for backlinks
+        if (!currentSelectedPath.startsWith('/_snippets/')) {
+            const backlinkRes = await apiCall('get_backlinks', { path: currentSelectedPath });
+            if (backlinkRes && backlinkRes.enabled !== false && backlinkRes.success && Array.isArray(backlinkRes.backlinks) && backlinkRes.backlinks.length > 0) {
+                const linksListHtml = backlinkRes.backlinks.map(b =>
+                    `<li style="margin-bottom: 6px;"><strong>${escapeHtml(b.title || b.path)}</strong> <span style="color: var(--pw-text-muted); font-size: 0.8em;">(${escapeHtml(b.path)})</span></li>`
+                ).join('');
+
+                const warningHtml = `
+                    <div style="margin-bottom: 12px; color: var(--pw-danger, #e53e3e); font-weight: 500; display: flex; align-items: center; gap: 6px;">
+                        <iconify-icon icon="mdi:alert-circle-outline" style="font-size: 1.3em; flex-shrink: 0;"></iconify-icon>
+                        <span>${escapeHtml(__('dashboard.delete_page_has_backlinks_desc'))}</span>
+                    </div>
+                    <ul style="max-height: 160px; overflow-y: auto; margin-bottom: 15px; border: 1px solid var(--pw-border); border-radius: var(--pw-radius, 4px); padding: 10px 14px 10px 30px; background: var(--pw-surface-light, rgba(255,255,255,0.02));">
+                        ${linksListHtml}
+                    </ul>
+                    <p style="margin: 0; font-size: 0.85em; color: var(--pw-text-muted);">${escapeHtml(__('dashboard.confirm_delete_anyway'))}</p>
+                `;
+
+                const confirmed = await openDialog({
+                    title: __('dashboard.delete_page_has_backlinks_title'),
+                    html: warningHtml,
+                    type: 'confirm',
+                    confirmText: __('dashboard.delete_anyway') || __('common.delete'),
+                    cancelText: __('common.cancel')
+                });
+
+                if (!confirmed) {
+                    return;
+                }
+
+                const result = await apiSafe('delete_page', { path: currentSelectedPath });
+                if (result) {
+                    sessionStorage.setItem('pw-notify', JSON.stringify({text: __('dashboard.page_deleted'), type: 'success'}));
+                    window.location.reload();
+                } else {
+                    notify(__('dashboard.error_delete_page'), 'error');
+                }
+                return;
+            }
         }
 
         if (!isDeleteConfirm) {

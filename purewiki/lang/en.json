@@ -151,7 +151,15 @@
         "trash_emptied": "Trash emptied (%s pages deleted).",
         "error_trash_restore": "Error restoring page.",
         "error_trash_delete": "Error deleting page.",
-        "error_trash_empty": "Error emptying trash."
+        "error_trash_empty": "Error emptying trash.",
+        "backlinks_title": "Backlinks",
+        "no_backlinks": "No backlinks to this page found.",
+        "show_more_backlinks": "Show all backlinks",
+        "show_less_backlinks": "Show fewer backlinks",
+        "delete_page_has_backlinks_title": "Warning: Page has backlinks",
+        "delete_page_has_backlinks_desc": "The following pages link to this page. Deleting it will create broken links:",
+        "confirm_delete_anyway": "Are you sure you want to move this page to trash anyway?",
+        "delete_anyway": "Delete anyway"
     },
     "editor": {
         "title": "Editor",
@@ -644,7 +652,14 @@
         "debug_log_empty": "Log is empty.",
         "debug_log_cleared": "Log cleared.",
         "debug_log_size": "Log size",
-        "debug_log_clear_confirm": "Clear the debug log? This cannot be undone."
+        "debug_log_clear_confirm": "Clear the debug log? This cannot be undone.",
+        "rebuild_backlinks": "Rebuild Backlinks",
+        "backlinks_rebuilt": "Backlinks index successfully rebuilt.",
+        "failed_rebuild_backlinks": "Failed to rebuild backlinks index.",
+        "enable_backlinks": "Enable Backlinks",
+        "enable_backlinks_desc": "Tracks incoming links between pages and displays them in the dashboard. Disabling saves resources on very large wikis.",
+        "backlinks_disabled_notice": "Backlinks are disabled in settings.",
+        "backlinks_title": "Backlinks"
     },
     "plugins": {
         "accordion": "Accordion",

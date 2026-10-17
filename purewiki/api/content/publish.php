@@ -70,6 +70,7 @@ if ($targetDir && isPathInDir($targetDir, $pagesDir) && is_dir($targetDir)) {
             // page tree (without draft flags) is used for the navbar.
             invalidateTreeCache();
             invalidateSearchIndex();
+            invalidateBacklinksCache();
 
             // Rebuild nav links for all configured languages
             rebuildNavLinksCache(''); // default language

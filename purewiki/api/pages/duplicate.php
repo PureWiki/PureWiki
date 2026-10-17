@@ -72,6 +72,7 @@ if ($sourceDir && isPathInDir($sourceDir, $pagesDir) && is_dir($sourceDir)) {
             invalidateTreeCache();
             rebuildNavLinksCache();
             invalidateSearchIndex();
+            invalidateBacklinksCache();
             $response['success'] = true;
             $response['message'] = 'Page duplicated successfully.';
             $response['new_path'] = '/' . ltrim(($parentPath !== '' ? $parentPath . '/' : '') . $folderName, '/');

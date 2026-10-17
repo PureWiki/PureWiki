@@ -62,6 +62,7 @@ function clearCache(?string $path = null, ?string $lang = null): void {
         // Purge the temporary updates folder to prevent pending
         // edits or unapplied patches from becoming orphaned artifacts.
         clearUpdateCache();
+        invalidateBacklinksCache();
     }
 }
 
@@ -125,5 +126,17 @@ function invalidateSearchIndex(): void {
     $cacheFile = getCacheDir() . '/searchindex.json';
     if (file_exists($cacheFile)) {
         unlink($cacheFile);
+    }
+}
+
+/**
+ * Invalidates backlinks index cache file.
+ */
+if (!function_exists('invalidateBacklinksCache')) {
+    function invalidateBacklinksCache(): void {
+        $cacheFile = getCacheDir() . '/backlinks.json';
+        if (file_exists($cacheFile)) {
+            @unlink($cacheFile);
+        }
     }
 }

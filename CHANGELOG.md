@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Added a backlinks system to track links between wiki pages in the dashboard.
+
 ### Fixed
 - Fixed duplicate language prefixes in internal links when links already contain a language prefix.
 

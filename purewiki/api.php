@@ -99,6 +99,7 @@ $apiRoutes = [
     'rename_folder' => 'pages/rename.php',
     'list_pages' => 'pages/list.php',
     'list_recent_pages' => 'pages/recent.php',
+    'get_backlinks' => 'pages/backlinks.php',
 
     'list_snippets' => 'snippets/list.php',
     'create_snippet' => 'snippets/create.php',
@@ -126,6 +127,7 @@ $apiRoutes = [
     'get_config' => 'system/config.php',
     'save_config' => 'system/config.php',
     'clear_cache' => 'system/cache.php',
+    'rebuild_backlinks' => 'system/cache.php',
     'list_users' => 'system/users.php',
     'create_user' => 'system/users.php',
     'delete_user' => 'system/users.php',
@@ -196,7 +198,7 @@ if (!isset($apiRoutes[$action])) {
 $publicActions = ['search', 'setup_wiki', 'submit_comment'];
 $readerActions = ['logout', 'change_password', 'change_language', 'change_theme'];
 $adminActions  = [
-    'get_config', 'save_config', 'clear_cache', 'list_users', 'create_user', 'delete_user',
+    'get_config', 'save_config', 'clear_cache', 'rebuild_backlinks', 'list_users', 'create_user', 'delete_user',
     'list_backups', 'start_backup', 'get_backup_status', 'delete_backup', 'download_backup',
     'get_system_status', 'start_bulk_webp', 'get_bulk_webp_status', 'backup_image',
     'restore_image', 'process_image_edit', 'check_for_updates', 'get_update_requirements',

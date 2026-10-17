@@ -30,6 +30,7 @@ if ($targetPath && isPathInDir($targetPath, $pagesDir)) {
     invalidateTreeCache();
     rebuildNavLinksCache();
     invalidateSearchIndex();
+    invalidateBacklinksCache();
     $response['success'] = true;
     $response['message'] = 'Page moved to trash.';
     logActivity('page_delete', 'page', '/' . $safePath);

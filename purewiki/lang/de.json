@@ -151,7 +151,15 @@
         "trash_emptied": "Papierkorb geleert (%s Seiten gelöscht).",
         "error_trash_restore": "Fehler beim Wiederherstellen der Seite.",
         "error_trash_delete": "Fehler beim Löschen der Seite.",
-        "error_trash_empty": "Fehler beim Leeren des Papierkorbs."
+        "error_trash_empty": "Fehler beim Leeren des Papierkorbs.",
+        "backlinks_title": "Backlinks",
+        "no_backlinks": "Keine Backlinks zu dieser Seite vorhanden.",
+        "show_more_backlinks": "Alle Backlinks anzeigen",
+        "show_less_backlinks": "Weniger Backlinks anzeigen",
+        "delete_page_has_backlinks_title": "Warnung: Seite hat Backlinks",
+        "delete_page_has_backlinks_desc": "Die folgenden Seiten verlinken auf diese Seite. Wenn du sie löschst, entstehen fehlerhafte Verlinkungen:",
+        "confirm_delete_anyway": "Möchtest du diese Seite wirklich in den Papierkorb verschieben?",
+        "delete_anyway": "Trotzdem löschen"
     },
     "editor": {
         "title": "Editor",
@@ -644,7 +652,14 @@
         "debug_log_empty": "Log ist leer.",
         "debug_log_cleared": "Log wurde geleert.",
         "debug_log_size": "Log-Größe",
-        "debug_log_clear_confirm": "Debug-Log leeren? Dies kann nicht rückgängig gemacht werden."
+        "debug_log_clear_confirm": "Debug-Log leeren? Dies kann nicht rückgängig gemacht werden.",
+        "rebuild_backlinks": "Backlinks neu aufbauen",
+        "backlinks_rebuilt": "Backlinks-Index erfolgreich neu aufgebaut.",
+        "failed_rebuild_backlinks": "Fehler beim Neuaufbau des Backlinks-Index.",
+        "enable_backlinks": "Backlinks aktivieren",
+        "enable_backlinks_desc": "Erfasst eingehende Verlinkungen zwischen Seiten und zeigt sie im Dashboard an. Deaktivieren spart Ressourcen bei sehr großen Wikis.",
+        "backlinks_disabled_notice": "Backlinks sind in den Einstellungen deaktiviert.",
+        "backlinks_title": "Backlinks"
     },
     "plugins": {
         "accordion": "Akkordeon",

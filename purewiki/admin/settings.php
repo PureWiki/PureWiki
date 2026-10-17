@@ -253,6 +253,19 @@ require_once __DIR__ . '/layout_head.php';
 
                     <hr class="pw-separator">
 
+                    <h3 class="pw-settings-heading"><?php echo __('settings.backlinks_title'); ?></h3>
+                    <?php
+                    $config = getGlobalConfig();
+                    $backlinksSavedActive = !isset($config['enable_backlinks']) || !empty($config['enable_backlinks']);
+
+                    renderToggle('pw-setting-enable-backlinks', __('settings.enable_backlinks'), __('settings.enable_backlinks_desc'));
+
+                    $rebuildBacklinksBtn = '<div id="pw-field-rebuild-backlinks" style="margin-top: 15px; display: ' . ($backlinksSavedActive ? 'block' : 'none') . ';"><button id="pw-btn-rebuild-backlinks" class="pw-btn pw-btn-secondary" type="button"><iconify-icon icon="mdi:link-variant-plus" class="pw-icon-left"></iconify-icon> '.__('settings.rebuild_backlinks').'</button></div>';
+                    echo '<div class="pw-setting-field">' . $rebuildBacklinksBtn . '</div>';
+                    ?>
+
+                    <hr class="pw-separator">
+
                     <h3 class="pw-settings-heading"><?php echo __('settings.page_history'); ?></h3>
                     <?php
                     renderToggle('pw-setting-enable-history', __('settings.enable_history'), __('settings.enable_history_desc'));

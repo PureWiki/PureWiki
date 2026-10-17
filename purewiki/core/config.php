@@ -37,6 +37,7 @@ function getGlobalConfig(bool $forceReload = false): array {
         'current_theme' => 'default',
         'enable_cache'  => true,
         'cache_lifetime'=> '86400',
+        'enable_backlinks' => true,
         'enable_admin_menu' => true,
         'custom_css' => '',
         'custom_html_head' => '',
