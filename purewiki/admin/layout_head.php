@@ -66,7 +66,20 @@ if (isset($extraCss)) {
         echo $extraHead;
     }
     ?>
-    <script>window.PW_BASE_PATH = '<?php echo addslashes(BASE_PATH); ?>';</script>
+    <script>
+        window.PW_BASE_PATH = '<?php echo addslashes(BASE_PATH); ?>';
+        (function() {
+            try {
+                var w = localStorage.getItem('pw-sidebar-width');
+                if (w && window.innerWidth > 800) {
+                    var width = parseInt(w, 10);
+                    if (!isNaN(width) && width >= 180 && width <= 700) {
+                        document.documentElement.style.setProperty('--pw-sidebar-width', width + 'px');
+                    }
+                }
+            } catch(e) {}
+        })();
+    </script>
 <?php if (class_exists('ExtensionLoader')):
         ExtensionLoader::doAction('admin.head_css');
         ExtensionLoader::doAction('admin.head_js');

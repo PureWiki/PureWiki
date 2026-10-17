@@ -1652,6 +1652,122 @@ function initAdminSidebarToggle(btnId) {
             }
         });
     });
+
+    initSidebarResizer();
+}
+
+/**
+ * Initializes draggable resizer for the dashboard sidebar
+ */
+function initSidebarResizer() {
+    const sidebar = document.querySelector('.pw-dashboard-sidebar');
+    if (!sidebar || sidebar.classList.contains('pw-sidebar-fixed') || sidebar.hasAttribute('data-no-resize')) return;
+
+    if (sidebar.querySelector('.pw-sidebar-resizer')) return;
+
+    const minWidth = 180;
+    const getMaxWidth = () => Math.min(700, Math.floor(window.innerWidth * 0.6));
+
+    // Restore saved width from localStorage on desktop
+    const savedWidth = localStorage.getItem('pw-sidebar-width');
+    if (savedWidth && window.innerWidth > 800) {
+        const parsed = parseInt(savedWidth, 10);
+        if (!isNaN(parsed) && parsed >= minWidth && parsed <= getMaxWidth()) {
+            sidebar.style.width = parsed + 'px';
+            document.documentElement.style.setProperty('--pw-sidebar-width', parsed + 'px');
+        }
+    }
+
+    const resizer = document.createElement('div');
+    resizer.className = 'pw-sidebar-resizer';
+    resizer.id = 'pw-sidebar-resizer';
+    resizer.setAttribute('role', 'separator');
+    resizer.setAttribute('aria-label', 'Resize sidebar');
+    resizer.title = 'Drag to resize sidebar (double-click to reset)';
+    resizer.innerHTML = '<div class="pw-sidebar-resizer-handle"><iconify-icon icon="mdi:drag-vertical"></iconify-icon></div>';
+
+    // Blue highlight on hover
+    resizer.addEventListener('mouseenter', () => {
+        sidebar.classList.add('pw-resizer-hover');
+    });
+    resizer.addEventListener('mouseleave', () => {
+        if (!sidebar.classList.contains('pw-is-resizing')) {
+            sidebar.classList.remove('pw-resizer-hover');
+        }
+    });
+
+    // Reset width on double click
+    resizer.addEventListener('dblclick', (e) => {
+        e.preventDefault();
+        const defaultWidth = 250;
+        sidebar.style.width = defaultWidth + 'px';
+        document.documentElement.style.setProperty('--pw-sidebar-width', defaultWidth + 'px');
+        localStorage.removeItem('pw-sidebar-width');
+    });
+
+    // Dragging logic
+    resizer.addEventListener('mousedown', (e) => {
+        if (e.button !== 0) return;
+        if (window.innerWidth <= 800) return;
+        e.preventDefault();
+
+        const startX = e.clientX;
+        const startWidth = sidebar.getBoundingClientRect().width;
+        const maxWidth = getMaxWidth();
+
+        sidebar.classList.add('pw-is-resizing');
+        document.body.classList.add('pw-sidebar-resizing');
+
+        let currentWidth = startWidth;
+        let animationFrameId = null;
+
+        const onMouseMove = (moveEvent) => {
+            const deltaX = moveEvent.clientX - startX;
+            let newWidth = Math.round(startWidth + deltaX);
+            if (newWidth < minWidth) newWidth = minWidth;
+            if (newWidth > maxWidth) newWidth = maxWidth;
+
+            currentWidth = newWidth;
+            if (!animationFrameId) {
+                animationFrameId = requestAnimationFrame(() => {
+                    sidebar.style.width = currentWidth + 'px';
+                    document.documentElement.style.setProperty('--pw-sidebar-width', currentWidth + 'px');
+                    animationFrameId = null;
+                });
+            }
+        };
+
+        const onMouseUp = () => {
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+                animationFrameId = null;
+            }
+
+            sidebar.style.width = currentWidth + 'px';
+            document.documentElement.style.setProperty('--pw-sidebar-width', currentWidth + 'px');
+            try {
+                localStorage.setItem('pw-sidebar-width', currentWidth.toString());
+            } catch (err) {}
+
+            sidebar.classList.remove('pw-is-resizing');
+            sidebar.classList.remove('pw-resizer-hover');
+            document.body.classList.remove('pw-sidebar-resizing');
+
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+        };
+
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+    });
+
+    sidebar.appendChild(resizer);
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSidebarResizer);
+} else {
+    initSidebarResizer();
 }
 
 /**

@@ -89,7 +89,7 @@ require_once __DIR__ . '/layout_head.php';
 
     <div class="pw-dashboard-container">
         <!-- Sidebar -->
-        <aside class="pw-dashboard-sidebar">
+        <aside class="pw-dashboard-sidebar pw-sidebar-fixed">
             <div class="pw-treeview">
                 <ul>
                     <!-- Settings Categories -->

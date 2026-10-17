@@ -216,6 +216,7 @@ require_once __DIR__ . '/layout_head.php';
             initTreeDragAndDrop();
             initTreeSearch();
             initAdminSidebarToggle('pw-dashboard-sidebar-toggle');
+            initSidebarResizer();
 
             const savedPath = sessionStorage.getItem('pw-active-page-path');
             if (savedPath) {
