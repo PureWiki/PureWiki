@@ -39,7 +39,7 @@ PureWiki is a lightweight, high-performance, and file-based wiki system built wi
 - **Comments System**: Built-in comments system supporting per-page configurations, manual approval and a management page.
 - **Drafts & History**: Automatically saves drafts and maintains a full version history of your pages.
 - **Built-in Search**: Fast and simple full-text search capability.
-- **Themes**: Ready-to-use theme, easy to create your own themes.
+- **Themes**: Ready-to-use theme without CSS framework and with light/dark mode, easy to create your own themes.
 - **Extensions**: Extension API to add custom features, Editor.js plugins, settings, and API routes without altering the core codebase.
 - **Integrated Updates**: Backup and update your wiki directly from the dashboard via GitHub releases.
 
@@ -93,7 +93,7 @@ Configuration files are stored securely in the `/config` directory as JSON files
 ## Usage
 
 ### The Frontend
-The public face of your wiki is accessible at the root of your domain. It uses the `default` theme (based on PicoCSS) and renders your pages dynamically or serves them from the cache for maximum performance.
+The public face of your wiki is accessible at the root of your domain. It uses the `default` theme (vanilla CSS, no framework) and renders your pages dynamically or serves them from the cache for maximum performance.
 
 ### The Dashboard
 Access the administration area at `yourdomain.com/dashboard`. Here, authorized users can:
@@ -109,7 +109,7 @@ Access the administration area at `yourdomain.com/dashboard`. Here, authorized u
 - `/cache/` - Frontend cache directory (includes search index).
 - `/purewiki/` - The core application logic (PHP, Admin Dashboard, Editor JS, API).
 - `/extensions/` - Directory for custom extensions and plugins.
-- `/themes/` - Frontend layouts and styling.
+- `/themes/` - Frontend layouts and styling (`default`, plus the deprecated `default_picocss`).
 - `/backups/` - System backups.
 - `/logs/` - Debug logs (if dev_debug_output is enabled).
 
@@ -128,7 +128,7 @@ Contributions, issues, and feature requests are welcome! Feel free to use GitHub
 ## Special Thanks
 
 - [Editor.js](https://editorjs.io/) - For the block-based editor.
-- [Pico.css](https://picocss.com/) - For the default theme styling.
+- [Pico.css](https://picocss.com/) - For the deprecated `default_picocss` theme.
 - [Parsedown](https://github.com/erusev/parsedown) - For Markdown parsing.
 - [PHPMailer](https://github.com/PHPMailer/PHPMailer) - For email functionality.
 - [Prism.js](https://prismjs.com/) - For code highlighting.

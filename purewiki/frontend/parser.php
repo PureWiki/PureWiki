@@ -16,6 +16,7 @@ require_once realpath(__DIR__ . '/../extern/parsedown/Parsedown.php');
 require_once realpath(__DIR__ . '/../extern/parsedownExtra/ParsedownExtra.php');
 require_once realpath(__DIR__ . '/../core/fs.php');
 require_once realpath(__DIR__ . '/../core/config.php');
+require_once realpath(__DIR__ . '/../core/misc.php');
 
 function renderMarkdown(string $text): string {
     static $pd = null;
@@ -106,7 +107,7 @@ function processExternalLinks(string $html): string {
 }
 
 function generateAnchor(string $text): string {
-    $clean = strip_tags($text);
+    $clean = replaceSpecialChars(html_entity_decode(strip_tags($text), ENT_QUOTES | ENT_HTML5));
     return strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $clean), '-'));
 }
 

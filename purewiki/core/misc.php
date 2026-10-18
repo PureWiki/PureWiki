@@ -31,6 +31,15 @@ function prepareTitle(string $slug): string {
     return ucwords(str_replace(['-', '_'], ' ', $slug));
 }
 
+/** Replaces special characters with ASCII */
+function replaceSpecialChars(string $text): string {
+    return str_replace(
+        ['Ä', 'Ö', 'Ü', 'ä', 'ö', 'ü', 'ß'],
+        ['Ae', 'Oe', 'Ue', 'ae', 'oe', 'ue', 'ss'],
+        $text
+    );
+}
+
 /**
  * Generates a safe folder name (slug) from a title.
  * Handles spaces, umlauts, and special characters.
@@ -38,11 +47,7 @@ function prepareTitle(string $slug): string {
  * @return string The sanitized folder name.
  */
 function generateSlug(string $title): string {
-    $slug = str_replace(
-        ['Ä', 'Ö', 'Ü', 'ä', 'ö', 'ü', 'ß'],
-        ['Ae', 'Oe', 'Ue', 'ae', 'oe', 'ue', 'ss'],
-        $title
-    );
+    $slug = replaceSpecialChars($title);
     $slug = preg_replace('/[^a-zA-Z0-9_-]/', '_', str_replace(' ', '_', $slug));
     $slug = preg_replace('/_+/', '_', $slug);
     return strtolower(trim($slug, '_'));

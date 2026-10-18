@@ -17,7 +17,7 @@
         {
             "type": "paragraph",
             "data": {
-                "text": "<a href=\"/\" role=\"button\">Return to Startpage</a>"
+                "text": "<a href=\"/\">Return to Startpage</a>"
             }
         }
     ],

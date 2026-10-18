@@ -9,9 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Added resizable dashboard sidebar with drag handle.
 - Added dashboard favicon support with fallback to the default PureWiki favicon
+- Added adjustable theme colors (primary, background, text) for light and dark mode in the Appearance settings.
 
 ### Changed
 - Improved styling and usability of dashboard redirect and folder rename cards.
+- Moved the theme selection from General to Appearance, and dashboard theme, breadcrumbs and in-page admin menu from Appearance to General.
+- Replaced the default theme with a new theme built on plain CSS without PicoCSS. It is now active as `default`.
+- Moved the previous PicoCSS-based default theme to `themes/default_picocss`. It can still be selected in the Appearance settings.
+- Included `default_picocss` theme in Updater. Since the update runs with the previously installed updater, existing installations receive `default_picocss` only with the next update after this one.
 
 ## [0.3.0-alpha.4] - 2026-10-17
 
