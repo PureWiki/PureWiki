@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Moved the theme selection from General to Appearance, and dashboard theme, breadcrumbs and in-page admin menu from Appearance to General.
 - Replaced the default theme with a new theme built on plain CSS without PicoCSS. It is now active as `default`.
 - Moved the previous PicoCSS-based default theme to `themes/default_picocss`. It can still be selected in the Appearance settings.
+- Included `default_picocss` theme in Updater. Since the update runs with the previously installed updater, existing installations receive `default_picocss` only with the next update after this one.
 
 ## [0.3.0-alpha.4] - 2026-10-17
 

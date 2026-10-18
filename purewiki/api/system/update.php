@@ -276,7 +276,9 @@ if ($action === 'install_update') {
     try {
         if (file_exists($sourceRoot . '/index.php')) copy($sourceRoot . '/index.php', $targetRoot . '/index.php');
         if (is_dir($sourceRoot . '/purewiki')) copyDirectory($sourceRoot . '/purewiki', $targetRoot . '/purewiki', ['.git']);
-        if (is_dir($sourceRoot . '/themes/default')) copyDirectory($sourceRoot . '/themes/default', $targetRoot . '/themes/default', ['.git']);
+        foreach (['default', 'default_picocss'] as $theme) {
+            if (is_dir($sourceRoot . '/themes/' . $theme)) copyDirectory($sourceRoot . '/themes/' . $theme, $targetRoot . '/themes/' . $theme, ['.git']);
+        }
 
         // Force cache rebuild
         if (function_exists('clearCache')) clearCache();
