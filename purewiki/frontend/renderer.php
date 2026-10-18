@@ -18,6 +18,7 @@ require_once __DIR__ . '/../core/config.php';
 require_once __DIR__ . '/../core/tree.php';
 require_once __DIR__ . '/../core/nav.php';
 require_once __DIR__ . '/../core/media.php';
+require_once __DIR__ . '/../core/theme.php';
 require_once __DIR__ . '/../core/admin-menu.php';
 require_once __DIR__ . '/../core/fs.php';
 require_once __DIR__ . '/../version.php';
@@ -143,6 +144,9 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
         }
         $navLinksHtml .= '<li><a href="' . htmlspecialchars($linkPath) . '">' . htmlspecialchars($linkText) . '</a></li>';
     }
+
+    // Color overrides from theme settings
+    $themeColorsCss = buildThemeColorsCss($config, $themeName);
 
     // inject custom code blocks
     $customCss = trim($config['custom_css'] ?? '');
@@ -314,7 +318,7 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
         $extFooter = ob_get_clean();
     }
 
-    $assetsHead = $pwBasePathScript . "\n" . AssetManager::getStyles() . AssetManager::getScripts('head') . "\n" . $customCss . "\n" . $customHtmlHead . "\n" . $customJsHead . $extHead;
+    $assetsHead = $pwBasePathScript . "\n" . AssetManager::getStyles() . AssetManager::getScripts('head') . "\n" . $themeColorsCss . "\n" . $customCss . "\n" . $customHtmlHead . "\n" . $customJsHead . $extHead;
     if (!empty($seoTags)) {
         $assetsHead .= "\n" . implode("\n", $seoTags) . "\n";
     }

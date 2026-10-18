@@ -35,6 +35,7 @@ function getGlobalConfig(bool $forceReload = false): array {
         'wiki_logo'     => '',
         'wiki_favicon'  => '',
         'current_theme' => 'default',
+        'theme_colors'  => [],
         'enable_cache'  => true,
         'cache_lifetime'=> '86400',
         'enable_backlinks' => true,

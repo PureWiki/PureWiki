@@ -1,0 +1,7 @@
+{
+    "colors": {
+        "--pw-primary": { "label": "settings.theme_color_primary", "light": "#0172ad", "dark": "#3fa9dd" },
+        "--pw-bg": { "label": "settings.theme_color_background", "light": "#ffffff", "dark": "#0b0f12" },
+        "--pw-fg": { "label": "settings.theme_color_text", "light": "#17222b", "dark": "#e6edf2" }
+    }
+}

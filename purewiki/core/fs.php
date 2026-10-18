@@ -183,6 +183,11 @@ function getExtensionsDir(): string {
     return realpath(__DIR__ . '/../../extensions') ?: __DIR__ . '/../../extensions';
 }
 
+/** Returns the absolute path to the themes directory. */
+function getThemesDir(): string {
+    return realpath(__DIR__ . '/../../themes') ?: __DIR__ . '/../../themes';
+}
+
 /** Returns the absolute path to the debug log directory. */
 function getDebugLogDir(): string {
     return realpath(__DIR__ . '/../logs') ?: __DIR__ . '/../logs';

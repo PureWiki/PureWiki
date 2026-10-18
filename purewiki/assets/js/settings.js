@@ -83,6 +83,53 @@ const settingsFields = {
     'enable_activity_log': 'pw-setting-enable-activity-log'
 };
 
+/** Sets the theme color pickers to saved values or to theme defaults. */
+function fillThemeColors(saved) {
+    document.querySelectorAll('[data-theme-color]').forEach(input => {
+        const value = saved && saved[input.dataset.themeColor] ? saved[input.dataset.themeColor][input.dataset.mode] : null;
+        input.value = value || input.dataset.default;
+    });
+}
+
+/** Returns theme colors as { var: { light, dark } }, null if nothing to save. */
+function collectThemeColors() {
+    const inputs = document.querySelectorAll('[data-theme-color]');
+    if (inputs.length === 0) return null;
+
+    const colors = document.getElementById('pw-theme-colors');
+    if (colors && colors.style.display === 'none') return null;
+
+    const values = {};
+    inputs.forEach(input => {
+        const name = input.dataset.themeColor;
+        values[name] = values[name] || {};
+        values[name][input.dataset.mode] = input.value;
+    });
+    return values;
+}
+
+function initThemeColors() {
+    document.querySelectorAll('[data-theme-color-reset]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll(`[data-theme-color="${btn.dataset.themeColorReset}"]`).forEach(input => {
+                input.value = input.dataset.default;
+            });
+        });
+    });
+
+    // Colors belong to saved theme, new theme needs a save and reload first
+    const select = document.getElementById('pw-setting-current-theme');
+    const hint = document.getElementById('pw-theme-colors-save-first');
+    const colors = document.getElementById('pw-theme-colors');
+    if (select && hint && colors) {
+        select.addEventListener('change', () => {
+            const changed = select.value !== hint.dataset.savedTheme;
+            hint.style.display = changed ? '' : 'none';
+            colors.style.display = changed ? 'none' : '';
+        });
+    }
+}
+
 /** Loads the current configuration and populates the form fields. */
 async function loadSettings() {
     const result = await apiSafe('get_config', {}, { silent: true });
@@ -104,6 +151,8 @@ async function loadSettings() {
                 }
             }
         }
+
+        fillThemeColors(result.data.theme_colors);
 
         const rebuildField = document.getElementById('pw-field-rebuild-backlinks');
         if (rebuildField && result.data.enable_backlinks !== undefined) {
@@ -131,6 +180,9 @@ async function saveSettings() {
             }
         }
     }
+
+    const themeColors = collectThemeColors();
+    if (themeColors) config.theme_colors = themeColors;
 
     const result = await apiSafe('save_config', { config: JSON.stringify(config) });
 
@@ -406,6 +458,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     loadSettings();
     loadMailSettings();
+    initThemeColors();
 
     const cacheToggle = document.getElementById('pw-setting-enable-cache');
     const cacheLifetime = document.getElementById('pw-setting-cache-lifetime');

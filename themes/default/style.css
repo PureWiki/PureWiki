@@ -14,19 +14,21 @@
 :root {
     color-scheme: light dark;
 
-    /* Base colors */
+    /* Base colors, adjustable in theme settings (defaults in theme.json) */
     --pw-bg: light-dark(#fff, #0b0f12);
-    --pw-surface: light-dark(#f6f9fb, #11171c);
-    --pw-surface-hover: light-dark(#edf2f6, #1b242b);
     --pw-fg: light-dark(#17222b, #e6edf2);
-    --pw-fg-contrast: light-dark(#0a1218, #fff);
-    --pw-muted: light-dark(#5f7080, #94a3b0);
-    --pw-border: light-dark(#dde5ec, #232d35);
+
+    /* Derived from background and text */
+    --pw-surface: color-mix(in srgb, var(--pw-fg) 4%, var(--pw-bg));
+    --pw-surface-hover: color-mix(in srgb, var(--pw-fg) 8%, var(--pw-bg));
+    --pw-fg-contrast: color-mix(in srgb, var(--pw-fg) 60%, light-dark(#000, #fff));
+    --pw-muted: color-mix(in srgb, var(--pw-fg) 65%, var(--pw-bg));
+    --pw-border: color-mix(in srgb, var(--pw-fg) 13%, var(--pw-bg));
 
     /* Accent: buttons, link hovers, focus and active states */
     --pw-primary: light-dark(#0172ad, #3fa9dd);
-    --pw-primary-hover: light-dark(#015a88, #7cc4ea);
-    --pw-on-primary: light-dark(#fff, #0b0f12);
+    --pw-primary-hover: color-mix(in srgb, var(--pw-primary) 80%, light-dark(#000, #fff));
+    --pw-on-primary: var(--pw-bg);
     --pw-primary-soft: color-mix(in srgb, var(--pw-primary) 12%, transparent);
 
     /* Status colors for callouts and messages */

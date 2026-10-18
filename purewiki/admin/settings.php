@@ -15,6 +15,7 @@ defined('PUREWIKI') || die('Direct access denied.');
 require_once __DIR__ . '/../core/i18n.php';
 require_once __DIR__ . '/../core/asset_manager.php';
 require_once __DIR__ . '/../core/misc.php';
+require_once __DIR__ . '/../core/theme.php';
 
 // Extension Tabs
 $extensionTabs = ExtensionLoader::applyFilter('settings.tabs', []);
@@ -181,19 +182,11 @@ require_once __DIR__ . '/layout_head.php';
 
                     renderSelect('pw-setting-dashboard-language', __('settings.dashboard_language'), __('settings.dashboard_language_desc'), getAvailableLanguages());
 
+                    renderSelect('pw-setting-dashboard-theme', __('settings.dashboard_theme'), __('settings.dashboard_theme_desc'), ['dark' => __('settings.theme_dark'), 'light' => __('settings.theme_light')]);
+
                     renderInput('pw-setting-wiki-logo', __('settings.wiki_logo'), __('settings.wiki_logo_desc'), 'text', 'pw-input pw-w-lg', __('settings.wiki_logo_placeholder'));
 
                     renderInput('pw-setting-wiki-favicon', __('settings.wiki_favicon'), __('settings.wiki_favicon_desc'), 'text', 'pw-input pw-w-lg', __('settings.wiki_favicon_placeholder'));
-
-                    $themesRootDir = realpath(__DIR__ . '/../../themes');
-                    $themeDirs = is_dir($themesRootDir) ? array_filter(glob($themesRootDir . '/*'), 'is_dir') : [];
-                    $themeOptions = [];
-                    foreach ($themeDirs as $dir) {
-                        $name = basename($dir);
-                        $label = prepareTitle($name);
-                        $themeOptions[$name] = $label;
-                    }
-                    renderSelect('pw-setting-current-theme', __('settings.current_theme'), __('settings.current_theme_desc'), $themeOptions);
 
                     renderInput('pw-setting-allowed-extensions', __('settings.allowed_extensions'), __('settings.allowed_extensions_desc'), 'text', 'pw-input pw-w-full', __('settings.allowed_extensions_placeholder'));
                     ?>
@@ -285,6 +278,10 @@ require_once __DIR__ . '/layout_head.php';
                     <h3 class="pw-settings-heading"><?php echo __('settings.links_navigation_title'); ?></h3>
                     <?php
                     renderToggle('pw-setting-open-external-links-new-tab', __('settings.open_external_links_new_tab'));
+
+                    renderToggle('pw-setting-breadcrumbs-show-start-page', __('settings.breadcrumbs_show_start'), __('settings.breadcrumbs_show_start_desc'));
+
+                    renderToggle('pw-setting-enable-admin-menu', __('settings.enable_admin_menu'), __('settings.enable_admin_menu_desc'));
                     ?>
                 </div>
             </div>
@@ -294,16 +291,43 @@ require_once __DIR__ . '/layout_head.php';
 
                 <div class="pw-settings-panel">
                     <?php
-                    renderSelect('pw-setting-dashboard-theme', __('settings.dashboard_theme'), __('settings.dashboard_theme_desc'), ['dark' => __('settings.theme_dark'), 'light' => __('settings.theme_light')]);
+                    $themesRootDir = getThemesDir();
+                    $themeDirs = is_dir($themesRootDir) ? array_filter(glob($themesRootDir . '/*'), 'is_dir') : [];
+                    $themeOptions = [];
+                    foreach ($themeDirs as $dir) {
+                        $name = basename($dir);
+                        $label = prepareTitle($name);
+                        $themeOptions[$name] = $label;
+                    }
+                    renderSelect('pw-setting-current-theme', __('settings.current_theme'), __('settings.current_theme_desc'), $themeOptions);
 
-                    renderToggle('pw-setting-breadcrumbs-show-start-page', __('settings.breadcrumbs_show_start'), __('settings.breadcrumbs_show_start_desc'));
+                    $savedTheme = getGlobalConfig()['current_theme'] ?? 'default';
+                    $themeColors = getThemeColorDefaults($savedTheme);
                     ?>
 
                     <hr class="pw-separator">
 
-                    <?php
-                    renderToggle('pw-setting-enable-admin-menu', __('settings.enable_admin_menu'), __('settings.enable_admin_menu_desc'));
-                    ?>
+                    <h3 class="pw-settings-heading"><?php echo __('settings.theme_colors'); ?></h3>
+                    <?php if (empty($themeColors)): ?>
+                        <p class="pw-hint"><?php echo __('settings.theme_colors_none'); ?></p>
+                    <?php else: ?>
+                        <p class="pw-hint"><?php echo __('settings.theme_colors_desc'); ?></p>
+                        <p class="pw-hint" id="pw-theme-colors-save-first" data-saved-theme="<?php echo htmlspecialchars($savedTheme); ?>" style="display: none;"><?php echo __('settings.theme_colors_save_first'); ?></p>
+                        <div id="pw-theme-colors">
+                            <?php foreach ($themeColors as $var => $def): ?>
+                                <div class="pw-setting-field pw-theme-color-row">
+                                    <span class="pw-setting-label"><?php echo htmlspecialchars(__($def['label'])); ?></span>
+                                    <?php foreach (['light', 'dark'] as $mode): ?>
+                                        <label>
+                                            <input type="color" data-theme-color="<?php echo htmlspecialchars($var); ?>" data-mode="<?php echo $mode; ?>" data-default="<?php echo htmlspecialchars($def[$mode]); ?>" value="<?php echo htmlspecialchars($def[$mode]); ?>">
+                                            <?php echo __('settings.theme_color_' . $mode); ?>
+                                        </label>
+                                    <?php endforeach; ?>
+                                    <button type="button" class="pw-btn pw-btn-sm pw-btn-secondary" data-theme-color-reset="<?php echo htmlspecialchars($var); ?>" title="<?php echo htmlspecialchars(__('settings.theme_color_reset')); ?>"><iconify-icon icon="mdi:restore"></iconify-icon></button>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
 
                     <hr class="pw-separator">
 
