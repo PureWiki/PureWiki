@@ -60,12 +60,12 @@ $langCode = defined('CURRENT_LANG') ? CURRENT_LANG : ($config['i18n_default_lang
         
         <fieldset class="grid">
             <label for="pw-comment-name">
-                <?php echo __('comments.name_label') ?? 'Name'; ?> <span style="color:var(--pico-color-red, #d9534f);">*</span>
+                <?php echo __('comments.name_label') ?? 'Name'; ?> <span style="color:var(--pw-color-important, #d9534f);">*</span>
                 <input type="text" id="pw-comment-name" name="name" required placeholder="<?php echo __('comments.name_label') ?? 'Name'; ?>">
             </label>
             
             <label for="pw-comment-email">
-                <?php echo __('comments.email_label') ?? 'Email'; ?> <span style="color:var(--pico-color-red, #d9534f);">*</span>
+                <?php echo __('comments.email_label') ?? 'Email'; ?> <span style="color:var(--pw-color-important, #d9534f);">*</span>
                 <input type="email" id="pw-comment-email" name="email" required placeholder="name@example.com">
             </label>
         </fieldset>
@@ -76,7 +76,7 @@ $langCode = defined('CURRENT_LANG') ? CURRENT_LANG : ($config['i18n_default_lang
         </div>
 
         <label for="pw-comment-text">
-            <?php echo __('comments.text_label') ?? 'Comment'; ?> <span style="color:var(--pico-color-red, #d9534f);">*</span>
+            <?php echo __('comments.text_label') ?? 'Comment'; ?> <span style="color:var(--pw-color-important, #d9534f);">*</span>
             <textarea id="pw-comment-text" name="text" rows="5" required placeholder="..."></textarea>
         </label>
 
