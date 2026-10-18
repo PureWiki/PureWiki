@@ -26,7 +26,7 @@
                 {{ if wiki_logo }}
                 <li><a href="{{ base_url }}" class="logo"><img src="{{ wiki_logo }}" alt="{{ wiki_name }}"></a></li>
                 {{ else }}
-                <li><strong><a href="{{ base_url }}" class="contrast">{{ wiki_name }}</a></strong></li>
+                <li><strong><a href="{{ base_url }}">{{ wiki_name }}</a></strong></li>
                 {{ endif }}
             </ul>
             <ul class="pw-header-nav-right">
