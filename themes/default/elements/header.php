@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ title }}</title>
     <meta name="description" content="{{ description }}">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
     <link rel="stylesheet" href="{{ theme_url }}style.min.css">
     <script src="{{ theme_url }}script.min.js" defer></script>
     {{ assets_head }}
@@ -18,9 +17,9 @@
     </script>
 </head>
 <body>
-    <header class="container-fluid pw-header">
-        <nav>
-            <ul>
+    <header class="pw-header">
+        <nav class="pw-navbar">
+            <ul class="pw-nav-left">
                 <li>
                     {{ macro:sidebar_toggle }}
                 </li>
@@ -33,7 +32,7 @@
             <ul class="pw-header-nav-right">
                 {{ nav_links }}
                 {{ macro:search }}
-                <li class="pw-nav-keep">|</li>
+                <li class="pw-nav-keep pw-nav-separator">|</li>
                 <li class="pw-nav-keep">
                     <button class="pw-theme-toggle" id="pw-theme-toggle" aria-label="Toggle theme">
                         <svg class="pw-theme-icon pw-theme-icon-light" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
@@ -44,4 +43,3 @@
             </ul>
         </nav>
     </header>
-

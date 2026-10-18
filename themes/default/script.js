@@ -1,8 +1,7 @@
 /**
- * PureWiki Theme - Frontend Logic
+ * PureWiki Theme - Default Script
  *
- * Core JavaScript for the default theme. Handles responsive navigation,
- * theme switching, TOC scroll animation, and search interactions
+ * Navigation, theme toggle, TOC scroll spy, search and comments.
  *
  * @package   PureWiki
  * @author    Oliver Weinhold <oliverweinhold.de>
@@ -11,17 +10,17 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-    //Sticky Header Scroll Effect
+    // Sticky Header Scroll Effect
     const header = document.querySelector('.pw-header');
     if (header) {
         const updateHeader = () => {
             header.classList.toggle('pw-header-scrolled', window.scrollY > 20);
         };
         window.addEventListener('scroll', updateHeader, { passive: true });
-        updateHeader(); // Initial check
+        updateHeader();
     }
 
-    //Sidebar Toggle
+    // Sidebar Toggle
     const sidebarmenu = document.getElementById('pw-sidebarmenu');
     const sidebar = document.getElementById('pw-sidebar-left');
     const backdrop = document.getElementById('pw-sidebar-backdrop');
@@ -34,7 +33,8 @@ document.addEventListener('DOMContentLoaded', () => {
             document.body.classList.toggle('pw-sidebar-noscroll', open);
         }
 
-        sidebarmenu.addEventListener('click', () => {
+        sidebarmenu.addEventListener('click', (e) => {
+            e.stopPropagation();
             const isOpen = sidebar.classList.contains('pw-sidebar-open');
             toggleSidebar(!isOpen);
         });
@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    //Theme Toggle (auto → light → dark → auto)
+    // Theme Toggle (auto > light > dark > auto)
     const themeBtn = document.getElementById('pw-theme-toggle');
     if (themeBtn) {
         const MODES = ['auto', 'light', 'dark'];
@@ -69,20 +69,61 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+        function isDark(mode) {
+            return mode === 'dark' || (mode === 'auto' && prefersDark.matches);
+        }
+
+        // Redraws the page as a circle growing from the toggle button
+        function applyThemeAnimated(mode) {
+            const rect = themeBtn.getBoundingClientRect();
+            const x = rect.left + rect.width / 2;
+            const y = rect.top + rect.height / 2;
+            const radius = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
+
+            // Running CSS transitions would bleed into the new snapshot
+            document.documentElement.classList.add('pw-theme-switching');
+            const transition = document.startViewTransition(() => applyTheme(mode));
+
+            transition.ready.then(() => {
+                document.documentElement.animate(
+                    { clipPath: [`circle(0 at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`] },
+                    { duration: 500, easing: 'ease-in-out', pseudoElement: '::view-transition-new(root)' }
+                );
+            }).catch(() => {});
+
+            // Timeout as safety net in case the transition is skipped, e.g. in a background tab
+            const done = () => document.documentElement.classList.remove('pw-theme-switching');
+            transition.finished.finally(done).catch(() => {});
+            setTimeout(done, 1000);
+        }
+
         themeBtn.addEventListener('click', () => {
             const current = getCurrentMode();
-            const nextIndex = (MODES.indexOf(current) + 1) % MODES.length;
-            applyTheme(MODES[nextIndex]);
+            const next = MODES[(MODES.indexOf(current) + 1) % MODES.length];
+
+            // Skip the effect if the look does not change, e.g. auto > dark on a dark system
+            const animate = document.startViewTransition && !prefersReducedMotion.matches && isDark(current) !== isDark(next);
+            if (animate) {
+                applyThemeAnimated(next);
+            } else {
+                applyTheme(next);
+            }
         });
     }
 
-    //TOC Scroll Spy
+    // TOC Scroll Spy
     const tocLinks = document.querySelectorAll('.pw-toc-container a[href^="#"]');
     if (tocLinks.length > 0) {
         const headingIds = [];
         tocLinks.forEach(link => {
-            const id = link.getAttribute('href').slice(1);
-            if (id) headingIds.push(id);
+            const href = link.getAttribute('href');
+            if (href && href.length > 1) {
+                const id = href.slice(1);
+                if (id) headingIds.push(id);
+            }
         });
 
         function setActiveToc(id) {
@@ -97,39 +138,43 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        const observer = new IntersectionObserver(() => {
-            let bestId = null;
-            let minTop = Infinity;
-
-            headingIds.forEach(id => {
-                const el = document.getElementById(id);
+        function updateActiveToc() {
+            let currentId = null;
+            for (let i = 0; i < headingIds.length; i++) {
+                const el = document.getElementById(headingIds[i]);
                 if (el) {
                     const rect = el.getBoundingClientRect();
-                    if (rect.top >= 105 && rect.top < window.innerHeight * 0.4) {
-                        if (rect.top < minTop) {
-                            minTop = rect.top;
-                            bestId = id;
-                        }
+                    if (rect.top <= 140) {
+                        currentId = headingIds[i];
+                    } else {
+                        break;
                     }
                 }
-            });
-
-            if (bestId) {
-                setActiveToc(bestId);
             }
-        }, {
-            // Margin accounts for the sticky header
-            rootMargin: '-100px 0px -50% 0px',
-            threshold: 0
-        });
+            if (!currentId && headingIds.length > 0) {
+                currentId = headingIds[0];
+            }
 
-        headingIds.forEach(id => {
-            const el = document.getElementById(id);
-            if (el) observer.observe(el);
-        });
+            // Last headings can never reach the offset on short final sections
+            const atPageEnd = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
+            if (atPageEnd && headingIds.length > 0) {
+                for (let i = headingIds.length - 1; i >= 0; i--) {
+                    if (document.getElementById(headingIds[i])) {
+                        currentId = headingIds[i];
+                        break;
+                    }
+                }
+            }
+            if (currentId) {
+                setActiveToc(currentId);
+            }
+        }
+
+        window.addEventListener('scroll', updateActiveToc, { passive: true });
+        updateActiveToc();
     }
 
-    //Pagelist Toggle
+    // Pagelist Toggle
     document.querySelectorAll('.pw-pagelist .pw-toggle').forEach(toggle => {
         toggle.addEventListener('click', (e) => {
             e.preventDefault();
@@ -145,20 +190,22 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    //Code Copy to Clipboard
+    // Code Copy to Clipboard
     document.querySelectorAll('.pw-code-copy').forEach(btn => {
         btn.addEventListener('click', async () => {
             const wrapper = btn.closest('.pw-code-wrapper');
-            const code = wrapper.querySelector('pre code').innerText;
+            const codeEl = wrapper ? wrapper.querySelector('pre code') : null;
+            if (!codeEl) return;
+            const code = codeEl.innerText;
             try {
                 await navigator.clipboard.writeText(code);
                 const icon = btn.querySelector('iconify-icon');
-                const originalIcon = icon.getAttribute('icon');
+                const originalIcon = icon ? icon.getAttribute('icon') : null;
                 btn.classList.add('success');
-                icon.setAttribute('icon', 'mdi:check');
+                if (icon) icon.setAttribute('icon', 'mdi:check');
                 setTimeout(() => {
                     btn.classList.remove('success');
-                    icon.setAttribute('icon', originalIcon);
+                    if (icon && originalIcon) icon.setAttribute('icon', originalIcon);
                 }, 2000);
             } catch (err) {
                 console.error('Failed to copy:', err);
@@ -166,16 +213,18 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    //To Top Button Logic
+    // To Top Button
     const toTopBtn = document.getElementById('pw-to-top');
     if (toTopBtn) {
-        window.addEventListener('scroll', () => {
+        const handleScroll = () => {
             if (window.scrollY > 300) {
                 toTopBtn.classList.add('pw-visible');
             } else {
                 toTopBtn.classList.remove('pw-visible');
             }
-        });
+        };
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        handleScroll();
 
         toTopBtn.addEventListener('click', () => {
             window.scrollTo({
@@ -184,7 +233,8 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     }
-    //Search
+
+    // Search
     const searchToggle = document.getElementById('pw-search-toggle');
     const searchDropdown = document.getElementById('pw-search-dropdown');
     const searchInput = document.getElementById('pw-search-input');
@@ -222,7 +272,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         document.addEventListener('click', (e) => {
-            if (!searchDropdown.contains(e.target) && e.target !== searchToggle) {
+            if (!searchDropdown.contains(e.target) && e.target !== searchToggle && !searchToggle.contains(e.target)) {
                 toggleSearch(false);
             }
         });
@@ -303,7 +353,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Comments
+    // Comments Form
     const commentForm = document.getElementById('pw-comment-form');
     if (commentForm) {
         commentForm.addEventListener('submit', async function(e) {
@@ -343,7 +393,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         setTimeout(() => window.location.reload(), 1500);
                     }
 
-                    // Reset form fields
                     const nameInput = document.getElementById('pw-comment-name');
                     const emailInput = document.getElementById('pw-comment-email');
                     const textInput = document.getElementById('pw-comment-text');
