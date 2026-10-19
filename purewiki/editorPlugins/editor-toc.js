@@ -20,6 +20,7 @@ class TableOfContentsTool {
     constructor({ data, config, api }) {
         this.api = api;
         this.data = {
+            title: data.title || '',
             startLevel: data.startLevel || 1,
             endLevel: data.endLevel || 6
         };
@@ -36,6 +37,25 @@ class TableOfContentsTool {
         title.style.marginBottom = '12px';
         title.style.fontSize = '1.1em';
         this.wrapper.appendChild(title);
+
+        const titleWrapper = document.createElement('div');
+        titleWrapper.style.marginBottom = '16px';
+        const titleLabel = document.createElement('label');
+        titleLabel.innerText = typeof __ === 'function' ? __('plugins.toc_heading_label') : 'Heading (optional):';
+        titleLabel.style.display = 'block';
+        titleLabel.style.fontSize = '0.85em';
+        titleLabel.style.color = 'var(--pw-text-muted)';
+        titleLabel.style.marginBottom = '6px';
+
+        this.titleInput = document.createElement('input');
+        this.titleInput.type = 'text';
+        this.titleInput.value = this.data.title;
+        this.titleInput.placeholder = 'Table of Contents';
+        this.titleInput.classList.add('pw-input');
+
+        titleWrapper.appendChild(titleLabel);
+        titleWrapper.appendChild(this.titleInput);
+        this.wrapper.appendChild(titleWrapper);
 
         const configGrid = document.createElement('div');
         configGrid.style.display = 'grid';
@@ -175,6 +195,7 @@ class TableOfContentsTool {
 
     save(blockContent) {
         return {
+            title: this.titleInput.value.trim(),
             startLevel: parseInt(this.startInput.value) || 1,
             endLevel: parseInt(this.endInput.value) || 6
         };

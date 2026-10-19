@@ -753,6 +753,7 @@
         "grid_add_cell": "Add grid cell",
         "grid_remove_cell": "Remove cell",
         "toc_title": "Table of Contents",
+        "toc_heading_label": "Heading (optional):",
         "toc_start_level": "Start Level (H1-H6):",
         "toc_end_level": "End Level (H1-H6):",
         "toc_preview": "In-Editor Preview:",

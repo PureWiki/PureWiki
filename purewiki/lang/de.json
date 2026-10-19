@@ -753,6 +753,7 @@
         "grid_add_cell": "Zelle hinzufügen",
         "grid_remove_cell": "Zelle entfernen",
         "toc_title": "Inhaltsverzeichnis",
+        "toc_heading_label": "Überschrift (optional):",
         "toc_start_level": "Start-Ebene (H1-H6):",
         "toc_end_level": "End-Ebene (H1-H6):",
         "toc_preview": "Vorschau im Editor:",

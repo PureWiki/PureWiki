@@ -290,6 +290,7 @@ function parseBlocksToHtml(array $blocks, string $contextPath = '/', ?array $mai
             case 'toc':
                 $start = $data['startLevel'] ?? 1;
                 $end = $data['endLevel'] ?? 6;
+                $tocTitle = trim($data['title'] ?? '') ?: 'Table of Contents';
                 $tocLines = [];
 
                 $sourceBlocks = ($mainBlocks !== null) ? $mainBlocks : $blocks;
@@ -343,7 +344,7 @@ function parseBlocksToHtml(array $blocks, string $contextPath = '/', ?array $mai
 
                 if (!empty($tocLines)) {
                     $parts[] = '<div class="pw-toc-container">' . PHP_EOL
-                        . '  <div class="pw-toc-title">Table of Contents</div>' . PHP_EOL
+                        . '  <div class="pw-toc-title">' . htmlspecialchars($tocTitle, ENT_QUOTES) . '</div>' . PHP_EOL
                         . '  <ul>' . PHP_EOL
                         . implode(PHP_EOL, $tocLines) . PHP_EOL
                         . '  </ul>' . PHP_EOL

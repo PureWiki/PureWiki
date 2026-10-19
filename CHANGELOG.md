@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added an optional custom heading to the Table of Contents block.
+
 ### Security
 - Private pages no longer show up in the public search, only if the user is logged in.
 
