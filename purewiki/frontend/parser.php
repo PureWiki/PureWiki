@@ -420,16 +420,16 @@ function parseBlocksToHtml(array $blocks, string $contextPath = '/', ?array $mai
                 break;
 
             case 'image':
-                $url = htmlspecialchars($data['url'] ?? '', ENT_QUOTES);
-                $caption = htmlspecialchars_decode($data['caption'] ?? '', ENT_QUOTES);
+                $url = $data['url'] ?? '';
+                $caption = htmlspecialchars(html_entity_decode($data['caption'] ?? '', ENT_QUOTES | ENT_HTML5, 'UTF-8'), ENT_QUOTES);
                 $showCaption = isset($data['showCaption']) ? (bool)$data['showCaption'] : true;
 
                 if ($url) {
-                    $webpUrl = getWebpUrl($data['url'] ?? '');
+                    $webpUrl = getWebpUrl($url);
                     if (str_starts_with($webpUrl, '/') && !str_starts_with($webpUrl, '//')) {
                         $webpUrl = BASE_PATH . $webpUrl;
                     }
-                    $figParts = ['<figure>', '  <img src="' . $webpUrl . '" alt="' . strip_tags($caption) . '">'];
+                    $figParts = ['<figure>', '  <img src="' . htmlspecialchars($webpUrl, ENT_QUOTES) . '" alt="' . $caption . '">'];
                     if ($caption && $showCaption) {
                         $figParts[] = '  <figcaption>' . $caption . '</figcaption>';
                     }
