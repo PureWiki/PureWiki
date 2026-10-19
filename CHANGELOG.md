@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added an optional custom heading to the Table of Contents block.
 
+### Fixed
+
+- Fixed the grid block ignoring the `columns` setting. Now it limits the maximum number of columns.
+
 ### Security
 - Private pages no longer show up in the public search, only if the user is logged in.
 

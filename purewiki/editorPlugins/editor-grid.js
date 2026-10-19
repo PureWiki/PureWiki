@@ -115,8 +115,9 @@ class GridTool {
 
     _updateGridStyle() {
         if (!this.gridContainer) return;
+        const { columns, minWidth } = this.data;
         this.gridContainer.style.gridTemplateColumns =
-            `repeat(auto-fill, minmax(min(${this.data.minWidth}px, 100%), 1fr))`;
+            `repeat(auto-fill, minmax(min(100%, max(${minWidth}px, (100% - ${columns - 1} * 1rem) / ${columns})), 1fr))`;
     }
 
     _renderCell(cell, index) {

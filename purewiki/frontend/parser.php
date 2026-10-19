@@ -585,10 +585,11 @@ function parseBlocksToHtml(array $blocks, string $contextPath = '/', ?array $mai
                 break;
 
             case 'grid':
-                $columns = intval($data['columns'] ?? 2);
-                $minWidth = intval($data['minWidth'] ?? 200);
+                $columns = max(2, min(6, intval($data['columns'] ?? 2)));
+                $minWidth = max(1, intval($data['minWidth'] ?? 200));
                 $cells = $data['cells'] ?? [];
-                $gridStyle = "grid-template-columns: repeat(auto-fill, minmax(min({$minWidth}px, 100%), 1fr))";
+                $gaps = $columns - 1;
+                $gridStyle = "grid-template-columns: repeat(auto-fill, minmax(min(100%, max({$minWidth}px, (100% - {$gaps} * 1rem) / {$columns})), 1fr))";
                 $gridParts = ['<div class="pw-grid" style="' . htmlspecialchars($gridStyle, ENT_QUOTES) . '">'];
                 foreach ($cells as $gridCell) {
                     $cellBlocks = $gridCell['blocks'] ?? [];
