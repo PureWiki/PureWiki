@@ -62,6 +62,7 @@ if ($targetDir) {
     // invalidate all structural caches immediately.
     if ($publishSaved && $draftSaved) {
         invalidateTreeCache();
+        invalidateSearchIndex();
         rebuildNavLinksCache();
         clearCache();
         $response['success'] = true;

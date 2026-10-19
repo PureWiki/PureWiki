@@ -57,8 +57,11 @@ if ($action === 'search') {
     }
 
     $scored = [];
+    $canSeePrivate = isLoggedIn();
 
     foreach ($searchSet as $entry) {
+        if (!empty($entry['private']) && !$canSeePrivate) continue;
+
         $score = 0;
 
         if (stripos($entry['title'], $query) !== false) $score += 100;

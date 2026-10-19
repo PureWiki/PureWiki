@@ -84,7 +84,8 @@ function _collectSearchEntries(string $dir, string $pagesDir, array &$index, arr
                     'path'        => $urlPath,
                     'title'       => $data['pagetitle'] ?? basename($dir),
                     'description' => $data['description'] ?? $data['Description'] ?? '',
-                    'content'     => implode(' ', $textParts)
+                    'content'     => implode(' ', $textParts),
+                    'private'     => !empty($data['isPrivate'])
                 ];
             }
         }
