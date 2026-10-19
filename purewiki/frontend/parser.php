@@ -631,11 +631,9 @@ function parseBlocksToHtml(array $blocks, string $contextPath = '/', ?array $mai
 
             case 'math':
                 AssetManager::requireKaTeX();
-                $mathCode = $data['math'] ?? '';
-                $escapedAttr = htmlspecialchars($mathCode, ENT_QUOTES);
-                $parts[] = '<div class="pw-math-block" data-math="' . $escapedAttr . '">'
-                    . '<script type="text/x-math">' . $mathCode . '</script>'
-                    . '</div>';
+                $mathCode = htmlspecialchars($data['math'] ?? '', ENT_QUOTES);
+                // KaTeX replaces the raw formula, so it only shows without JavaScript
+                $parts[] = '<div class="pw-math-block" data-math="' . $mathCode . '">' . $mathCode . '</div>';
                 break;
 
             case 'icon':
