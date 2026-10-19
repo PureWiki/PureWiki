@@ -301,9 +301,10 @@ function parseBlocksToHtml(array $blocks, string $contextPath = '/', ?array $mai
                         $hData  = $b['data'] ?? [];
                         $hLevel = (int)($hData['level'] ?? 2);
                         if ($hLevel >= $start && $hLevel <= $end) {
-                            $hText  = htmlspecialchars_decode($hData['text'] ?? '', ENT_QUOTES);
+                            $hText  = sanitizeInlineHtml($hData['text'] ?? '');
                             $anchor = generateAnchor($hText);
-                            $tocLines[] = '    <li class="pw-toc-level-' . $hLevel . '"><a href="#' . $anchor . '">' . $hText . '</a></li>';
+                            // Plain text only, links in the heading would end up nested in the TOC link
+                            $tocLines[] = '    <li class="pw-toc-level-' . $hLevel . '"><a href="#' . $anchor . '">' . strip_tags($hText) . '</a></li>';
                         }
 
                     } elseif ($bType === 'markdown') {
