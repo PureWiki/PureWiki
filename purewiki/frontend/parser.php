@@ -130,6 +130,15 @@ require_once __DIR__ . '/../core/http.php';
 require_once __DIR__ . '/../core/asset_manager.php';
 require_once __DIR__ . '/../core/json.php';
 
+/** Checks if a link URL is relative or uses http, https, mailto or tel. */
+function isSafeLinkUrl(string $url): bool {
+    $parts = parse_url(preg_replace('/[\s\x00-\x1f\x7f]+/', '', $url));
+    if ($parts === false) return false;
+
+    $scheme = strtolower($parts['scheme'] ?? '');
+    return $scheme === '' || in_array($scheme, ['http', 'https', 'mailto', 'tel'], true);
+}
+
 /**
  * Sanitizes inline HTML from Editor.js block text.
  * Decodes all HTML entities, escapes everything, then restores only the known Editor.js tags.
@@ -174,11 +183,12 @@ function sanitizeInlineHtml(string $text): string {
         );
     }
 
-    // Restore <a href="..."> with URL validation to prevent javascript: and data: URIs
+    // Restore <a href="..."> with URL validation. Unsafe URLs lose href but keep link text
     $html = preg_replace_callback(
-        '/&lt;a\s+href=&quot;(?!javascript:|data:)((?:[^&"]|&amp;)*)&quot;(?:[^&]|&amp;|&quot;)*?&gt;/i',
+        '/&lt;a\s+href=&quot;((?:[^&"]|&amp;)*)&quot;(?:[^&]|&amp;|&quot;)*?&gt;/i',
         static function (array $m): string {
             $href = html_entity_decode($m[1], ENT_QUOTES, 'UTF-8');
+            if (!isSafeLinkUrl($href)) return '<a>';
             return '<a href="' . htmlspecialchars($href, ENT_QUOTES) . '">';
         },
         $html
