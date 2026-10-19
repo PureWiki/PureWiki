@@ -518,16 +518,16 @@ function parseBlocksToHtml(array $blocks, string $contextPath = '/', ?array $mai
                 break;
 
             case 'pagelist':
-                $startPath = $data['startPath'] ?? '/';
+                $startPath = sanitizeRelativePath($data['startPath'] ?? '');
                 $boldHeadings = isset($data['boldHeader']) ? (bool)$data['boldHeader'] : false;
 
                 $pagesDir = getPageDir();
-                $targetDir = $pagesDir . DIRECTORY_SEPARATOR . trim($startPath, '/\\');
+                $targetDir = $pagesDir . DIRECTORY_SEPARATOR . $startPath;
 
-                if (file_exists($targetDir) && is_dir($targetDir)) {
+                if (is_dir($targetDir)) {
                     if (function_exists('getCachedPagesTree')) {
                         $pageLang = defined('CURRENT_LANG') ? CURRENT_LANG : '';
-                        $tree = getCachedPagesTree($targetDir, trim($startPath, '/\\'), $pageLang);
+                        $tree = getCachedPagesTree($targetDir, $startPath, $pageLang);
                         if (function_exists('buildNavTree')) {
                             $parts[] = buildNavTree($tree, $contextPath, $boldHeadings);
                         }

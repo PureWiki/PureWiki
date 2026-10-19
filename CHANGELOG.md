@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 - Private pages no longer show up in the public search, only if the user is logged in.
+- Fixed path traversal in the start path of the page list block.
 
 ## [0.3.0-alpha.5] - 2026-10-18
 
