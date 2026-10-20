@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added a video block for YouTube, Vimeo and uploaded video files. External videos show privacy notice and only load after a click for privacy reasons.
+- Added the PHP upload limits to the status page.
 
 ## [0.3.0-alpha.6] - 2026-10-19
 

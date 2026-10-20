@@ -265,6 +265,19 @@ async function loadSystemStatus() {
         document.getElementById('pw-status-php-version').textContent = data.php_version;
         document.getElementById('pw-status-os').textContent = data.os;
 
+        if (data.upload_limits) {
+            const ul = data.upload_limits;
+            const uploadEl = document.getElementById('pw-status-upload-limits');
+            uploadEl.textContent = __('settings.upload_limits_summary', ul.upload_max_filesize || __('settings.upload_unlimited'), ul.post_max_size || __('settings.upload_unlimited'));
+            if (ul.post_too_small) {
+                const warning = document.createElement('div');
+                warning.style.cssText = 'color: var(--pw-warning); font-size: 0.9em; margin-top: 4px;';
+                warning.innerHTML = '<iconify-icon icon="mdi:alert-outline"></iconify-icon> ';
+                warning.append(__('settings.upload_post_too_small'));
+                uploadEl.appendChild(warning);
+            }
+        }
+
         const webpEl = document.getElementById('pw-status-webp');
         const actionsEl = document.getElementById('pw-status-actions');
         const statsEl = document.getElementById('pw-status-media-stats');

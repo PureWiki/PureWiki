@@ -60,6 +60,10 @@ if ($action === 'get_system_status') {
         }
     }
 
+    // Upload limits
+    $uploadMax = iniSizeToBytes((string)ini_get('upload_max_filesize'));
+    $postMax = iniSizeToBytes((string)ini_get('post_max_size'));
+
     $response['success'] = true;
     $response['data'] = [
         'version' => $version,
@@ -72,7 +76,12 @@ if ($action === 'get_system_status') {
             'webp_optimized' => $webpOptimized,
             'optimization_ratio' => $totalImages > 0 ? round(($webpOptimized / $totalImages) * 100) : 100
         ],
-        'storage' => getDiskStorageInfo()
+        'storage' => getDiskStorageInfo(),
+        'upload_limits' => [
+            'upload_max_filesize' => $uploadMax > 0 ? formatBytes($uploadMax) : null,
+            'post_max_size' => $postMax > 0 ? formatBytes($postMax) : null,
+            'post_too_small' => $postMax > 0 && ($uploadMax === 0 || $postMax < $uploadMax)
+        ]
     ];
 }
 

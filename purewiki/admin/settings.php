@@ -626,6 +626,9 @@ require_once __DIR__ . '/layout_head.php';
                         <div class="pw-status-grid-label"><?php echo __('settings.storage_usage'); ?></div>
                         <div id="pw-status-storage"><?php echo __('common.loading'); ?></div>
 
+                        <div class="pw-status-grid-label"><?php echo __('settings.upload_limits'); ?></div>
+                        <div id="pw-status-upload-limits"><?php echo __('common.loading'); ?></div>
+
                         <div class="pw-status-grid-label"><?php echo __('settings.webp_support'); ?></div>
                         <div id="pw-status-webp"><?php echo __('common.loading'); ?></div>
 
