@@ -1092,6 +1092,61 @@ html[data-theme="dark"] .pw-theme-icon-dark {
     color: #f85149;
 }
 
+/* Video Block */
+.pw-video-frame {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: 0;
+    border-radius: var(--pico-border-radius);
+    background-color: var(--pico-card-background-color);
+}
+.pw-video--9-16 .pw-video-frame {
+    max-width: 400px;
+    margin-inline: auto;
+}
+.pw-video--1-1 .pw-video-frame {
+    max-width: 640px;
+    margin-inline: auto;
+}
+.pw-video-consent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    border: 1px solid var(--pico-muted-border-color);
+    box-sizing: border-box;
+}
+.pw-video-play {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 4rem;
+    height: 4rem;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    color: var(--pico-primary-inverse);
+    background-color: var(--pico-primary);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+.pw-video-play:hover, .pw-video-play:focus-visible {
+    background-color: var(--pico-primary-hover);
+}
+.pw-video-play svg {
+    width: 2rem;
+    height: 2rem;
+    margin-left: 0.2rem;
+}
+.pw-video-notice {
+    max-width: 32rem;
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--pico-muted-color);
+}
 /* Icon Block & Inline Icon */
 .pw-icon-block {
     display: flex;

@@ -39,13 +39,14 @@ function getMediaFiles($dir) {
 
         $path = $dir . DIRECTORY_SEPARATOR . $name;
         $isImage = in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg']);
+        $isVideo = in_array($ext, ['mp4', 'webm', 'mov', 'ogv']);
 
         $icon = match(true) {
             $isImage => 'mdi:file-image-outline',
             $ext === 'pdf' => 'mdi:file-pdf-box',
             in_array($ext, ['zip', 'rar', '7z', 'tar', 'gz']) => 'mdi:zip-box',
             in_array($ext, ['mp3', 'wav', 'ogg']) => 'mdi:file-music-outline',
-            in_array($ext, ['mp4', 'webm', 'mov']) => 'mdi:file-video-outline',
+            $isVideo => 'mdi:file-video-outline',
             in_array($ext, ['doc', 'docx']) => 'mdi:file-word-outline',
             in_array($ext, ['xls', 'xlsx']) => 'mdi:file-excel-outline',
             default => 'mdi:file-document-outline'
@@ -54,7 +55,7 @@ function getMediaFiles($dir) {
         $files[] = [
             'name' => $name,
             'size' => formatBytes(filesize($path)),
-            'type' => $isImage ? 'image' : 'other',
+            'type' => $isImage ? 'image' : ($isVideo ? 'video' : 'other'),
             'icon' => $icon,
             'mtime' => filemtime($path),
             'has_webp' => isset($lookup["$baseName.webp"]),

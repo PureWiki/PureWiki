@@ -65,6 +65,7 @@ const settingsFields = {
     'editor_show_grid': 'pw-setting-editor-show-grid',
     'editor_show_math': 'pw-setting-editor-show-math',
     'editor_show_icon': 'pw-setting-editor-show-icon',
+    'editor_show_video': 'pw-setting-editor-show-video',
     'dev_debug_output': 'pw-setting-dev-debug-output',
     'allow_prerelease_updates': 'pw-setting-allow-prerelease-updates',
     'mail_enable': 'pw-setting-mail-enable',

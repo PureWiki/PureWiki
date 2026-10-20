@@ -403,6 +403,7 @@ require_once __DIR__ . '/layout_head.php';
                     renderToggle('pw-setting-editor-show-grid', __('settings.editor_show_grid'));
                     renderToggle('pw-setting-editor-show-math', __('settings.editor_show_math'));
                     renderToggle('pw-setting-editor-show-icon', __('settings.editor_show_icon'));
+                    renderToggle('pw-setting-editor-show-video', __('settings.editor_show_video'));
                     ?>
                 </div>
             </div>

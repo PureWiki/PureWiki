@@ -108,7 +108,7 @@ require_once __DIR__ . '/layout_head.php';
     <!-- Image Selection Dialog -->
     <div id="pw-image-dialog-overlay" class="pw-dialog-overlay pw-image-dialog">
         <div class="pw-dialog-box">
-            <h3 class="pw-dialog-title"><?php echo __('editor.select_image'); ?></h3>
+            <h3 id="pw-image-dialog-title" class="pw-dialog-title"><?php echo __('editor.select_image'); ?></h3>
 
             <!-- Upload Zone -->
             <div id="pw-image-upload-zone" class="pw-upload-zone">
@@ -157,6 +157,7 @@ require_once __DIR__ . '/layout_head.php';
     <script src="https://cdn.jsdelivr.net/npm/editorjs-drag-drop@1.1.15"></script>
     <!-- PureWiki Editor.js Plugins -->
     <script src="<?php echo BASE_PATH; ?>/purewiki/editorPlugins/editor-image.js"></script>
+    <script src="<?php echo BASE_PATH; ?>/purewiki/editorPlugins/editor-video.js"></script>
     <script src="<?php echo BASE_PATH; ?>/purewiki/editorPlugins/editor-markdown.js"></script>
     <script src="<?php echo BASE_PATH; ?>/purewiki/editorPlugins/editor-live-markdown.js"></script>
     <script src="<?php echo BASE_PATH; ?>/purewiki/editorPlugins/editor-pagelist.js"></script>

@@ -123,4 +123,19 @@ class AssetManager {
             '});});'
         );
     }
+
+    /** Helper to replace video placeholders with the provider iframe on click */
+    public static function requireVideoConsent() {
+        self::addInlineScript('video-consent',
+            'document.addEventListener("click",function(e){' .
+            'var b=e.target.closest(".pw-video-play");if(!b)return;' .
+            'var c=b.closest(".pw-video-consent");if(!c)return;' .
+            'var f=document.createElement("iframe");' .
+            'f.src=c.getAttribute("data-src");f.title=c.getAttribute("data-title")||"Video";' .
+            'f.className="pw-video-frame";f.style.cssText=c.style.cssText;' .
+            'f.allow="autoplay; fullscreen; picture-in-picture; encrypted-media";f.allowFullscreen=true;' .
+            'f.referrerPolicy="strict-origin-when-cross-origin";' .
+            'c.replaceWith(f);});'
+        );
+    }
 }

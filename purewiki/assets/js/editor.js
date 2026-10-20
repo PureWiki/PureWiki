@@ -251,6 +251,7 @@ function initEditorJS(blocksData) {
             snippet: currentGlobalConfig.editor_show_snippet !== false ? SnippetTool : { class: SnippetTool, toolbox: false },
             math: currentGlobalConfig.editor_show_math !== false ? MathTool : { class: MathTool, toolbox: false },
             icon: currentGlobalConfig.editor_show_icon !== false ? IconTool : { class: IconTool, toolbox: false },
+            video: currentGlobalConfig.editor_show_video !== false ? VideoTool : { class: VideoTool, toolbox: false },
         };
 
         window.PW_EDITOR_I18N_CONFIG = getEditorI18nConfig();
@@ -1001,10 +1002,17 @@ document.addEventListener('DOMContentLoaded', initEditorInteractions);
 
 /**
  * Initializes and opens the custom Image Selection Dialog
- * @param {Object} imageToolInstance active ExtendedImage tool
+ * @param {Object} toolInstance active tool, receives the url via onMediaSelected() or onImageSelected()
+ * @param {Object} options mediaType 'image' or 'video'
  */
-function openImageSelectionDialog(imageToolInstance) {
+function openImageSelectionDialog(toolInstance, options = {}) {
+    const mediaType = options.mediaType === 'video' ? 'video' : 'image';
+    const isVideo = mediaType === 'video';
+    const selectMedia = (url) => typeof toolInstance.onMediaSelected === 'function'
+        ? toolInstance.onMediaSelected(url)
+        : toolInstance.onImageSelected(url);
     const overlay = document.getElementById('pw-image-dialog-overlay');
+    const titleEl = document.getElementById('pw-image-dialog-title');
     const cancelBtn = document.getElementById('pw-image-dialog-cancel');
     const scopeSelect = document.getElementById('pw-image-scope');
     const dropZone = document.getElementById('pw-image-upload-zone');
@@ -1048,10 +1056,10 @@ function openImageSelectionDialog(imageToolInstance) {
 
             grid.innerHTML = '';
             if (result.success && result.data.length > 0) {
-                const images = result.data.filter(f => f.type === 'image');
+                const images = result.data.filter(f => f.type === mediaType);
 
                 if (images.length === 0) {
-                    grid.innerHTML = '<p style="padding:10px; color:var(--pw-text-muted);">No images found here.</p>';
+                    grid.innerHTML = '<p style="padding:10px; color:var(--pw-text-muted);">' + (isVideo ? __('editor.no_videos_found') : 'No images found here.') + '</p>';
                     return;
                 }
 
@@ -1062,10 +1070,14 @@ function openImageSelectionDialog(imageToolInstance) {
                     const imgContainer = document.createElement('div');
                     imgContainer.style.cssText = 'width: 100%; height: 100px; display: flex; align-items: center; justify-content: center; background: #000;';
 
-                    const img = document.createElement('img');
+                    const img = document.createElement(isVideo ? 'video' : 'img');
                     const basePath = targetPath === '__global__' ? '/pages/' : '/pages/' + (targetPath === '/' ? '' : targetPath) + '/';
                     const imgUrl = (basePath + f.name).replace(/\/\/+/g, '/');
 
+                    if (isVideo) {
+                        img.muted = true;
+                        img.preload = 'metadata';
+                    }
                     img.src = (window.PW_BASE_PATH || '') + imgUrl;
                     img.style.cssText = 'max-width: 100%; max-height: 100%; object-fit: contain;';
 
@@ -1082,7 +1094,7 @@ function openImageSelectionDialog(imageToolInstance) {
                     card.addEventListener('mouseleave', () => card.style.transform = 'scale(1)');
 
                     card.addEventListener('click', () => {
-                        imageToolInstance.onImageSelected(imgUrl);
+                        selectMedia(imgUrl);
                         closeModal();
                     });
 
@@ -1183,7 +1195,7 @@ function openImageSelectionDialog(imageToolInstance) {
         const applyManualPath = () => {
             const val = manualPathInput.value.trim();
             if (val) {
-                imageToolInstance.onImageSelected(val);
+                selectMedia(val);
                 closeModal();
             }
         };
@@ -1209,6 +1221,9 @@ function openImageSelectionDialog(imageToolInstance) {
             handleUpload(e.dataTransfer.files);
         }
     };
+
+    if (titleEl) titleEl.textContent = __(isVideo ? 'editor.select_video' : 'editor.select_image');
+    fileInput.accept = isVideo ? 'video/*' : '';
 
     overlay.classList.add('pw-show');
     scopeSelect.value = 'current';
@@ -1242,7 +1257,7 @@ function getEditorI18nConfig() {
                 "Bold": __('editor.tool_bold'), "Italic": __('editor.tool_italic'), "Underline": __('editor.tool_underline'), "Strikethrough": __('editor.tool_strikethrough'),
                 "Markdown": __('editor.tool_markdown'), "Live Markdown": __('editor.tool_livemarkdown'), "Page List": __('editor.tool_pagelist'), "Table of Contents": __('editor.tool_toc'),
                 "Callout": __('editor.tool_callout'), "Container": __('editor.tool_block'), "Page Include": __('editor.tool_pageinclude'), "Snippet": __('editor.tool_snippet'),
-                "Accordion": __('editor.tool_accordion'), "Grid": __('editor.tool_grid'), "textAlign": __('plugins.text_align'), "Alignment": __('plugins.text_align'), "Icon": __('editor.tool_icon')
+                "Accordion": __('editor.tool_accordion'), "Grid": __('editor.tool_grid'), "textAlign": __('plugins.text_align'), "Alignment": __('plugins.text_align'), "Icon": __('editor.tool_icon'), "Video": __('editor.tool_video')
             },
             blockTunes: {
                 "delete": { "Delete": __('editor.ui_delete') }, "moveUp": { "Move up": __('editor.ui_move_up') }, "moveDown": { "Move down": __('editor.ui_move_down') },

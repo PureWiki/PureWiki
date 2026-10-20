@@ -139,6 +139,46 @@ function isSafeLinkUrl(string $url): bool {
     return $scheme === '' || in_array($scheme, ['http', 'https', 'mailto', 'tel'], true);
 }
 
+/** Returns provider, id and hash of YouTube, Vimeo or local video url, null if unsupported. */
+function parseVideoUrl(string $url): ?array {
+    $url = trim($url);
+
+    // Local file, path is used as id
+    if (str_starts_with($url, '/') && !str_starts_with($url, '//')) {
+        if (!preg_match('#^/[^\x00-\x1f"\'<>\\\\?\#]+\.(mp4|webm|mov|ogv)$#i', $url) || str_contains($url, '..')) return null;
+        return ['provider' => 'file', 'id' => $url, 'hash' => ''];
+    }
+
+    $parts = parse_url($url);
+    if ($parts === false || !in_array(strtolower($parts['scheme'] ?? ''), ['http', 'https'], true)) return null;
+
+    $host = preg_replace('/^(www|m)\./', '', strtolower($parts['host'] ?? ''));
+    $path = $parts['path'] ?? '';
+    parse_str($parts['query'] ?? '', $query);
+
+    if ($host === 'youtu.be' || $host === 'youtube.com' || $host === 'youtube-nocookie.com') {
+        if ($host === 'youtu.be') {
+            $id = explode('/', ltrim($path, '/'))[0];
+        } elseif (preg_match('#^/(?:shorts|embed|live)/([^/]+)#', $path, $m)) {
+            $id = $m[1];
+        } else {
+            $id = is_string($query['v'] ?? null) ? $query['v'] : '';
+        }
+        return preg_match('/^[A-Za-z0-9_-]{11}$/', $id) ? ['provider' => 'youtube', 'id' => $id, 'hash' => ''] : null;
+    }
+
+    // Vimeo videos need hash in path or as h parameter
+    if ($host === 'vimeo.com' && preg_match('#^/(\d+)(?:/([A-Za-z0-9]+))?/?$#', $path, $m)) {
+        return ['provider' => 'vimeo', 'id' => $m[1], 'hash' => $m[2] ?? ''];
+    }
+    if ($host === 'player.vimeo.com' && preg_match('#^/video/(\d+)/?$#', $path, $m)) {
+        $hash = is_string($query['h'] ?? null) && preg_match('/^[A-Za-z0-9]+$/', $query['h']) ? $query['h'] : '';
+        return ['provider' => 'vimeo', 'id' => $m[1], 'hash' => $hash];
+    }
+
+    return null;
+}
+
 /**
  * Sanitizes inline HTML from Editor.js block text.
  * Decodes all HTML entities, escapes everything, then restores only the known Editor.js tags.
@@ -438,6 +478,51 @@ function parseBlocksToHtml(array $blocks, string $contextPath = '/', ?array $mai
                     $figParts[] = '</figure>';
                     $parts[] = implode(PHP_EOL, $figParts);
                 }
+                break;
+
+            case 'video':
+                $video = parseVideoUrl($data['url'] ?? '');
+                if (!$video) break;
+
+                $aspects = ['16:9' => '16/9', '4:3' => '4/3', '1:1' => '1/1', '9:16' => '9/16'];
+                $aspectKey = isset($aspects[$data['aspect'] ?? '']) ? $data['aspect'] : '16:9';
+                $start = max(0, intval($data['start'] ?? 0));
+                $frameStyle = ' style="aspect-ratio: ' . $aspects[$aspectKey] . '"';
+
+                if ($video['provider'] === 'file') {
+                    $src = BASE_PATH . $video['id'] . ($start > 0 ? '#t=' . $start : '');
+                    $loop = !empty($data['loop']);
+                    $hideControls = $loop && !empty($data['hideControls']);
+                    $attrs = ($hideControls ? '' : ' controls') . ' preload="metadata" playsinline';
+                    // Browsers only autoplay muted videos
+                    if (!empty($data['autoplay']) || $hideControls) {
+                        $attrs .= ' autoplay muted';
+                    } elseif (!empty($data['muted'])) {
+                        $attrs .= ' muted';
+                    }
+                    if ($loop) $attrs .= ' loop';
+                    $media = '  <video class="pw-video-frame" src="' . htmlspecialchars($src, ENT_QUOTES) . '"' . $attrs . $frameStyle . '></video>';
+                } else {
+                    AssetManager::requireVideoConsent();
+                    if ($video['provider'] === 'youtube') {
+                        $providerName = 'YouTube';
+                        $privacyUrl = 'https://policies.google.com/privacy';
+                        $embedUrl = 'https://www.youtube-nocookie.com/embed/' . $video['id'] . '?autoplay=1' . ($start > 0 ? '&start=' . $start : '');
+                    } else {
+                        $providerName = 'Vimeo';
+                        $privacyUrl = 'https://vimeo.com/privacy';
+                        // Vimeo expects privacy hash
+                        $embedUrl = 'https://player.vimeo.com/video/' . $video['id'] . '?'
+                            . ($video['hash'] !== '' ? 'h=' . $video['hash'] . '&' : '') . 'dnt=1&autoplay=1' . ($start > 0 ? '#t=' . $start . 's' : '');
+                    }
+                    // The iframe is only created after a click, nothing loads before that for privacy reasons
+                    $media = '  <div class="pw-video-frame pw-video-consent" data-src="' . htmlspecialchars($embedUrl, ENT_QUOTES) . '" data-title="' . $providerName . ' video"' . $frameStyle . '>' . PHP_EOL
+                        . '    <button type="button" class="pw-video-play" aria-label="Play video from ' . $providerName . '"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M8 5v14l11-7z"/></svg></button>' . PHP_EOL
+                        . '    <p class="pw-video-notice">Playing this video loads content from ' . $providerName . ' and sends data to them.<br><a href="' . $privacyUrl . '" target="_blank" rel="noopener noreferrer">Privacy policy</a></p>' . PHP_EOL
+                        . '  </div>';
+                }
+
+                $parts[] = '<figure class="pw-video pw-video--' . str_replace(':', '-', $aspectKey) . '">' . PHP_EOL . $media . PHP_EOL . '</figure>';
                 break;
 
             case 'callout':
