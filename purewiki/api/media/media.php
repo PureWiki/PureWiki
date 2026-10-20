@@ -108,6 +108,8 @@ if ($action === 'list_media') {
                 } else {
                     $errors[] = "$name: Failed to move to destination.";
                 }
+            } elseif ($error === UPLOAD_ERR_INI_SIZE || $error === UPLOAD_ERR_FORM_SIZE) {
+                $errors[] = "$name: File is larger than the server upload limit (" . ini_get('upload_max_filesize') . ").";
             } else {
                 $errors[] = "$name: Upload error code $error.";
             }
