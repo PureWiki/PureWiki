@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fixed links in the header search for installations in a subfolder.
+- Fixed untranslated pages missing in the search of other languages.
 
 ## [0.3.0-alpha.6] - 2026-10-19
 

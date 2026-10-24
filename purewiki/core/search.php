@@ -64,6 +64,10 @@ function _collectSearchEntries(string $dir, string $pagesDir, array &$index, arr
     foreach ($langs as $lang) {
         $filename = $lang === '' ? 'page.json' : 'page.' . $lang . '.json';
         $jsonPath = $dir . DIRECTORY_SEPARATOR . $filename;
+        // Also find untranslated pages
+        if ($lang !== '' && !file_exists($jsonPath)) {
+            $jsonPath = $dir . DIRECTORY_SEPARATOR . 'page.json';
+        }
         if (file_exists($jsonPath)) {
             $data = readJson($jsonPath, null);
             if (is_array($data)) {
