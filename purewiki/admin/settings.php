@@ -271,6 +271,8 @@ require_once __DIR__ . '/layout_head.php';
                     <h3 class="pw-settings-heading"><?php echo __('settings.search'); ?></h3>
                     <?php
                     renderInput('pw-setting-search-max-results', __('settings.max_results'), __('settings.max_results_desc'), 'number', 'pw-input pw-w-sm', '10', 'min="1" max="100" value="10"', 'pw-setting-description');
+
+                    renderToggle('pw-setting-search-page-enabled', __('settings.search_page_enabled'), __('settings.search_page_enabled_desc'));
                     ?>
 
                     <hr class="pw-separator">

@@ -187,6 +187,18 @@ if (str_starts_with($path, '/dashboard/login')) {
         $pageJsonPath = rtrim($pagesDir, '/') . '/' . (empty($safePath) ? '' : ltrim($safePath, '/') . '/') . $filename;
     }
     
+    // Search page. Real page is prioritized.
+    $renderOptions = [];
+    if (!empty($config['search_page_enabled']) && $safePath === '/search' && !file_exists($pageJsonPath)) {
+        require_once __DIR__ . '/purewiki/core/i18n.php';
+        $renderOptions = [
+            'pageData' => ['pagetitle' => __('search.title')],
+            'template' => 'system/search',
+            'macro'    => 'search_page',
+            'noindex'  => true,
+        ];
+    }
+
     // Check for redirects before rendering (except in preview mode)
     if (!$isPreview && file_exists($pageJsonPath)) {
         $pageData = readJson($pageJsonPath, null);
@@ -203,7 +215,7 @@ if (str_starts_with($path, '/dashboard/login')) {
             exit;
         }
     }
-    $htmlOutput = renderPage($pageJsonPath, $fallbackTitle, $path);
+    $htmlOutput = renderPage($pageJsonPath, $fallbackTitle, $path, $renderOptions);
 
     // Save to cache if enabled (only for public users)
     if ($cacheEnabled && $cacheFile && !isLoggedIn()) {

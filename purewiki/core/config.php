@@ -54,6 +54,7 @@ function getGlobalConfig(bool $forceReload = false): array {
         'seo_og_image_url' => '',
         'seo_enable_sitemap' => true,
         'search_max_results' => 10,
+        'search_page_enabled' => true,
         'enable_history' => true,
         'history_max_versions' => 20,
         'dashboard_language' => 'en',

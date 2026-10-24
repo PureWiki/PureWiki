@@ -10,6 +10,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added a video block for YouTube, Vimeo and uploaded video files. External videos show privacy notice and only load after a click for privacy reasons.
 - Added the PHP upload limits to the status page.
+- Added a search page under `/search` with tag filter and sorting. Can be turned off in `Global Settings > General`.
+- Added links from tags to the search page. The default theme now shows tags below the content.
+- Added `system/search.php` and `elements/search_result.php` to the default theme, so themes can style the search page and its results.
+
+### Changed
+
+- Tags are now cleaned up when saving.
+- Pressing Enter in the header search without a selected result opens the search page.
+- Translated the texts of the header search (in the default dashboard language for now).
 
 ## [0.3.0-alpha.6] - 2026-10-19
 

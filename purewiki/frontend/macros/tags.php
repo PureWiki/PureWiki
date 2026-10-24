@@ -13,9 +13,5 @@
 defined('PUREWIKI') || die('Direct access denied.');
 
 if (!empty($pageData['Tags']) && is_array($pageData['Tags'])) {
-    echo '<ul class="pw-tag-list">';
-    foreach ($pageData['Tags'] as $tag) {
-        echo '<li class="pw-tag">' . htmlspecialchars((string) $tag) . '</li>';
-    }
-    echo '</ul>';
+    echo renderTagsHtml($pageData['Tags'], $config);
 }

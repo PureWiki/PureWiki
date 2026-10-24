@@ -243,6 +243,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (searchToggle && searchDropdown && searchInput && searchResults) {
         let searchTimer = null;
         let selectedIndex = -1;
+        const searchPageUrl = searchDropdown.dataset.searchUrl || '';
 
         function updateSelection(items) {
             items.forEach((item, idx) => {
@@ -285,6 +286,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         searchInput.addEventListener('keydown', (e) => {
             const items = searchResults.querySelectorAll('.pw-search-result-item');
+
+            // Enter without selection opens the search page
+            if (e.key === 'Enter' && selectedIndex < 0 && searchPageUrl && searchInput.value.trim()) {
+                e.preventDefault();
+                window.location.href = searchPageUrl + '?q=' + encodeURIComponent(searchInput.value.trim());
+                return;
+            }
             if (!items.length) return;
 
             if (e.key === 'ArrowDown') {
@@ -323,7 +331,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 selectedIndex = -1;
                 if (data.success && data.results) {
                     if (data.results.length === 0) {
-                        searchResults.innerHTML = '<div class="pw-search-empty">No results found.</div>';
+                        searchResults.innerHTML = `<div class="pw-search-empty">${escapeHtml(searchDropdown.dataset.textNoResults || 'No results found.')}</div>`;
                     } else {
                         searchResults.innerHTML = data.results.map(r =>
                             `<a href="${r.path}" class="pw-search-result-item">
@@ -342,7 +350,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
             } catch (e) {
-                searchResults.innerHTML = '<div class="pw-search-empty">Search failed.</div>';
+                searchResults.innerHTML = `<div class="pw-search-empty">${escapeHtml(searchDropdown.dataset.textFailed || 'Search failed.')}</div>`;
             }
         }
 

@@ -398,6 +398,8 @@
         "search": "Suche",
         "max_results": "Maximale Suchergebnisse",
         "max_results_desc": "Maximale Anzahl der Ergebnisse der Frontend-Suche.",
+        "search_page_enabled": "Suchseite aktivieren",
+        "search_page_enabled_desc": "Fügt eine Suchseite mit Tag-Filter hinzu. Tags auf Seiten verlinken darauf.",
         "appearance_title": "Darstellung",
         "breadcrumbs_show_start": "Startseite in Breadcrumbs anzeigen",
         "breadcrumbs_show_start_desc": "Die Startseite in der Breadcrumb-Navigation anzeigen",
@@ -850,5 +852,21 @@
         "spam_regex_placeholder": "z.B. /@spamdomain\\.com$/i oder /^test@/",
         "spam_regex_add": "Hinzufügen",
         "spam": "Spam"
+    },
+    "search": {
+        "title": "Suche",
+        "placeholder": "Suchen…",
+        "no_results": "Keine Treffer gefunden.",
+        "failed": "Suche fehlgeschlagen.",
+        "tags": "Tags",
+        "no_tags": "Noch keine Tags vorhanden.",
+        "filter_tags": "Tags filtern…",
+        "sort": "Sortieren nach",
+        "sort_relevance": "Relevanz",
+        "sort_newest": "Neueste zuerst",
+        "sort_oldest": "Älteste zuerst",
+        "sort_title": "Titel",
+        "result_count": "%d Treffer",
+        "load_more": "Mehr laden"
     }
 }

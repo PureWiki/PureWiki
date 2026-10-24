@@ -398,6 +398,8 @@
         "search": "Search",
         "max_results": "Max Search Results",
         "max_results_desc": "Maximum number of results returned by the frontend search.",
+        "search_page_enabled": "Enable search page",
+        "search_page_enabled_desc": "Adds a search page with a tag filter. Tags on pages link to it.",
         "appearance_title": "Appearance",
         "breadcrumbs_show_start": "Breadcrumbs show start page",
         "breadcrumbs_show_start_desc": "Show the start page in the breadcrumbs",
@@ -850,5 +852,21 @@
         "spam_regex_placeholder": "e.g. /@spamdomain\\.com$/i or /^test@/",
         "spam_regex_add": "Add",
         "spam": "Spam"
+    },
+    "search": {
+        "title": "Search",
+        "placeholder": "Search…",
+        "no_results": "No results found.",
+        "failed": "Search failed.",
+        "tags": "Tags",
+        "no_tags": "No tags yet.",
+        "filter_tags": "Filter tags…",
+        "sort": "Sort by",
+        "sort_relevance": "Relevance",
+        "sort_newest": "Newest first",
+        "sort_oldest": "Oldest first",
+        "sort_title": "Title",
+        "result_count": "%d results",
+        "load_more": "Load more"
     }
 }

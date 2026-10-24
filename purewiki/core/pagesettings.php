@@ -13,6 +13,30 @@
 defined('PUREWIKI') || die('Direct access denied.');
 
 /**
+ * Normalizes a list of tags.
+ * Trims whitespace, limits length and count, removes duplicates
+ *
+ * @param array $tags Raw tag values
+ * @return array list of unique tags
+ */
+function normalizeTags(array $tags): array {
+    $unique = [];
+    foreach ($tags as $tag) {
+        $tag = trim(preg_replace('/\s+/u', ' ', (string) $tag) ?? '');
+        if ($tag === '') continue;
+        $tag = mb_substr($tag, 0, 50);
+
+        // First tag is used
+        $key = mb_strtolower($tag);
+        if (!isset($unique[$key])) {
+            $unique[$key] = $tag;
+        }
+        if (count($unique) >= 30) break;
+    }
+    return array_values($unique);
+}
+
+/**
  * Applies page metadata and settings to a page data array.
  *
  * @param array $data The current page data array
@@ -34,11 +58,7 @@ function applyPageSettings(array $data, array $postData): array {
         $data['Settings']['hide_in_treeview'] = filter_var($postData['hide_in_treeview'], FILTER_VALIDATE_BOOLEAN);
     }
     if (isset($postData['tags'])) {
-        // Explode comma-separated tags, trim whitespace, and re-index the array
-        // to ensure a clean, zero-indexed structure for the JSON file
-        $tagsRaw = $postData['tags'];
-        $tagsArray = array_map('trim', explode(',', $tagsRaw));
-        $data['Tags'] = array_values(array_filter($tagsArray));
+        $data['Tags'] = normalizeTags(explode(',', (string) $postData['tags']));
     }
     if (!isset($data['Settings']) || !is_array($data['Settings'])) {
         $data['Settings'] = [];

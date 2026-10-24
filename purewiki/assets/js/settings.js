@@ -46,6 +46,7 @@ const settingsFields = {
     'seo_twitter_cards': 'pw-setting-seo-twitter',
     'seo_schema_org': 'pw-setting-seo-schema-org',
     'search_max_results': 'pw-setting-search-max-results',
+    'search_page_enabled': 'pw-setting-search-page-enabled',
     'enable_history': 'pw-setting-enable-history',
     'history_max_versions': 'pw-setting-history-max-versions',
     'editor_show_raw': 'pw-setting-editor-show-raw',

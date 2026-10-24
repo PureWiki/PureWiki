@@ -29,6 +29,7 @@ echo '{{ endif }}';
 echo '<div class="pw-main-content">';
 echo '{{ macro:breadcrumbs }}';
 echo file_get_contents(__DIR__ . '/elements/content.php');
+echo '{{ macro:tags }}';
 echo '{{ macro:prevnext }}';
 echo '{{ macro:comments }}';
 echo '</div>';

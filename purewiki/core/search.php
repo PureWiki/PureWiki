@@ -85,6 +85,8 @@ function _collectSearchEntries(string $dir, string $pagesDir, array &$index, arr
                     'title'       => $data['pagetitle'] ?? basename($dir),
                     'description' => $data['description'] ?? $data['Description'] ?? '',
                     'content'     => implode(' ', $textParts),
+                    'tags'        => is_array($data['Tags'] ?? null) ? array_values(array_map('strval', $data['Tags'])) : [],
+                    'modified'    => (string) ($data['DateModified'] ?? ''),
                     'private'     => !empty($data['isPrivate'])
                 ];
             }
@@ -332,8 +334,83 @@ function getSearchIndex(): array {
 
     if (file_exists($cacheFile)) {
         $data = readJson($cacheFile, null);
-        if (is_array($data)) return $data;
+        // Rebuild old indexes without tags
+        if (is_array($data) && (empty($data['']) || isset($data[''][0]['tags']))) return $data;
     }
 
     return buildSearchIndex();
+}
+
+/** Returns the index entries of a language, private pages only if included. */
+function getVisibleSearchEntries(string $lang, bool $includePrivate): array {
+    $index = getSearchIndex();
+
+    // Older indexes are a flat list
+    if (isset($index['']) || isset($index[$lang])) {
+        $entries = $index[$lang] ?? ($index[''] ?? []);
+    } else {
+        $entries = $index;
+    }
+
+    if ($includePrivate) return $entries;
+    return array_values(array_filter($entries, fn($entry) => empty($entry['private'])));
+}
+
+/** Returns the search score of an entry, 0 if nothing matches. */
+function scoreSearchEntry(array $entry, string $query): int {
+    $score = 0;
+    if (stripos($entry['title'] ?? '', $query) !== false) $score += 100;
+    if (stripos($entry['description'] ?? '', $query) !== false) $score += 50;
+    if (stripos($entry['content'] ?? '', $query) !== false) $score += 10;
+    return $score;
+}
+
+/** Checks if an entry has all given tags, ignoring case. */
+function searchEntryHasTags(array $entry, array $tags): bool {
+    $entryTags = [];
+    foreach ($entry['tags'] ?? [] as $tag) {
+        $entryTags[mb_strtolower((string) $tag)] = true;
+    }
+    foreach ($tags as $tag) {
+        if (!isset($entryTags[mb_strtolower($tag)])) return false;
+    }
+    return true;
+}
+
+/** Returns an escaped excerpt around the first match, $length is the number of characters after it. */
+function buildSearchExcerpt(array $entry, string $query, int $length = 120): string {
+    if ($query === '') {
+        $text = ($entry['description'] ?? '') !== '' ? $entry['description'] : ($entry['content'] ?? '');
+        $raw = mb_substr($text, 0, $length + 40);
+        if (mb_strlen($text) > $length + 40) $raw .= '…';
+        return htmlspecialchars($raw);
+    }
+
+    $fullText = ($entry['title'] ?? '') . ' ' . ($entry['description'] ?? '') . ' ' . ($entry['content'] ?? '');
+    $pos = mb_stripos($fullText, $query);
+    if ($pos === false) return '';
+
+    $start = max(0, $pos - 60);
+    $length += mb_strlen($query);
+    $raw = mb_substr($fullText, $start, $length);
+    if ($start > 0) $raw = '…' . $raw;
+    if ($start + $length < mb_strlen($fullText)) $raw .= '…';
+    return preg_replace('/(' . preg_quote($query, '/') . ')/iu', '<mark>$1</mark>', htmlspecialchars($raw));
+}
+
+/** Returns all tags with their usage count, sorted by name. */
+function getSearchTagCounts(array $entries): array {
+    $counts = [];
+    foreach ($entries as $entry) {
+        foreach ($entry['tags'] ?? [] as $tag) {
+            $tag = (string) $tag;
+            $key = mb_strtolower($tag);
+            if (!isset($counts[$key])) {
+                $counts[$key] = ['name' => $tag, 'count' => 0];
+            }
+            $counts[$key]['count']++;
+        }
+    }
+    usort($counts, fn($a, $b) => strnatcasecmp($a['name'], $b['name']));
+    return $counts;
 }

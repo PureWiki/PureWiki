@@ -1177,22 +1177,246 @@ nav[aria-label="breadcrumb"] li:last-child {
 
 /* -- Tags -- */
 
+.pw-tags {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 1.5rem 0;
+}
+
+.pw-tags-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--pw-muted);
+}
+
 .pw-tag-list {
     display: flex;
     flex-wrap: wrap;
     gap: 0.4rem;
-    margin: 1.5rem 0;
+    margin: 0;
     padding: 0;
     list-style: none;
 }
 
 .pw-tag {
+    margin-bottom: 0;
     padding: 0.25rem 0.65rem;
     font-size: 0.78rem;
     font-weight: 600;
     color: var(--pw-muted);
     border: 1px solid var(--pw-border);
-    border-radius: 9999px;
+    border-radius: var(--pw-radius);
+}
+
+.pw-tag:has(> a) {
+    padding: 0;
+}
+
+.pw-tag > a {
+    display: block;
+    padding: 0.25rem 0.65rem;
+    color: inherit;
+    text-decoration: none;
+    border-radius: inherit;
+}
+
+
+/* -- Search Page -- */
+
+.pw-search-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.pw-search-form-input,
+.pw-search-tags > summary,
+.pw-search-sort {
+    height: 2.75rem;
+}
+
+.pw-search-form-input {
+    flex: 1 1 260px;
+}
+
+.pw-search-sort {
+    width: auto;
+}
+
+.pw-search-tags {
+    position: relative;
+}
+
+.pw-search-tags > summary {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0 0.9rem;
+    border: 1px solid var(--pw-border);
+    border-radius: var(--pw-radius);
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+}
+
+.pw-search-tags > summary::-webkit-details-marker {
+    display: none;
+}
+
+.pw-search-tags > summary::after {
+    width: 0.4rem;
+    height: 0.4rem;
+    margin: -0.2rem 0 0 0.3rem;
+    content: "";
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: rotate(45deg);
+}
+
+.pw-search-tags[open] > summary {
+    border-color: var(--pw-primary);
+}
+
+.pw-search-tags-panel {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    z-index: 50;
+    width: 260px;
+    padding: 0.5rem;
+    background-color: var(--pw-bg);
+    border: 1px solid var(--pw-border);
+    border-radius: var(--pw-radius);
+    box-shadow: var(--pw-shadow);
+}
+
+.pw-search-tags-filter {
+    height: 2.25rem;
+    margin-bottom: 0.4rem;
+    font-size: 0.85rem;
+}
+
+.pw-search-tags-list {
+    max-height: 260px;
+    overflow-y: auto;
+}
+
+.pw-search-tag-option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 0.4rem;
+    font-size: 0.9rem;
+    border-radius: var(--pw-radius-sm);
+    cursor: pointer;
+}
+
+.pw-search-tag-option:hover {
+    background-color: var(--pw-surface-hover);
+}
+
+.pw-search-tag-option small {
+    margin-left: auto;
+    color: var(--pw-muted);
+}
+
+/* Focus ring only for keyboard, the global :focus rule also hits checkboxes on click */
+.pw-search-tag-option input:focus:not(:focus-visible) {
+    outline: none;
+}
+
+.pw-search-tag-option[hidden] {
+    display: none;
+}
+
+.pw-search-tags .pw-search-empty {
+    padding: 0.5rem;
+}
+
+.pw-search-count {
+    font-size: 0.85rem;
+    color: var(--pw-muted);
+}
+
+.pw-search-result-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.pw-search-card {
+    padding: 1rem 1.25rem;
+    border: 1px solid var(--pw-border);
+    border-radius: var(--pw-radius);
+    transition: border-color 0.2s ease;
+}
+
+.pw-search-card:hover {
+    border-color: var(--pw-primary);
+}
+
+.pw-search-card-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--pw-fg-contrast);
+    text-decoration: none;
+}
+
+.pw-search-card-tags {
+    margin: 0.15rem 0 0;
+    font-size: 0.8rem;
+    color: var(--pw-muted);
+}
+
+.pw-search-card-excerpt {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    margin: 0.4rem 0 0;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--pw-muted);
+    word-break: break-word;
+}
+
+.pw-search-card-excerpt mark {
+    color: var(--pw-fg-contrast);
+    background-color: var(--pw-primary-soft);
+}
+
+.pw-search-card-date {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--pw-muted);
+}
+
+.pw-search-more {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    margin: 1.5rem auto 0;
+    padding: 0;
+    color: var(--pw-fg);
+    background-color: var(--pw-surface);
+    border: 1px solid var(--pw-border);
+    border-radius: var(--pw-radius);
+}
+
+.pw-search-more:hover {
+    background-color: var(--pw-surface-hover);
+}
+
+.pw-search-more[hidden],
+.pw-search-card [hidden] {
+    display: none;
 }
 
 

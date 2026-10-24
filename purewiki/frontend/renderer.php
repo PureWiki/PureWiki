@@ -21,6 +21,7 @@ require_once __DIR__ . '/../core/media.php';
 require_once __DIR__ . '/../core/theme.php';
 require_once __DIR__ . '/../core/admin-menu.php';
 require_once __DIR__ . '/../core/fs.php';
+require_once __DIR__ . '/../core/i18n.php';
 require_once __DIR__ . '/../version.php';
 
 /**
@@ -28,9 +29,10 @@ require_once __DIR__ . '/../version.php';
  * @param string $pageJsonPath Path to the page.json
  * @param string $fallbackTitle Title to use if not found in JSON
  * @param string $contextPath  Current request path
+ * @param array $options Optional pageData, template, macro and noindex
  * @return string Final HTML output
  */
-function renderPage(string $pageJsonPath, string $fallbackTitle, string $contextPath = '/'): string {
+function renderPage(string $pageJsonPath, string $fallbackTitle, string $contextPath = '/', array $options = []): string {
     $title = 'PureWiki';
     $contentHtml = '';
     $dateCreated = '';
@@ -51,7 +53,9 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
     $wikiName  = $config['wiki_name']     ?? 'PureWiki';
     $themeName = $config['current_theme'] ?? 'default';
 
-    if (file_exists($pageJsonPath)) {
+    if (isset($options['pageData'])) {
+        $pageData = $options['pageData'];
+    } elseif (file_exists($pageJsonPath)) {
         $pageData = readJson($pageJsonPath, null);
     } else {
         http_response_code(404);
@@ -87,11 +91,7 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
                 $pageLayout = pathinfo($rawLayout, PATHINFO_FILENAME);
             }
             if (!empty($pageData['Tags']) && is_array($pageData['Tags'])) {
-                $tagsHtml = '<ul class="pw-tag-list">';
-                foreach ($pageData['Tags'] as $tag) {
-                    $tagsHtml .= '<li class="pw-tag">' . htmlspecialchars((string) $tag) . '</li>';
-                }
-                $tagsHtml .= '</ul>';
+                $tagsHtml = renderTagsHtml($pageData['Tags'], $config);
             }
     } else {
         // Fallback if _404 is missing
@@ -113,6 +113,11 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
         $themeBase . '/default/page.php',
     ];
 
+    // System templates first, fall back to the page layout
+    if (!empty($options['template'])) {
+        array_unshift($templates, $themeBase . '/' . $themeName . '/' . $options['template'] . '.php');
+    }
+
     $templateFile = null;
     foreach ($templates as $currentTemplate) {
         if (file_exists($currentTemplate)) {
@@ -124,6 +129,11 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
     if (!$templateFile) {
         pw_debug('No theme template found', ['theme' => $themeName, 'layout' => $pageLayout], 'WARN', 'renderer');
         return '<h1>No theme template found.</h1>';
+    }
+
+    // Without system template the macro is shown as content
+    if (!empty($options['macro']) && $templateFile !== $templates[0]) {
+        $contentHtml = resolveMacros('{{ macro:' . $options['macro'] . ' }}', ['contextPath' => $contextPath, 'pageData' => $pageData, 'config' => $config]);
     }
 
     $themeUrl = BASE_PATH . '/themes/' . $themeName . '/';
@@ -191,7 +201,7 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
         $seoTags[] = '<link rel="icon" href="' . htmlspecialchars($faviconUrl) . '">';
     }
 
-    if (!empty($config['seo_prevent_indexing'])) {
+    if (!empty($config['seo_prevent_indexing']) || !empty($options['noindex'])) {
         $seoTags[] = '<meta name="robots" content="noindex, nofollow">';
     }
 
@@ -483,6 +493,29 @@ function resolveVirtualPages(string $html, array $parentPageData, string $contex
 
         return '';
     }, $html);
+}
+
+/** Returns the search page URL, empty if disabled. */
+function getSearchPageUrl(array $config): string {
+    if (empty($config['search_page_enabled'])) return '';
+    $lang = defined('CURRENT_LANG') ? CURRENT_LANG : '';
+    return BASE_PATH . ($lang !== '' ? '/' . $lang : '') . '/search';
+}
+
+/** Renders tags as list, linked to the search page if enabled. */
+function renderTagsHtml(array $tags, array $config): string {
+    if (empty($tags)) return '';
+
+    $searchUrl = getSearchPageUrl($config);
+    $html = '<div class="pw-tags"><span class="pw-tags-label">' . htmlspecialchars(__('search.tags')) . ':</span><ul class="pw-tag-list">';
+    foreach ($tags as $tag) {
+        $label = htmlspecialchars((string) $tag);
+        if ($searchUrl !== '') {
+            $label = '<a href="' . htmlspecialchars($searchUrl . '?tags=' . rawurlencode((string) $tag)) . '">' . $label . '</a>';
+        }
+        $html .= '<li class="pw-tag">' . $label . '</li>';
+    }
+    return $html . '</ul></div>';
 }
 
 /**
