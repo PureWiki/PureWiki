@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Pressing Enter in the header search without a selected result opens the search page.
 - Translated the texts of the header search (in the default dashboard language for now).
 
+### Fixed
+
+- Fixed links in the header search for installations in a subfolder.
+
 ## [0.3.0-alpha.6] - 2026-10-19
 
 ### Added

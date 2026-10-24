@@ -334,7 +334,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         searchResults.innerHTML = `<div class="pw-search-empty">${escapeHtml(searchDropdown.dataset.textNoResults || 'No results found.')}</div>`;
                     } else {
                         searchResults.innerHTML = data.results.map(r =>
-                            `<a href="${r.path}" class="pw-search-result-item">
+                            `<a href="${escapeHtml((window.PW_BASE_PATH || '') + r.path)}" class="pw-search-result-item">
                                 <span class="pw-search-result-title">${escapeHtml(r.title)}</span>
                                 <span class="pw-search-result-excerpt">${r.excerpt}</span>
                             </a>`
