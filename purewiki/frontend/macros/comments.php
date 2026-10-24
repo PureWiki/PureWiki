@@ -28,12 +28,12 @@ $langCode = defined('CURRENT_LANG') ? CURRENT_LANG : ($config['i18n_default_lang
 
 ?>
 <section class="pw-comments-section" id="comments">
-    <h3><?php echo __('comments.title') ?? 'Comments'; ?> (<?php echo count($approvedComments); ?>)</h3>
+    <h3><?php echo __f('comments.title') ?? 'Comments'; ?> (<?php echo count($approvedComments); ?>)</h3>
 
     <!-- Comments List -->
     <div class="pw-comments-list">
         <?php if (empty($approvedComments)): ?>
-            <p><?php echo __('comments.no_comments') ?? 'No comments yet. Be the first!'; ?></p>
+            <p><?php echo __f('comments.no_comments') ?? 'No comments yet. Be the first!'; ?></p>
         <?php else: ?>
             <?php foreach ($approvedComments as $comment): 
                 $dateStr = isset($comment['date']) ? date('d.m.Y H:i', strtotime($comment['date'])) : '';
@@ -54,18 +54,18 @@ $langCode = defined('CURRENT_LANG') ? CURRENT_LANG : ($config['i18n_default_lang
     <form class="pw-comment-form" id="pw-comment-form" method="POST" action=""
           data-api-endpoint="<?php echo BASE_PATH; ?>/purewiki/api.php?action=submit_comment"
           data-require-approval="<?php echo !empty($config['comments_require_approval']) ? 'true' : 'false'; ?>"
-          data-pending-message="<?php echo htmlspecialchars(__('comments.pending_message') ?? 'Your comment has been submitted and is awaiting approval.'); ?>"
-          data-success-message="<?php echo htmlspecialchars(__('comments.success_message') ?? 'Your comment has been posted successfully.'); ?>">
+          data-pending-message="<?php echo htmlspecialchars(__f('comments.pending_message') ?? 'Your comment has been submitted and is awaiting approval.'); ?>"
+          data-success-message="<?php echo htmlspecialchars(__f('comments.success_message') ?? 'Your comment has been posted successfully.'); ?>">
         <input type="hidden" name="path" value="<?php echo htmlspecialchars($contextPath); ?>">
         
         <fieldset class="grid">
             <label for="pw-comment-name">
-                <?php echo __('comments.name_label') ?? 'Name'; ?> <span style="color:var(--pw-color-important, #d9534f);">*</span>
-                <input type="text" id="pw-comment-name" name="name" required placeholder="<?php echo __('comments.name_label') ?? 'Name'; ?>">
+                <?php echo __f('comments.name_label') ?? 'Name'; ?> <span style="color:var(--pw-color-important, #d9534f);">*</span>
+                <input type="text" id="pw-comment-name" name="name" required placeholder="<?php echo __f('comments.name_label') ?? 'Name'; ?>">
             </label>
             
             <label for="pw-comment-email">
-                <?php echo __('comments.email_label') ?? 'Email'; ?> <span style="color:var(--pw-color-important, #d9534f);">*</span>
+                <?php echo __f('comments.email_label') ?? 'Email'; ?> <span style="color:var(--pw-color-important, #d9534f);">*</span>
                 <input type="email" id="pw-comment-email" name="email" required placeholder="name@example.com">
             </label>
         </fieldset>
@@ -76,12 +76,12 @@ $langCode = defined('CURRENT_LANG') ? CURRENT_LANG : ($config['i18n_default_lang
         </div>
 
         <label for="pw-comment-text">
-            <?php echo __('comments.text_label') ?? 'Comment'; ?> <span style="color:var(--pw-color-important, #d9534f);">*</span>
+            <?php echo __f('comments.text_label') ?? 'Comment'; ?> <span style="color:var(--pw-color-important, #d9534f);">*</span>
             <textarea id="pw-comment-text" name="text" rows="5" required placeholder="..."></textarea>
         </label>
 
         <button type="submit" id="pw-comment-submit">
-            <?php echo __('comments.submit') ?? 'Submit Comment'; ?>
+            <?php echo __f('comments.submit') ?? 'Submit Comment'; ?>
         </button>
     </form>
 </section>

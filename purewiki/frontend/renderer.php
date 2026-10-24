@@ -362,6 +362,7 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
         'show_left_sidebar'  => !($pageData['Settings']['hide_left_sidebar']  ?? false),
         'show_right_sidebar' => !($pageData['Settings']['hide_right_sidebar'] ?? false),
         'tags'               => $tagsHtml,
+        'lang'               => htmlspecialchars(getFrontendLanguage()),
     ];
 
     // Resolve conditions (if / else / endif)
@@ -507,7 +508,7 @@ function renderTagsHtml(array $tags, array $config): string {
     if (empty($tags)) return '';
 
     $searchUrl = getSearchPageUrl($config);
-    $html = '<div class="pw-tags"><span class="pw-tags-label">' . htmlspecialchars(__('search.tags')) . ':</span><ul class="pw-tag-list">';
+    $html = '<div class="pw-tags"><span class="pw-tags-label">' . htmlspecialchars(__f('search.tags')) . ':</span><ul class="pw-tag-list">';
     foreach ($tags as $tag) {
         $label = htmlspecialchars((string) $tag);
         if ($searchUrl !== '') {

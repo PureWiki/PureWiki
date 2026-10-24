@@ -18,7 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Tags are now cleaned up when saving.
 - Pressing Enter in the header search without a selected result opens the search page.
-- Translated the texts of the header search (in the default dashboard language for now).
+- Translated the texts of the header search.
+- Texts of macros like search, comments and prev/next navigation now use the language of the page instead of the dashboard language.
 
 ### Fixed
 

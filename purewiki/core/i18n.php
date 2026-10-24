@@ -148,7 +148,27 @@ function loadExtensionTranslations(string $extensionId, string $langDir): void {
  * @return string Translated string, or the key itself if not found.
  */
 function __($key, ...$args) {
-    $translations = loadLanguage();
+    return _translate(loadLanguage(), $key, $args);
+}
+
+/** Gets a translated string like __(), but in the language of the current frontend page. */
+function __f($key, ...$args) {
+    return _translate(loadLanguage(getFrontendLanguage()), $key, $args);
+}
+
+/** Returns the language for frontend texts: page language --> default page language --> dashboard language. */
+function getFrontendLanguage(): string {
+    if (defined('CURRENT_LANG') && CURRENT_LANG !== '') return CURRENT_LANG;
+
+    $config = getGlobalConfig();
+    if (!empty($config['i18n_enabled']) && !empty($config['i18n_default_lang'])) {
+        return $config['i18n_default_lang'];
+    }
+    return $config['dashboard_language'] ?? 'en';
+}
+
+/** Looks up key in translation array. Returns key itself if not found. */
+function _translate(array $translations, $key, array $args): string {
     $parts = explode('.', $key);
     $value = $translations;
 

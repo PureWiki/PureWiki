@@ -192,7 +192,7 @@ if (str_starts_with($path, '/dashboard/login')) {
     if (!empty($config['search_page_enabled']) && $safePath === '/search' && !file_exists($pageJsonPath)) {
         require_once __DIR__ . '/purewiki/core/i18n.php';
         $renderOptions = [
-            'pageData' => ['pagetitle' => __('search.title')],
+            'pageData' => ['pagetitle' => __f('search.title')],
             'template' => 'system/search',
             'macro'    => 'search_page',
             'noindex'  => true,

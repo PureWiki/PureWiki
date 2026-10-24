@@ -46,7 +46,7 @@ if ($neighbors['prev']) {
     if ($prevPath === '') $prevPath = '/';
     $prevName = $neighbors['prev']['name'];
     echo '<a href="' . htmlspecialchars(BASE_PATH . $prevPath) . '" class="pw-prevnext-btn pw-prev">';
-    echo '<div class="pw-prevnext-label"><iconify-icon icon="mdi:chevron-left"></iconify-icon> ' . __('editor.prev') . '</div>';
+    echo '<div class="pw-prevnext-label"><iconify-icon icon="mdi:chevron-left"></iconify-icon> ' . __f('editor.prev') . '</div>';
     echo '<div class="pw-prevnext-title">' . htmlspecialchars($prevName) . '</div>';
     echo '</a>';
 } else {
@@ -60,7 +60,7 @@ if ($neighbors['next']) {
     if ($nextPath === '') $nextPath = '/';
     $nextName = $neighbors['next']['name'];
     echo '<a href="' . htmlspecialchars(BASE_PATH . $nextPath) . '" class="pw-prevnext-btn pw-next">';
-    echo '<div class="pw-prevnext-label">' . __('editor.next') . ' <iconify-icon icon="mdi:chevron-right"></iconify-icon></div>';
+    echo '<div class="pw-prevnext-label">' . __f('editor.next') . ' <iconify-icon icon="mdi:chevron-right"></iconify-icon></div>';
     echo '<div class="pw-prevnext-title">' . htmlspecialchars($nextName) . '</div>';
     echo '</a>';
 } else {
