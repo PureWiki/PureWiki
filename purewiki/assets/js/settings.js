@@ -89,7 +89,7 @@ const settingsFields = {
 function fillThemeColors(saved) {
     document.querySelectorAll('[data-theme-color]').forEach(input => {
         const value = saved && saved[input.dataset.themeColor] ? saved[input.dataset.themeColor][input.dataset.mode] : null;
-        input.value = value || input.dataset.default;
+        input.value = /^#[0-9a-f]{6}$/i.test(value || '') ? value : input.dataset.default;
     });
 }
 
@@ -102,10 +102,20 @@ function collectThemeColors() {
     if (colors && colors.style.display === 'none') return null;
 
     const values = {};
+    const defaults = {};
     inputs.forEach(input => {
         const name = input.dataset.themeColor;
         values[name] = values[name] || {};
+        defaults[name] = defaults[name] || {};
         values[name][input.dataset.mode] = input.value;
+        defaults[name][input.dataset.mode] = input.dataset.default;
+    });
+
+    // Only store changed colors
+    Object.keys(values).forEach(name => {
+        if (values[name].light === defaults[name].light && values[name].dark === defaults[name].dark) {
+            delete values[name];
+        }
     });
     return values;
 }
