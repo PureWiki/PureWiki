@@ -1,0 +1,169 @@
+# This GitHub Action checks project rules that the PHP lint does not check:
+# language files, file headers, debug logging, native dialogs and minified files.
+# Runs when a commit is pushed or a PR is opened.
+
+name: Project Check
+
+on:
+  push:
+    paths:
+      - '**.php'
+      - '**.js'
+      - '**.css'
+      - '**.json'
+  pull_request:
+    paths:
+      - '**.php'
+      - '**.js'
+      - '**.css'
+      - '**.json'
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          # Full history so the minified file check can compare with the previous commit
+          fetch-depth: 0
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          coverage: none
+
+      # Language files need valid JSON and the same keys as en.json
+      - name: Check Language Files
+        run: |
+          php <<'PHP'
+          <?php
+          function flattenKeys(array $data, string $prefix = ''): array {
+              $keys = [];
+              foreach ($data as $key => $value) {
+                  $path = $prefix === '' ? (string) $key : $prefix . '.' . $key;
+                  if (is_array($value) && $value !== [] && !array_is_list($value)) {
+                      $keys = array_merge($keys, flattenKeys($value, $path));
+                  } else {
+                      $keys[] = $path;
+                  }
+              }
+              return $keys;
+          }
+
+          $failed = false;
+          $files = [];
+          foreach (glob('purewiki/lang/*.json') as $file) {
+              $data = json_decode(file_get_contents($file), true);
+              if (!is_array($data)) {
+                  echo "::error file=$file::Invalid JSON: " . json_last_error_msg() . "\n";
+                  $failed = true;
+                  continue;
+              }
+              $files[$file] = flattenKeys($data);
+          }
+
+          $baseFile = 'purewiki/lang/en.json';
+          foreach ($files as $file => $keys) {
+              if ($file === $baseFile || !isset($files[$baseFile])) continue;
+              foreach (array_diff($files[$baseFile], $keys) as $key) {
+                  echo "::error file=$file::Missing key '$key' (exists in en.json)\n";
+                  $failed = true;
+              }
+              foreach (array_diff($keys, $files[$baseFile]) as $key) {
+                  echo "::error file=$file::Extra key '$key' (missing in en.json)\n";
+                  $failed = true;
+              }
+          }
+          exit($failed ? 1 : 0);
+          PHP
+
+      # Only a warning
+      - name: Check Used Language Keys
+        run: |
+          git ls-files '*.php' '*.js' | grep -v -e '/extern/' -e '\.min\.' | php <<'PHP'
+          <?php
+          function hasKey(array $data, string $key): bool {
+              foreach (explode('.', $key) as $part) {
+                  if (!is_array($data) || !array_key_exists($part, $data)) return false;
+                  $data = $data[$part];
+              }
+              return true;
+          }
+
+          $en = json_decode(file_get_contents('purewiki/lang/en.json'), true) ?: [];
+          foreach (array_filter(array_map('trim', file('php://stdin'))) as $file) {
+              foreach (file($file) as $nr => $line) {
+                  // Skip comments and docblock examples
+                  if (preg_match('#^\s*(\*|//)#', $line)) continue;
+                  if (!preg_match_all("/\\b__f?\\(\\s*'([a-z0-9_]+(?:\\.[a-z0-9_]+)+)'\\s*[,)]/i", $line, $m)) continue;
+                  foreach (array_unique($m[1]) as $key) {
+                      if (str_starts_with($key, 'ext.') || hasKey($en, $key)) continue;
+                      echo "::warning file=$file,line=" . ($nr + 1) . "::Language key '$key' not found in en.json\n";
+                  }
+              }
+          }
+          PHP
+
+      # Theme elements are plain HTML, so they are not checked for file headers
+      - name: Check File Headers
+        run: |
+          FAILED=0
+          while IFS= read -r FILE; do
+            if ! head -n 15 "$FILE" | grep -q '@package   PureWiki'; then
+              echo "::error file=$FILE::Missing PureWiki file header"
+              FAILED=1
+            fi
+          done < <(git ls-files '*.php' '*.js' '*.css' | grep -v -e '/extern/' -e '\.min\.' -e '^themes/[^/]*/elements/')
+          exit $FAILED
+
+      # console.log() is only allowed behind window.PW_DEBUG, on the same or the line before
+      - name: Check Debug Logging
+        run: |
+          FAILED=0
+          while IFS= read -r FILE; do
+            OUTPUT=$(awk -v file="$FILE" '
+              /console\.log\(/ && $0 !~ /PW_DEBUG/ && prev !~ /PW_DEBUG/ {
+                print "::error file=" file ",line=" NR "::console.log() without window.PW_DEBUG"
+              }
+              $0 !~ /^[[:space:]]*$/ { prev = $0 }
+            ' "$FILE")
+            if [ -n "$OUTPUT" ]; then
+              echo "$OUTPUT"
+              FAILED=1
+            fi
+          done < <(git ls-files '*.js' | grep -v -e '/extern/' -e '\.min\.js$')
+          exit $FAILED
+
+      # alert(), confirm() and prompt() are not allowed, use openDialog() instead
+      - name: Check Native Dialogs
+        run: |
+          FAILED=0
+          while IFS= read -r FILE; do
+            OUTPUT=$(grep -nE '(^|[^.a-zA-Z0-9_$])(alert|confirm|prompt)\(|window\.(alert|confirm|prompt)\(' "$FILE" || true)
+            if [ -n "$OUTPUT" ]; then
+              while IFS= read -r LINE; do
+                echo "::error file=$FILE,line=${LINE%%:*}::Native dialog found, use openDialog() instead"
+              done <<< "$OUTPUT"
+              FAILED=1
+            fi
+          done < <(git ls-files '*.js' | grep -v -e '/extern/' -e '\.min\.js$')
+          exit $FAILED
+
+      # Only a warning, the minified files are created by hand at the moment
+      - name: Check Minified Files
+        run: |
+          BASE="${{ github.event.pull_request.base.sha || github.event.before }}"
+          if [ -z "$BASE" ] || [ "$BASE" = "0000000000000000000000000000000000000000" ]; then
+            echo "No previous commit to compare, skipping"
+            exit 0
+          fi
+          CHANGED=$(git diff --name-only "$BASE" "$GITHUB_SHA")
+          while IFS= read -r SOURCE; do
+            MINIFIED="${SOURCE%.*}.min.${SOURCE##*.}"
+            if [ -f "$MINIFIED" ] && ! grep -qxF "$MINIFIED" <<< "$CHANGED"; then
+              echo "::warning file=$SOURCE::$SOURCE was changed but $MINIFIED was not"
+            fi
+          done < <(grep -E '\.(css|js)$' <<< "$CHANGED" | grep -v '\.min\.')
