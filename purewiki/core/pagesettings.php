@@ -36,6 +36,17 @@ function normalizeTags(array $tags): array {
     return array_values($unique);
 }
 
+/** Returns the preview image url if it is a local path or a url, otherwise empty string. */
+function sanitizePreviewImageUrl(string $url): string {
+    $url = trim($url);
+    if ($url === '' || preg_match('/[\x00-\x1f"\'<>\\\\]/', $url)) return '';
+
+    if (str_starts_with($url, '/') && !str_starts_with($url, '//')) {
+        return str_contains($url, '..') ? '' : $url;
+    }
+    return preg_match('~^https?://~i', $url) && filter_var($url, FILTER_VALIDATE_URL) ? $url : '';
+}
+
 /**
  * Applies page metadata and settings to a page data array.
  *
@@ -89,6 +100,13 @@ function applyPageSettings(array $data, array $postData): array {
     }
     if (isset($postData['prevnext_scope'])) {
         $data['Settings']['prevnext_scope'] = basename($postData['prevnext_scope']);
+    }
+    if (isset($postData['display_date'])) {
+        $displayDate = trim((string) $postData['display_date']);
+        $data['Settings']['display_date'] = preg_match('/^\d{4}-\d{2}-\d{2}$/', $displayDate) ? $displayDate : '';
+    }
+    if (isset($postData['preview_image'])) {
+        $data['Settings']['preview_image'] = sanitizePreviewImageUrl((string) $postData['preview_image']);
     }
     if (isset($postData['enable_comments'])) {
         $data['Settings']['enable_comments'] = filter_var($postData['enable_comments'], FILTER_VALIDATE_BOOLEAN);

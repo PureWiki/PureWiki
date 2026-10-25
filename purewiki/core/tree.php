@@ -39,6 +39,10 @@ function getPagesTree($dir, $basePath = '', $lang = '') {
             $hideInTreeview = false;
             $includeInNavbar = false;
             $navbarLinkText = '';
+            $date = '';
+            $tags = [];
+            $teaser = '';
+            $image = '';
 
             $jsonFile = getPageFilename($lang, false);
             $draftJsonFile = getPageFilename($lang, true);
@@ -81,6 +85,13 @@ function getPagesTree($dir, $basePath = '', $lang = '') {
                 if (!empty($data['Settings']['navbar_link_text'])) {
                     $navbarLinkText = $data['Settings']['navbar_link_text'];
                 }
+
+                // Card data for the page list block
+                $date = (string) ($data['Settings']['display_date'] ?? '') ?: (string) ($data['DateCreated'] ?? '');
+                $tags = is_array($data['Tags'] ?? null) ? array_values($data['Tags']) : [];
+                $blocks = is_array($data['blocks'] ?? null) ? $data['blocks'] : [];
+                $teaser = getPageTeaser((string) ($data['description'] ?? ''), $blocks);
+                $image = (string) ($data['Settings']['preview_image'] ?? '') ?: getFirstImageUrl($blocks);
             }
 
             $hasDraft = file_exists($draftPath);
@@ -94,6 +105,11 @@ function getPagesTree($dir, $basePath = '', $lang = '') {
                 'hide_in_treeview' => $hideInTreeview,
                 'include_in_navbar' => $includeInNavbar,
                 'navbar_link_text' => $navbarLinkText,
+                'is_published' => file_exists($jsonPath),
+                'date' => $date,
+                'tags' => $tags,
+                'teaser' => $teaser,
+                'image' => $image,
                 'children' => getPagesTree($path, $relativePath, $lang)
             ];
             $tree[] = $node;
@@ -110,6 +126,36 @@ function getPagesTree($dir, $basePath = '', $lang = '') {
     });
 
     return $tree;
+}
+
+/** Returns a short plain text from the description or the first paragraph, cut at a word after $length characters. */
+function getPageTeaser(string $description, array $blocks, int $length = 300): string {
+    $text = trim($description);
+    if ($text === '') {
+        foreach ($blocks as $block) {
+            if (($block['type'] ?? '') !== 'paragraph' || !empty($block['tunes']['hiddenBlockTune']['hidden'])) continue;
+            $text = (string) ($block['data']['text'] ?? '');
+            if (trim(strip_tags($text)) !== '') break;
+        }
+    }
+
+    $text = trim(preg_replace('/\s+/u', ' ', html_entity_decode(strip_tags($text), ENT_QUOTES | ENT_HTML5, 'UTF-8')) ?? '');
+    if (mb_strlen($text) <= $length) return $text;
+
+    $cut = mb_substr($text, 0, $length);
+    $lastSpace = mb_strrpos($cut, ' ');
+    if ($lastSpace !== false) $cut = mb_substr($cut, 0, $lastSpace);
+    return rtrim($cut, ' ,.;:') . ' …';
+}
+
+/** Returns the url of the first visible image block, or an empty string. */
+function getFirstImageUrl(array $blocks): string {
+    foreach ($blocks as $block) {
+        if (($block['type'] ?? '') !== 'image' || !empty($block['tunes']['hiddenBlockTune']['hidden'])) continue;
+        $url = (string) ($block['data']['url'] ?? '');
+        if ($url !== '') return $url;
+    }
+    return '';
 }
 
 /**
@@ -129,7 +175,8 @@ function getCachedPagesTree($dir, $basePath = '', $lang = '') {
 
     if (file_exists($cacheFile)) {
         $cached = readJson($cacheFile, null);
-        if (is_array($cached)) {
+        // Rebuild caches from older versions without card data
+        if (is_array($cached) && (empty($cached) || array_key_exists('is_published', $cached[0]))) {
             $tree = $cached;
         }
     }

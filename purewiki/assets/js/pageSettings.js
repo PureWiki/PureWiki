@@ -17,6 +17,8 @@
 const pageSettings = [
     { key: 'description',        el: 'ps-description',        path: 'description'                   },
     { key: 'tags',               el: 'ps-tags',               path: 'Tags'                          },
+    { key: 'display_date',       el: 'ps-display-date',       path: 'Settings.display_date'         },
+    { key: 'preview_image',      el: 'ps-preview-image',      path: 'Settings.preview_image'        },
     { key: 'layout',             el: 'ps-layout',             path: 'Settings.Layout', default: 'page' },
     { key: 'is_private',         el: 'ps-is-private',         path: 'isPrivate'                     },
     { key: 'hide_in_treeview',   el: 'ps-hide-in-treeview',   path: 'Settings.hide_in_treeview'     },
@@ -102,6 +104,36 @@ async function loadPageSettings(targetPath) {
     if (prevnextEnable && prevnextOptions) {
         prevnextOptions.style.display = prevnextEnable.checked ? 'block' : 'none';
     }
+
+    syncPreviewImage();
+}
+
+/** Shows the preview and remove button of preview image if set */
+function syncPreviewImage() {
+    const url = document.getElementById('ps-preview-image').value;
+    const thumb = document.getElementById('ps-preview-image-thumb');
+    thumb.hidden = !url;
+    thumb.src = url && url.startsWith('/') && !url.startsWith('//') ? (window.PW_BASE_PATH || '') + url : url;
+    document.getElementById('ps-preview-image-remove').hidden = !url;
+}
+
+/** Bind select and remove buttons of preview image */
+function bindPreviewImage() {
+    const input = document.getElementById('ps-preview-image');
+    if (!input) return;
+
+    document.getElementById('ps-preview-image-select').addEventListener('click', () => {
+        openImageSelectionDialog({
+            onImageSelected: (url) => {
+                input.value = url;
+                syncPreviewImage();
+            }
+        });
+    });
+    document.getElementById('ps-preview-image-remove').addEventListener('click', () => {
+        input.value = '';
+        syncPreviewImage();
+    });
 }
 
 /** Collects all form values and sends them to the API */
@@ -238,6 +270,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     if (btnSave) btnSave.addEventListener('click', () => savePageSettings(targetPath));
+    bindPreviewImage();
 
     if (btnBack) {
         btnBack.addEventListener('click', () => {

@@ -130,12 +130,15 @@ if (str_starts_with($path, '/dashboard/login')) {
     define('CURRENT_LANG', $currentLang);
     $cacheEnabled = !empty($config['enable_cache']);
     $cacheLifetime = (int)($config['cache_lifetime'] ?? 3600);
-    $cacheFile = '';
+    $cacheKey = '';
+
+    require_once __DIR__ . '/purewiki/core/cache.php';
+    $resultPage = getRequestedResultPage();
 
     if ($cacheEnabled && !isLoggedIn()) {
         $cacheLang = defined('CURRENT_LANG') ? CURRENT_LANG : '';
         $cacheKey  = $cacheLang ? $cacheLang . ':' . $path : $path;
-        $cacheFile = __DIR__ . '/cache/' . md5($cacheKey) . '.html';
+        $cacheFile = getPageCacheFile($cacheKey, $resultPage);
         // Serve from cache if valid
         if (file_exists($cacheFile) && (time() - filemtime($cacheFile)) < $cacheLifetime) {
             pw_debug('Cache hit', ['path' => $path], 'INFO', 'cache');
@@ -218,8 +221,11 @@ if (str_starts_with($path, '/dashboard/login')) {
     $htmlOutput = renderPage($pageJsonPath, $fallbackTitle, $path, $renderOptions);
 
     // Save to cache if enabled (only for public users)
-    if ($cacheEnabled && $cacheFile && !isLoggedIn()) {
-        file_put_contents($cacheFile, $htmlOutput);
+    // Skip ?page= on pages without paginated page list
+    $validResultPage = $resultPage === 1 || pageRenderFlags()['page'] === $resultPage;
+    // Error pages like 404 are not cached
+    if ($cacheEnabled && $cacheKey && !isLoggedIn() && http_response_code() === 200 && $validResultPage) {
+        file_put_contents(getPageCacheFile($cacheKey, $resultPage), $htmlOutput);
     }
     // Output the page
     echo $htmlOutput;

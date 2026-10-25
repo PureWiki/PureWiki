@@ -129,6 +129,9 @@ function addHeaderAnchor(string $renderedHtml): string {
 require_once __DIR__ . '/../core/http.php';
 require_once __DIR__ . '/../core/asset_manager.php';
 require_once __DIR__ . '/../core/json.php';
+require_once __DIR__ . '/../core/tree.php';
+require_once __DIR__ . '/../core/media.php';
+require_once __DIR__ . '/../core/i18n.php';
 
 /** Checks if a link URL is relative or uses http, https, mailto or tel. */
 function isSafeLinkUrl(string $url): bool {
@@ -603,6 +606,11 @@ function parseBlocksToHtml(array $blocks, string $contextPath = '/', ?array $mai
                 break;
 
             case 'pagelist':
+                if (($data['style'] ?? 'list') === 'cards') {
+                    $parts[] = renderPageCards($data, $contextPath);
+                    break;
+                }
+
                 $startPath = sanitizeRelativePath($data['startPath'] ?? '');
                 $boldHeadings = isset($data['boldHeader']) ? (bool)$data['boldHeader'] : false;
 
@@ -895,4 +903,156 @@ function renderSnippet(string $snippetName, string $contextPath): string {
 
     array_pop($snippetStack);
     return $html;
+}
+
+/** Renders the direct subpages of the start path as cards. */
+function renderPageCards(array $data, string $contextPath): string {
+    $startPath = sanitizeRelativePath($data['startPath'] ?? '');
+    $sort      = in_array($data['sort'] ?? '', ['date_desc', 'date_asc', 'title', 'order'], true) ? $data['sort'] : 'date_desc';
+    $tagFilter = mb_strtolower(trim((string) ($data['tag'] ?? '')));
+    $columns   = max(1, min(4, (int) ($data['columns'] ?? 2)));
+    $perPage   = max(0, (int) ($data['perPage'] ?? 0));
+    $show = [
+        'image'  => (bool) ($data['showImage'] ?? true),
+        'date'   => (bool) ($data['showDate'] ?? true),
+        'teaser' => (bool) ($data['showTeaser'] ?? true),
+        'button' => (bool) ($data['showButton'] ?? true),
+    ];
+
+    $lang = defined('CURRENT_LANG') ? CURRENT_LANG : '';
+    $nodes = getCachedPagesTree(getPageDir(), $startPath, $lang);
+
+    // Only published pages, so unfinished drafts never show up
+    $nodes = array_values(array_filter($nodes, function ($node) use ($tagFilter) {
+        if (empty($node['is_published'])) return false;
+        if ($tagFilter === '') return true;
+        foreach ($node['tags'] ?? [] as $tag) {
+            if (mb_strtolower((string) $tag) === $tagFilter) return true;
+        }
+        return false;
+    }));
+
+    // Tree is already in manual order
+    if ($sort === 'title') {
+        usort($nodes, fn($a, $b) => strnatcasecmp($a['name'], $b['name']));
+    } elseif ($sort !== 'order') {
+        $direction = $sort === 'date_asc' ? 1 : -1;
+        usort($nodes, fn($a, $b) => $direction * ((int) strtotime($a['date'] ?: '@0') <=> (int) strtotime($b['date'] ?: '@0')));
+    }
+
+    // Only the first paginated list on a page reacts to ?page=
+    $paginate = $perPage > 0 && !empty($data['paginate']) && pageRenderFlags()['page'] === 0;
+    $totalPages = $perPage > 0 ? max(1, (int) ceil(count($nodes) / $perPage)) : 1;
+    $currentPage = 1;
+    if ($paginate) {
+        $currentPage = getRequestedResultPage();
+        pageRenderFlags(['page' => $currentPage, 'pages' => $totalPages]);
+        if ($currentPage > $totalPages) {
+            http_response_code(404);
+            return '<p class="pw-pagecards-empty">' . htmlspecialchars(__f('pagecards.no_entries')) . '</p>';
+        }
+    }
+    if ($perPage > 0) {
+        $nodes = array_slice($nodes, ($currentPage - 1) * $perPage, $perPage);
+    }
+
+    if (empty($nodes)) {
+        return '<p class="pw-pagecards-empty">' . htmlspecialchars(__f('pagecards.no_entries')) . '</p>';
+    }
+
+    $template = getPageCardTemplate();
+    $langPrefix = $lang !== '' ? '/' . $lang : '';
+    $cards = [];
+    foreach ($nodes as $node) {
+        $cards[] = renderPageCard($template, buildPageCardData($node, $show, $langPrefix));
+    }
+
+    $classes = 'pw-pagecards' . ($show['image'] ? '' : ' pw-pagecards-no-image');
+    $html = '<div class="' . $classes . '"' . ($paginate ? ' id="pw-pagecards"' : '') . ' style="--pw-pagecards-columns: ' . $columns . '">'
+        . implode('', $cards)
+        . '</div>';
+
+    if ($paginate && $totalPages > 1) {
+        $html .= renderPageCardsPagination($currentPage, $totalPages, $langPrefix . ($contextPath === '/' ? '' : rtrim($contextPath, '/')));
+    }
+    return $html;
+}
+
+/** Returns the escaped values for one card, fields that are turned off stay empty. */
+function buildPageCardData(array $node, array $show, string $langPrefix): array {
+    $e = fn($value) => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
+    $timestamp = $node['date'] !== '' ? strtotime($node['date']) : false;
+
+    $image = '';
+    if ($show['image'] && $node['image'] !== '') {
+        $image = getWebpUrl($node['image']);
+        if (str_starts_with($image, '/') && !str_starts_with($image, '//')) {
+            $image = BASE_PATH . $image;
+        }
+    }
+
+    return [
+        'title'    => $e($node['name']),
+        'url'      => $e(BASE_PATH . $langPrefix . '/' . trim($node['path'], '/')),
+        'image'    => $e($image),
+        'date'     => $show['date'] && $timestamp ? $e(formatPageCardDate($timestamp)) : '',
+        'date_iso' => $timestamp ? $e(date('Y-m-d', $timestamp)) : '',
+        'teaser'   => $show['teaser'] ? $e($node['teaser']) : '',
+        'button'   => $show['button'] ? $e(__f('pagecards.read_more')) : '',
+    ];
+}
+
+/** Formats a date with month names from the frontend language. */
+function formatPageCardDate(int $timestamp): string {
+    $months = array_map('trim', explode(',', __f('pagecards.months')));
+    $month = $months[(int) date('n', $timestamp) - 1] ?? date('F', $timestamp);
+    return strtr(__f('pagecards.date_format'), [
+        '{day}'   => date('j', $timestamp),
+        '{month}' => $month,
+        '{year}'  => date('Y', $timestamp),
+    ]);
+}
+
+/** Returns the card template of the active theme or the one of the default theme. */
+function getPageCardTemplate(): string {
+    $config = getGlobalConfig();
+    $themeName = basename($config['current_theme'] ?? 'default');
+    $themeFile = __DIR__ . '/../../themes/' . $themeName . '/elements/pagecard.php';
+    return file_exists($themeFile) ? $themeFile : __DIR__ . '/../../themes/default/elements/pagecard.php';
+}
+
+/** Renders one card with the theme template, $card holds escaped values only. */
+function renderPageCard(string $template, array $card): string {
+    ob_start();
+    include $template;
+    return (string) ob_get_clean();
+}
+
+/** Renders the page navigation below the cards, with gaps for long ranges. */
+function renderPageCardsPagination(int $current, int $total, string $pagePath): string {
+    $e = fn($value) => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
+    $baseUrl = BASE_PATH . ($pagePath !== '' ? $pagePath : '/');
+    $url = fn(int $page) => $e($baseUrl . ($page > 1 ? '?page=' . $page : '') . '#pw-pagecards');
+
+    // First, last and the neighbors of the current page
+    $pages = array_unique([1, $total, ...range(max(1, $current - 1), min($total, $current + 1))]);
+    sort($pages);
+
+    $items = [];
+    if ($current > 1) {
+        $items[] = '<a class="pw-pagecards-prev" href="' . $url($current - 1) . '" rel="prev" aria-label="' . $e(__f('pagecards.prev')) . '">‹</a>';
+    }
+    $last = 0;
+    foreach ($pages as $page) {
+        if ($page - $last > 1) $items[] = '<span class="pw-pagecards-gap">…</span>';
+        $items[] = $page === $current
+            ? '<span class="pw-pagecards-current" aria-current="page">' . $page . '</span>'
+            : '<a href="' . $url($page) . '" aria-label="' . $e(__f('pagecards.page_n', $page)) . '">' . $page . '</a>';
+        $last = $page;
+    }
+    if ($current < $total) {
+        $items[] = '<a class="pw-pagecards-next" href="' . $url($current + 1) . '" rel="next" aria-label="' . $e(__f('pagecards.next')) . '">›</a>';
+    }
+
+    return '<nav class="pw-pagecards-pagination" aria-label="' . $e(__f('pagecards.pagination')) . '">' . implode('', $items) . '</nav>';
 }

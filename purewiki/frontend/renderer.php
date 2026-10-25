@@ -209,6 +209,20 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
     $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
     $currentUrl = $protocol . $host . ($contextPath === '/' ? '' : $contextPath);
 
+    // Result pages of a paginated page list
+    ['page' => $resultPage, 'pages' => $resultPages] = pageRenderFlags();
+    if ($resultPage > 0 && $resultPage <= $resultPages) {
+        $baseUrl = $currentUrl;
+        $pageUrl = fn(int $page) => $baseUrl . ($page > 1 ? '?page=' . $page : '');
+        $currentUrl = $pageUrl($resultPage);
+        if ($resultPage > 1) {
+            $seoTags[] = '<link rel="prev" href="' . htmlspecialchars($pageUrl($resultPage - 1)) . '">';
+        }
+        if ($resultPage < $resultPages) {
+            $seoTags[] = '<link rel="next" href="' . htmlspecialchars($pageUrl($resultPage + 1)) . '">';
+        }
+    }
+
     if (!empty($config['seo_auto_canonical'])) {
         $seoTags[] = '<link rel="canonical" href="' . htmlspecialchars($currentUrl) . '">';
     }
@@ -254,13 +268,15 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
         }
     }
 
-    if (!empty($config['seo_og_image_url'])) {
-        $imageUrl = $config['seo_og_image_url'];
+    // Preview image of the page replaces the global one
+    $pageImageUrl = (string) ($pageData['Settings']['preview_image'] ?? '');
+    if ($pageImageUrl !== '' || !empty($config['seo_og_image_url'])) {
+        $imageUrl = $pageImageUrl !== '' ? $pageImageUrl : $config['seo_og_image_url'];
         // resolve relative image urls
         if (!preg_match('~^(?:f|ht)tps?://~i', $imageUrl)) {
             // If it starts with a slash, we make it absolute for OpenGraph (requires full URL)
             // OpenGraph usually works best with absolute URLs including domain.
-            $imageUrl = $protocol . $host . '/' . ltrim($imageUrl, '/');
+            $imageUrl = $protocol . $host . ($pageImageUrl !== '' ? BASE_PATH : '') . '/' . ltrim($imageUrl, '/');
         }
         $seoTags[] = '<meta property="og:image" content="' . htmlspecialchars($imageUrl) . '">';
         if (!empty($config['seo_twitter_cards'])) {

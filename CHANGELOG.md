@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Added a card view to the page list block with title, date, teaser, image and button. Cards can be sorted, filtered by tag and split into pages like `/blog?page=2`.
+- Added `elements/pagecard.php` to the default theme, so themes can change the markup of the cards.
+- Added a preview image to the Page Settings. It is shown in the cards and used as `og:image` of the page instead of the global one.
+- Added a display date to the Page Settings. It replaces the creation date in the cards and their sorting.
+
+
+### Fixed
+
+- The page cache is now cleared when pages are added, published, moved or deleted.
+- Fixed 404 pages being cached.
+
 ## [0.3.0-alpha.7] - 2026-10-24
 
 ### Added

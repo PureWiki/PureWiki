@@ -17,11 +17,20 @@ class PageListTool {
         };
     }
 
-    constructor({ data, config, api }) {
-        this.api = api;
+    constructor({ data }) {
         this.data = {
             startPath: data.startPath || '/',
-            boldHeader: data.boldHeader || false
+            boldHeader: data.boldHeader || false,
+            style: data.style === 'cards' ? 'cards' : 'list',
+            sort: data.sort || 'date_desc',
+            tag: data.tag || '',
+            columns: data.columns || 2,
+            perPage: data.perPage ?? 6,
+            paginate: data.paginate ?? true,
+            showImage: data.showImage ?? true,
+            showDate: data.showDate ?? true,
+            showTeaser: data.showTeaser ?? true,
+            showButton: data.showButton ?? true
         };
         this.wrapper = undefined;
     }
@@ -29,59 +38,129 @@ class PageListTool {
     render() {
         this.wrapper = document.createElement('div');
         this.wrapper.classList.add('pw-pagelist-plugin-wrapper');
-        this.wrapper.style.padding = '12px';
-        this.wrapper.style.border = '1px solid var(--pw-border)';
-        this.wrapper.style.borderRadius = '6px';
-        this.wrapper.style.backgroundColor = 'var(--pw-bg-panel)';
 
-        const title = document.createElement('div');
-        title.innerHTML = '<strong>' + (typeof __ === 'function' ? __('plugins.page_list_desc') : 'Page List (Treeview)') + '</strong>';
-        title.style.marginBottom = '12px';
-        title.style.color = 'var(--pw-text)';
-        this.wrapper.appendChild(title);
+        const checkbox = ([name, labelKey, fallback]) => `
+            <label class="pw-pagelist-plugin-check">
+                <input type="checkbox" class="pw-checkbox" data-option="${name}">
+                <span>${this._t(labelKey, fallback)}</span>
+            </label>`;
+        const options = (values) => values
+            .map(([value, labelKey, fallback]) => `<option value="${value}">${this._t(labelKey, fallback)}</option>`).join('');
 
-        const pathLabel = document.createElement('label');
-        pathLabel.innerText = typeof __ === 'function' ? __('plugins.page_list_start_path') : 'Start Path (e.g. / or /docs):';
-        pathLabel.style.display = 'block';
-        pathLabel.style.fontSize = '0.85em';
-        pathLabel.style.color = 'var(--pw-text-muted)';
-        pathLabel.style.marginBottom = '4px';
+        this.wrapper.innerHTML = `
+            <strong class="pw-pagelist-plugin-title">${this._t('plugins.page_list_desc', 'Page List')}</strong>
+            <div class="pw-pagelist-plugin-options">
+                <div>
+                    <label class="pw-pagelist-plugin-label">${this._t('plugins.page_list_start_path', 'Start Path (e.g. / or /docs):')}</label>
+                    <input class="pw-input" data-field="startPath" placeholder="/">
+                </div>
+                <div>
+                    <label class="pw-pagelist-plugin-label">${this._t('plugins.page_list_style', 'Display')}</label>
+                    <select class="pw-input" data-field="style">${options([
+                        ['list', 'plugins.page_list_style_list', 'Tree'],
+                        ['cards', 'plugins.page_list_style_cards', 'Cards']
+                    ])}</select>
+                </div>
+            </div>
+            <div class="pw-pagelist-plugin-list-options">
+                ${checkbox(['boldHeader', 'plugins.page_list_bold', 'Bold Headings'])}
+            </div>
+            <div class="pw-pagelist-plugin-card-options">
+                <div class="pw-pagelist-plugin-options">
+                    <div>
+                        <label class="pw-pagelist-plugin-label">${this._t('plugins.page_list_sort', 'Sort by')}</label>
+                        <select class="pw-input" data-field="sort">${options([
+                            ['date_desc', 'plugins.page_list_sort_date_desc', 'Newest first'],
+                            ['date_asc', 'plugins.page_list_sort_date_asc', 'Oldest first'],
+                            ['title', 'plugins.page_list_sort_title', 'Title'],
+                            ['order', 'plugins.page_list_sort_order', 'Treeview order']
+                        ])}</select>
+                    </div>
+                    <div>
+                        <label class="pw-pagelist-plugin-label">${this._t('plugins.page_list_tag', 'Only pages with tag')}</label>
+                        <input class="pw-input" data-field="tag">
+                    </div>
+                    <div>
+                        <label class="pw-pagelist-plugin-label">${this._t('plugins.page_list_columns', 'Columns')}</label>
+                        <select class="pw-input" data-field="columns">${options([[1, '', '1'], [2, '', '2'], [3, '', '3'], [4, '', '4']])}</select>
+                    </div>
+                    <div>
+                        <label class="pw-pagelist-plugin-label">${this._t('plugins.page_list_per_page', 'Cards per page (0 = all)')}</label>
+                        <input type="number" min="0" class="pw-input" data-field="perPage">
+                    </div>
+                </div>
+                <div class="pw-pagelist-plugin-checks">
+                    ${[
+                        ['paginate', 'plugins.page_list_paginate', 'Pagination'],
+                        ['showImage', 'plugins.page_list_show_image', 'Image'],
+                        ['showDate', 'plugins.page_list_show_date', 'Date'],
+                        ['showTeaser', 'plugins.page_list_show_teaser', 'Teaser'],
+                        ['showButton', 'plugins.page_list_show_button', 'Button']
+                    ].map(checkbox).join('')}
+                </div>
+            </div>`;
 
-        this.pathInput = document.createElement('input');
-        this.pathInput.classList.add('pw-input');
-        this.pathInput.value = this.data.startPath;
-        this.pathInput.placeholder = '/';
-        this.pathInput.style.width = '100%';
-        this.pathInput.style.marginBottom = '12px';
-
-        this.wrapper.appendChild(pathLabel);
-        this.wrapper.appendChild(this.pathInput);
-
-        const boldWrapper = document.createElement('label');
-        boldWrapper.style.display = 'flex';
-        boldWrapper.style.alignItems = 'center';
-        boldWrapper.style.gap = '8px';
-        boldWrapper.style.cursor = 'pointer';
-        boldWrapper.style.fontSize = '0.9em';
-        boldWrapper.style.color = 'var(--pw-text)';
-
-        this.boldCheckbox = document.createElement('input');
-        this.boldCheckbox.type = 'checkbox';
-        this.boldCheckbox.classList.add('pw-checkbox');
-        this.boldCheckbox.checked = this.data.boldHeader;
-
-        boldWrapper.appendChild(this.boldCheckbox);
-        boldWrapper.appendChild(document.createTextNode(' ' + (typeof __ === 'function' ? __('plugins.page_list_bold') : 'Bold Headings')));
-
-        this.wrapper.appendChild(boldWrapper);
+        // Set values after building the markup
+        this.wrapper.querySelectorAll('[data-field]').forEach(input => {
+            input.value = this.data[input.dataset.field];
+            input.addEventListener('input', () => this._update());
+            input.addEventListener('change', () => this._update());
+        });
+        this.wrapper.querySelectorAll('[data-option]').forEach(box => {
+            box.checked = !!this.data[box.dataset.option];
+            box.addEventListener('change', () => this._update());
+        });
+        this._syncVisibility();
 
         return this.wrapper;
     }
 
-    save(blockContent) {
-        return {
-            startPath: this.pathInput.value.trim() || '/',
-            boldHeader: this.boldCheckbox.checked
+    save() {
+        const data = {
+            startPath: this.data.startPath.trim() || '/',
+            boldHeader: this.data.boldHeader,
+            style: this.data.style
         };
+        if (this.data.style !== 'cards') return data;
+
+        return Object.assign(data, {
+            sort: this.data.sort,
+            tag: this.data.tag.trim(),
+            columns: Math.min(4, Math.max(1, parseInt(this.data.columns, 10) || 2)),
+            perPage: Math.max(0, parseInt(this.data.perPage, 10) || 0),
+            paginate: this.data.paginate,
+            showImage: this.data.showImage,
+            showDate: this.data.showDate,
+            showTeaser: this.data.showTeaser,
+            showButton: this.data.showButton
+        });
+    }
+
+    /** Reads all inputs into this.data */
+    _update() {
+        this.wrapper.querySelectorAll('[data-field]').forEach(input => this.data[input.dataset.field] = input.value);
+        this.wrapper.querySelectorAll('[data-option]').forEach(box => this.data[box.dataset.option] = box.checked);
+        this._syncVisibility();
+        this._markChanged();
+    }
+
+    /** Shows only the options of the selected display */
+    _syncVisibility() {
+        const isCards = this.data.style === 'cards';
+        this.wrapper.querySelector('.pw-pagelist-plugin-list-options').hidden = isCards;
+        this.wrapper.querySelector('.pw-pagelist-plugin-card-options').hidden = !isCards;
+    }
+
+    _t(key, fallback) {
+        return key && typeof __ === 'function' ? __(key) : fallback;
+    }
+
+    _markChanged() {
+        if (window.pwEditorInitializing) return;
+        if (typeof hasUnsavedChanges !== 'undefined') hasUnsavedChanges = true;
+        if (typeof autoSaveTimeout !== 'undefined') clearTimeout(autoSaveTimeout);
+        if (typeof saveCurrentDraft === 'function') {
+            autoSaveTimeout = setTimeout(() => saveCurrentDraft(true), 1000);
+        }
     }
 }

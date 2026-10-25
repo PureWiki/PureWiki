@@ -1420,6 +1420,149 @@ nav[aria-label="breadcrumb"] li:last-child {
 }
 
 
+/* -- Page Cards -- */
+
+.pw-pagecards {
+    display: grid;
+    grid-template-columns: repeat(var(--pw-pagecards-columns, 2), minmax(0, 1fr));
+    gap: var(--pw-spacing);
+    margin: 0 0 1.25rem;
+    scroll-margin-top: calc(60px + var(--pw-spacing));
+}
+
+.pw-pagecard {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background-color: var(--pw-surface);
+    border: 1px solid var(--pw-border);
+    border-radius: var(--pw-radius);
+    transition: border-color 0.2s ease;
+}
+
+.pw-pagecard:hover {
+    border-color: var(--pw-primary);
+}
+
+.pw-pagecard-image img {
+    display: block;
+    width: 100%;
+    max-height: 12rem;
+    aspect-ratio: 2 / 1;
+    object-fit: cover;
+}
+
+.pw-pagecard-body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    padding: 1rem 1.25rem 1.25rem;
+}
+
+.pw-pagecard-title {
+    margin: 0;
+    font-size: 1.15rem;
+}
+
+.pw-pagecard-title a {
+    color: var(--pw-fg-contrast);
+    text-decoration: none;
+}
+
+.pw-pagecard-title a:hover {
+    color: var(--pw-primary);
+}
+
+.pw-pagecard-date {
+    margin-top: 0.25rem;
+    font-size: 0.8rem;
+    color: var(--pw-muted);
+}
+
+.pw-pagecard-teaser {
+    margin: 0.6rem 0 0;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.pw-pagecard-button {
+    align-self: flex-start;
+    margin-top: auto;
+    padding: 0.45rem 1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--pw-on-primary);
+    text-decoration: none;
+    background-color: var(--pw-primary);
+    border-radius: var(--pw-radius);
+}
+
+.pw-pagecard-teaser + .pw-pagecard-button,
+.pw-pagecard-date + .pw-pagecard-button {
+    margin-top: 1rem;
+}
+
+.pw-pagecard-button:hover {
+    color: var(--pw-on-primary);
+    background-color: var(--pw-primary-hover);
+}
+
+.pw-pagecards-no-image .pw-pagecard-body {
+    padding: 1rem 1.25rem;
+}
+
+.pw-pagecards-empty {
+    color: var(--pw-muted);
+}
+
+.pw-pagecards-pagination {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    margin: 0 0 1.25rem;
+}
+
+.pw-pagecards-pagination > :is(a, span) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.25rem;
+    height: 2.25rem;
+    padding: 0 0.5rem;
+    font-size: 0.9rem;
+    text-decoration: none;
+    border-radius: var(--pw-radius);
+}
+
+.pw-pagecards-pagination a {
+    color: var(--pw-fg);
+    border: 1px solid var(--pw-border);
+}
+
+.pw-pagecards-pagination a:hover {
+    background-color: var(--pw-surface-hover);
+}
+
+.pw-pagecards-pagination .pw-pagecards-current {
+    font-weight: 600;
+    color: var(--pw-on-primary);
+    background-color: var(--pw-primary);
+}
+
+.pw-pagecards-pagination .pw-pagecards-gap {
+    min-width: auto;
+    color: var(--pw-muted);
+}
+
+@media (max-width: 640px) {
+    .pw-pagecards {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+
 /* -- Comments -- */
 
 .pw-comments-section {

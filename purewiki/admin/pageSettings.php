@@ -90,6 +90,27 @@ require_once __DIR__ . '/layout_head.php';
                     <input type="text" id="ps-tags" class="pw-input pw-w-full" placeholder="e.g. Doc, Wiki, Internal">
                 </div>
 
+                <!-- Display Date -->
+                <div class="pw-setting-field">
+                    <label for="ps-display-date" class="pw-setting-label"><?php echo __('editor.display_date_label'); ?></label>
+                    <p class="pw-setting-description"><?php echo __('editor.display_date_hint'); ?></p>
+                    <input type="date" id="ps-display-date" class="pw-input pw-w-md">
+                </div>
+
+                <!-- Preview Image -->
+                <div class="pw-setting-field">
+                    <label class="pw-setting-label"><?php echo __('editor.preview_image_label'); ?></label>
+                    <p class="pw-setting-description"><?php echo __('editor.preview_image_hint'); ?></p>
+                    <input type="hidden" id="ps-preview-image">
+                    <div class="pw-ps-preview-image">
+                        <img id="ps-preview-image-thumb" class="pw-ps-preview-image-thumb" alt="" hidden>
+                        <div class="pw-ps-preview-image-actions">
+                            <button type="button" id="ps-preview-image-select" class="pw-btn"><?php echo __('editor.preview_image_select'); ?></button>
+                            <button type="button" id="ps-preview-image-remove" class="pw-btn pw-btn-secondary" hidden><?php echo __('editor.preview_image_remove'); ?></button>
+                        </div>
+                    </div>
+                </div>
+
                 <hr class="pw-separator">
 
                 <!-- Sidebar Visibility -->
@@ -204,12 +225,16 @@ require_once __DIR__ . '/layout_head.php';
         </main>
     </div>
 
+    <!-- Image Selection Dialog -->
+    <?php require __DIR__ . '/imageDialog.php'; ?>
+
     <!-- Scripts -->
     <?php echo getLanguageScript(); ?>
     <script src="<?php echo BASE_PATH; ?>/purewiki/assets/js/i18n.js"></script>
     <script src="<?php echo BASE_PATH; ?>/purewiki/assets/js/core.js"></script>
     <script>window.PW_DEBUG = <?php echo !empty(getGlobalConfig()['dev_debug_output']) ? 'true' : 'false'; ?>;</script>
     <script src="<?php echo BASE_PATH; ?>/purewiki/assets/js/notify.js"></script>
+    <script src="<?php echo BASE_PATH; ?>/purewiki/assets/js/imageDialog.js"></script>
     <script src="<?php echo BASE_PATH; ?>/purewiki/assets/js/pageSettings.js"></script>
     
 </body>

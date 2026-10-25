@@ -42,9 +42,11 @@ function clearCache(?string $path = null, ?string $lang = null): void {
         }
 
         foreach ($keys as $key) {
-            $file = $cacheDir . '/' . md5($key) . '.html';
-            if (file_exists($file)) {
-                if (!unlink($file)) {
+            // Includes the result pages of a paginated page list
+            $hash = md5($key);
+            $files = [...(glob($cacheDir . '/' . $hash . '.html') ?: []), ...(glob($cacheDir . '/' . $hash . '.*.html') ?: [])];
+            foreach ($files as $file) {
+                if (is_file($file) && !unlink($file)) {
                     throw new PureWikiException("Failed to delete cache file for page.");
                 }
             }
@@ -104,7 +106,39 @@ function invalidateTreeCache(): void {
             throw new PureWikiException("Failed to delete navlinks cache file: " . basename($file));
         }
     }
+
+    // Navigation and page lists show other pages --> HTML of all pages is outdated
+    foreach (glob($cacheDir . '/*.html') ?: [] as $file) {
+        if (is_file($file) && !unlink($file)) {
+            throw new PureWikiException("Failed to delete cache file: " . basename($file));
+        }
+    }
     invalidateSnippetCache();
+}
+
+/** Returns the HTML cache file for a cache key, result pages get a .p{n} part. */
+function getPageCacheFile(string $key, int $resultPage = 1): string {
+    return getCacheDir() . '/' . md5($key) . ($resultPage > 1 ? '.p' . $resultPage : '') . '.html';
+}
+
+/** Returns the result page requested with ?page=, or 1 if missing or invalid. */
+function getRequestedResultPage(): int {
+    $page = $_GET['page'] ?? '';
+    if (!is_string($page) || !ctype_digit($page)) return 1;
+    return max(1, min(10000, (int) $page));
+}
+
+/**
+ * Reads and updates flags of the current page render.
+ * Holds the result page of a paginated page list and the number of result pages.
+ *
+ * @param array $changes Flags to set: page (int), pages (int)
+ * @return array All flags after the update
+ */
+function pageRenderFlags(array $changes = []): array {
+    static $flags = ['page' => 0, 'pages' => 0];
+    $flags = array_merge($flags, $changes);
+    return $flags;
 }
 
 /**

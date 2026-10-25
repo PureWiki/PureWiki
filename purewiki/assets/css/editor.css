@@ -359,6 +359,32 @@
     gap: 28px;
 }
 
+.pw-ps-preview-image {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.pw-ps-preview-image-thumb {
+    width: 200px;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    background: var(--pw-bg-panel);
+    border: 1px solid var(--pw-border);
+    border-radius: 6px;
+}
+
+.pw-ps-preview-image-thumb[hidden],
+.pw-ps-preview-image-actions [hidden] {
+    display: none;
+}
+
+.pw-ps-preview-image-actions {
+    display: flex;
+    gap: 8px;
+}
+
 /* Image Selection Dialog */
 .pw-image-dialog .pw-dialog-box {
     max-width: 600px;
@@ -1656,6 +1682,78 @@ input[type=number]:focus::-webkit-inner-spin-button {
 
 @media (max-width: 600px) {
     .pw-editor-video-options {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Page List Tool */
+.pw-pagelist-plugin-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    padding: 12px 16px;
+    background: var(--pw-bg-panel);
+    border: 1px solid var(--pw-border);
+    border-radius: 6px;
+    box-sizing: border-box;
+    transition: border-color 0.15s;
+}
+
+.pw-pagelist-plugin-wrapper:focus-within {
+    border-color: var(--pw-primary);
+}
+
+.pw-pagelist-plugin-title {
+    color: var(--pw-text);
+}
+
+.pw-pagelist-plugin-card-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.pw-pagelist-plugin-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 16px;
+}
+
+.pw-pagelist-plugin-options .pw-input {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.pw-pagelist-plugin-label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 0.85em;
+    color: var(--pw-text-muted);
+}
+
+.pw-pagelist-plugin-checks {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 20px;
+}
+
+.pw-pagelist-plugin-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9em;
+    color: var(--pw-text);
+    cursor: pointer;
+    user-select: none;
+}
+
+.pw-pagelist-plugin-wrapper [hidden] {
+    display: none;
+}
+
+@media (max-width: 600px) {
+    .pw-pagelist-plugin-options {
         grid-template-columns: 1fr;
     }
 }
