@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The page cache is now cleared when pages are added, published, moved or deleted.
 - Fixed 404 pages being cached.
+- Fixed canonical, `og:url` and Schema.org URLs missing the language prefix and the subfolder of the installation.
+- Fixed an error in the search API when a parameter was sent as an array.
 
 ## [0.3.0-alpha.7] - 2026-10-24
 

@@ -26,12 +26,12 @@ if ($action === 'search') {
         }
     }
 
-    $query = trim((string) $qParam);
-    $lang = trim((string) $langParam);
+    $query = is_string($qParam) ? trim($qParam) : '';
+    $lang = is_string($langParam) ? trim($langParam) : '';
 
     // Format check for Link Autocomplete
     $format = $_POST['format'] ?? $_GET['format'] ?? '';
-    $isAutocomplete = (strpos($format, 'link-autocomplete') !== false);
+    $isAutocomplete = is_string($format) && str_contains($format, 'link-autocomplete');
 
     // Extended mode is used by the search page
     $isExtended = !empty($_POST['extended'] ?? $_GET['extended'] ?? '');
@@ -56,10 +56,12 @@ if ($action === 'search') {
     $offset = 0;
     if ($isExtended) {
         require_once __DIR__ . '/../../core/pagesettings.php';
-        $filterTags = normalizeTags(explode(',', (string) ($_POST['tags'] ?? $_GET['tags'] ?? '')));
-        $offset = max(0, (int) ($_POST['offset'] ?? $_GET['offset'] ?? 0));
+        $tagsParam = $_POST['tags'] ?? $_GET['tags'] ?? '';
+        $filterTags = is_string($tagsParam) ? normalizeTags(explode(',', $tagsParam)) : [];
+        $offsetParam = $_POST['offset'] ?? $_GET['offset'] ?? 0;
+        $offset = is_numeric($offsetParam) ? max(0, (int) $offsetParam) : 0;
 
-        $sortParam = (string) ($_POST['sort'] ?? $_GET['sort'] ?? '');
+        $sortParam = $_POST['sort'] ?? $_GET['sort'] ?? '';
         if (in_array($sortParam, ['relevance', 'newest', 'oldest', 'title'], true)) {
             $sort = $sortParam;
         }
