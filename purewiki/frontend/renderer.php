@@ -207,7 +207,8 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
 
     $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443)) ? "https://" : "http://";
     $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-    $currentUrl = $protocol . $host . ($contextPath === '/' ? '' : $contextPath);
+    $langPrefix = defined('CURRENT_LANG') && CURRENT_LANG !== '' ? '/' . CURRENT_LANG : '';
+    $currentUrl = rtrim($protocol . $host . BASE_PATH, '/') . $langPrefix . ($contextPath === '/' ? '' : $contextPath);
 
     // Result pages of a paginated page list
     ['page' => $resultPage, 'pages' => $resultPages] = pageRenderFlags();
