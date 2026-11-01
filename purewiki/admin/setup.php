@@ -231,7 +231,7 @@ require_once __DIR__ . '/layout_head.php';
                     <label for="admin_password" data-i18n="setup.password"><?php echo __('setup.password'); ?></label>
                     <input type="password" id="admin_password" name="admin_password" class="pw-input" 
                         placeholder="<?php echo htmlspecialchars(__('setup.password_placeholder')); ?>" 
-                        data-i18n="setup.password_placeholder" required autocomplete="new-password">
+                        data-i18n="setup.password_placeholder" required minlength="8" autocomplete="new-password">
                 </div>
             </div>
 

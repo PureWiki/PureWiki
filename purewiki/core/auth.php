@@ -181,11 +181,18 @@ function writeUsers(array $users): bool {
     return true;
 }
 
+/** Returns error if password is shorter than 8 characters */
+function checkPasswordLength(string $password): ?string {
+    if (mb_strlen($password) >= 8) return null;
+    return function_exists('__') ? __('auth.error_password_too_short') : 'Password must be at least 8 characters long.';
+}
+
 /** Creates a new user with a hashed password. */
 function createUser(string $username, string $password, string $role = 'admin'): bool|string {
     $username = trim($username);
 
     if (empty($username) || empty($password)) return 'Username and password are required.';
+    if ($error = checkPasswordLength($password)) return $error;
     if (!in_array($role, ['admin', 'editor', 'reader'])) return 'Invalid role specified.';
     if (!preg_match('/^[a-zA-Z0-9_\-\.]+$/', $username)) return 'Username may only contain letters, numbers, underscores, hyphens, and dots.';
 
@@ -246,8 +253,8 @@ function changeUserPassword(string $username, string $currentPassword, string $n
         return function_exists('__') ? __('auth.error_required') : 'All password fields are required.';
     }
 
-    if (strlen($newPassword) < 8) {
-        return function_exists('__') ? __('auth.error_password_too_short') : 'Password must be at least 8 characters long.';
+    if ($error = checkPasswordLength($newPassword)) {
+        return $error;
     }
 
     $users = readUsers();

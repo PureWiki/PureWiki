@@ -553,7 +553,7 @@ require_once __DIR__ . '/layout_head.php';
                         </div>
                         <div>
                             <label for="pw-new-password" class="pw-setting-label"><?php echo __('settings.password_label'); ?></label>
-                            <input type="password" id="pw-new-password" name="password" class="pw-input pw-w-full" placeholder="<?php echo __('settings.password_placeholder'); ?>" autocomplete="new-password">
+                            <input type="password" id="pw-new-password" name="password" class="pw-input pw-w-full" placeholder="<?php echo __('settings.password_placeholder'); ?>" minlength="8" autocomplete="new-password">
                         </div>
                         <div>
                             <label for="pw-new-role" class="pw-setting-label"><?php echo __('settings.role'); ?></label>

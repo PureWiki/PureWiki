@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+
+- Passwords now need at least 8 characters in the setup and when creating a user.
+
 ### Fixed
 
 - Fixed an error when enabling, disabling or uninstalling an extension.

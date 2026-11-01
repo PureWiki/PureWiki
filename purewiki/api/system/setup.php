@@ -32,6 +32,12 @@ if ($action === 'setup_wiki') {
         return;
     }
 
+    // Check before saving config so a short password does not complete setup
+    if ($error = checkPasswordLength($adminPass)) {
+        $response['message'] = $error;
+        return;
+    }
+
     // Saving config early so it is available for the rest of the setup
     $configData = [
         'wiki_name' => $wikiName,
