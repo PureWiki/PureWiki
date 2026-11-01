@@ -32,7 +32,7 @@ if (!setExtensionEnabled($id, $enabled)) {
 
 // Invalidate cache so extension changes are reflected in pages
 require_once __DIR__ . '/../../core/cache.php';
-clearAllCache();
+clearCache();
 
 $response['success'] = true;
 $response['enabled'] = $enabled;

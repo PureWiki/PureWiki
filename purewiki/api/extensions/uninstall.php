@@ -51,6 +51,6 @@ if (file_exists($extConfigFile)) {
 
 // Invalidate cache so uninstalled extension is also removed from pages
 require_once __DIR__ . '/../../core/cache.php';
-clearAllCache();
+clearCache();
 
 $response['success'] = true;
