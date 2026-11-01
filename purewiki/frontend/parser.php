@@ -471,10 +471,13 @@ function parseBlocksToHtml(array $blocks, string $contextPath = '/', ?array $mai
 
                 if ($url) {
                     $webpUrl = getWebpUrl($url);
+                    // prevent layout shifts by adding width and height
+                    $size = getLocalImageSize($webpUrl);
+                    $sizeAttrs = $size ? ' width="' . $size[0] . '" height="' . $size[1] . '"' : '';
                     if (str_starts_with($webpUrl, '/') && !str_starts_with($webpUrl, '//')) {
                         $webpUrl = BASE_PATH . $webpUrl;
                     }
-                    $figParts = ['<figure>', '  <img src="' . htmlspecialchars($webpUrl, ENT_QUOTES) . '" alt="' . $caption . '">'];
+                    $figParts = ['<figure>', '  <img src="' . htmlspecialchars($webpUrl, ENT_QUOTES) . '" alt="' . $caption . '"' . $sizeAttrs . ' loading="lazy" decoding="async">'];
                     if ($caption && $showCaption) {
                         $figParts[] = '  <figcaption>' . $caption . '</figcaption>';
                     }

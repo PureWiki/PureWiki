@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Passwords now need at least 8 characters in the setup and when creating a user.
 
+### Changed
+
+- Images now use lazy loading and keep their space while loading to prevent layout shifts.
+
 ### Fixed
 
 - Fixed an error when enabling, disabling or uninstalling an extension.

@@ -150,6 +150,18 @@ function getWebpUrl($url) {
     return $url;
 }
 
+/** Returns [width, height] of a local image. Null for external, missing or SVG */
+function getLocalImageSize(string $url): ?array {
+    if ($url === '' || str_starts_with($url, 'http') || str_starts_with($url, '//')) return null;
+
+    $absPath = __DIR__ . '/../../' . ltrim((string) parse_url($url, PHP_URL_PATH), '/');
+    if (!is_file($absPath) || !isPathInDir($absPath, getPageDir())) return null;
+
+    $size = @getimagesize($absPath);
+    if (!$size || $size[0] < 1 || $size[1] < 1) return null;
+    return [$size[0], $size[1]];
+}
+
 /**
  * Renames a media file and its associated derivatives (.webp, .original_).
  *
