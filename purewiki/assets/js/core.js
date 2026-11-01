@@ -128,6 +128,7 @@ function initDialogSystem() {
 }
 
 let currentDialogResolve = null;
+let currentDialogId = 0;
 
 /**
  * Opens a custom dialog box
@@ -149,6 +150,7 @@ function openDialog(options) {
 
     return new Promise((resolve) => {
         currentDialogResolve = resolve;
+        currentDialogId++;
 
         const overlay = document.getElementById('pw-dialog-overlay');
         
@@ -275,12 +277,14 @@ function closeDialog(result) {
         overlay.classList.add('pw-closing');
 
         const dialogBox = overlay.querySelector('.pw-dialog-box');
+        const closingId = currentDialogId;
 
         const cleanup = () => {
-            overlay.classList.remove('pw-show', 'pw-closing');
             if (dialogBox) {
                 dialogBox.removeEventListener('animationend', cleanup);
             }
+            if (closingId !== currentDialogId) return;
+            overlay.classList.remove('pw-show', 'pw-closing');
         };
 
         if (dialogBox) {

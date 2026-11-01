@@ -37,7 +37,12 @@
         "submit": "Sign In",
         "error_required": "Username and password are required.",
         "error_invalid": "Invalid username or password.",
-        "error_rate_limited": "Too many failed login attempts. Please try again in %d minute(s)."
+        "error_rate_limited": "Too many failed login attempts. Please try again in %d minute(s).",
+        "2fa_code": "Code from your authenticator app",
+        "2fa_hint": "Open the app on your phone and enter the 6-digit code.",
+        "2fa_submit": "Confirm",
+        "error_2fa_invalid": "Invalid code.",
+        "error_2fa_expired": "The login has expired. Please log in again."
     },
     "auth": {
         "change_password": "Change Password",
@@ -59,7 +64,19 @@
         "theme_light": "Light Theme",
         "theme_dark": "Dark Theme",
         "theme_changed": "Theme changed successfully.",
-        "error_invalid_theme": "Invalid theme selected."
+        "error_invalid_theme": "Invalid theme selected.",
+        "2fa_enable": "Set Up Two-Factor Login",
+        "2fa_disable": "Turn Off Two-Factor Login",
+        "2fa_activate": "Activate",
+        "2fa_deactivate": "Turn Off",
+        "2fa_setup_text": "Scan the QR code with an authenticator app like Aegis or Google Authenticator, then enter the code it shows.",
+        "2fa_secret": "Or enter this key in the app",
+        "2fa_open_app": "Open in authenticator app",
+        "2fa_disable_text": "After this, only your password is needed to log in.",
+        "2fa_enabled": "Two-factor login is now active.",
+        "2fa_disabled": "Two-factor login turned off.",
+        "2fa_already_enabled": "Two-factor login is already active.",
+        "2fa_setup_expired": "The setup has expired. Please start it again."
     },
     "dashboard": {
         "title": "Global Settings",
@@ -574,6 +591,8 @@
         "save_success": "Settings saved successfully.",
         "save_failed": "Failed to save settings.",
         "user_deleted": "User deleted.",
+        "reset_2fa": "Reset two-factor login",
+        "reset_2fa_confirm": "Turn off two-factor login for \"%s\"? The user can log in with the password only and set it up again.",
         "failed_delete_user": "Failed to delete user.",
         "user_created": "User created successfully.",
         "failed_create_user": "Failed to create user.",
@@ -629,6 +648,8 @@
         "activity_action_page_restore": "Version Restored",
         "activity_action_user_create": "User Created",
         "activity_action_user_delete": "User Deleted",
+        "activity_action_user_2fa_enable": "2FA Enabled",
+        "activity_action_user_2fa_disable": "2FA Disabled",
         "activity_action_comment_approve": "Comment Approved",
         "activity_action_comment_hide": "Comment Hidden",
         "activity_action_comment_delete": "Comment Deleted",

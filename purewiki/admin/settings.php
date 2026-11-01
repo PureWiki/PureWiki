@@ -774,10 +774,13 @@ require_once __DIR__ . '/layout_head.php';
     <!-- Templates (used by settings.js) -->
     <template id="tpl-user-row">
         <tr>
-            <td data-field="username"></td>
+            <td><span data-field="username"></span> <span class="pw-badge pw-badge-success pw-user-2fa-badge">2FA</span></td>
             <td><span style="text-transform: capitalize;" data-field="role"></span></td>
             <td data-field="last_login" style="color: var(--pw-text-muted); font-size: 0.9em;"></td>
             <td class="pw-text-right">
+                <button class="pw-btn pw-btn-sm pw-user-2fa-reset-btn" aria-label="<?php echo __('settings.reset_2fa'); ?>" title="<?php echo __('settings.reset_2fa'); ?>">
+                    <iconify-icon icon="mdi:shield-off-outline"></iconify-icon>
+                </button>
                 <button class="pw-btn pw-btn-danger pw-btn-sm pw-user-delete-btn" aria-label="<?php echo __('common.delete'); ?>" title="<?php echo __('common.delete'); ?>">
                     <iconify-icon icon="mdi:delete-outline"></iconify-icon>
                 </button>

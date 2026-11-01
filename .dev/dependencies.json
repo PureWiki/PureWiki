@@ -19,6 +19,7 @@
     "iconify-icon": "2.1.0",
     "prismjs": "1.29.0",
     "croppie": "2.6.5",
+    "qrcode-generator": "2.0.4",
     "katex": "latest"
   }
 }

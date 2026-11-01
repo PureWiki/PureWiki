@@ -69,6 +69,10 @@ require_once __DIR__ . '/layout_head.php';
                     <button class="pw-user-dropdown-item" id="pw-btn-change-password">
                         <iconify-icon icon="mdi:key-outline"></iconify-icon> <?php echo __('auth.change_password'); ?>
                     </button>
+                    <?php $totpEnabled = !empty(readUsers()[$_SESSION['pw_user'] ?? '']['totp_secret']); ?>
+                    <button class="pw-user-dropdown-item" id="pw-btn-two-factor" data-enabled="<?php echo $totpEnabled ? '1' : '0'; ?>">
+                        <iconify-icon icon="mdi:shield-key-outline"></iconify-icon> <?php echo $totpEnabled ? __('auth.2fa_disable') : __('auth.2fa_enable'); ?>
+                    </button>
                     <div class="pw-user-dropdown-divider"></div>
                     <button class="pw-user-dropdown-item pw-danger" onclick="logoutAndRedirect()">
                         <iconify-icon icon="mdi:logout"></iconify-icon> <?php echo __('dashboard.logout'); ?>
@@ -205,6 +209,7 @@ require_once __DIR__ . '/layout_head.php';
     <script src="<?php echo BASE_PATH; ?>/purewiki/assets/js/editor.js"></script>
     <script src="<?php echo BASE_PATH; ?>/purewiki/assets/js/notify.js"></script>
     <script src="<?php echo BASE_PATH; ?>/purewiki/assets/js/clear_cache.js"></script>
+    <script src="<?php echo BASE_PATH; ?>/purewiki/assets/js/twofactor.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             initDialogSystem();

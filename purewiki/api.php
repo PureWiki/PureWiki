@@ -134,6 +134,10 @@ $apiRoutes = [
     'change_password' => 'system/users.php',
     'change_language' => 'system/users.php',
     'change_theme' => 'system/users.php',
+    'start_2fa_setup' => 'system/twofactor.php',
+    'enable_2fa' => 'system/twofactor.php',
+    'disable_2fa' => 'system/twofactor.php',
+    'reset_user_2fa' => 'system/twofactor.php',
     'search' => 'system/search.php',
     'logout' => 'system/auth.php',
     'get_system_status' => 'system/status.php',
@@ -196,9 +200,9 @@ if (!isset($apiRoutes[$action])) {
 // Enforce Authentication and Role-Based Access Control
 // Editor Actions are all available actions except admin actions
 $publicActions = ['search', 'setup_wiki', 'submit_comment'];
-$readerActions = ['logout', 'change_password', 'change_language', 'change_theme'];
+$readerActions = ['logout', 'change_password', 'change_language', 'change_theme', 'start_2fa_setup', 'enable_2fa', 'disable_2fa'];
 $adminActions  = [
-    'get_config', 'save_config', 'clear_cache', 'rebuild_backlinks', 'list_users', 'create_user', 'delete_user',
+    'get_config', 'save_config', 'clear_cache', 'rebuild_backlinks', 'list_users', 'create_user', 'delete_user', 'reset_user_2fa',
     'list_backups', 'start_backup', 'get_backup_status', 'delete_backup', 'download_backup',
     'get_system_status', 'start_bulk_webp', 'get_bulk_webp_status', 'backup_image',
     'restore_image', 'process_image_edit', 'check_for_updates', 'get_update_requirements',

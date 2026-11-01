@@ -240,7 +240,8 @@ function listUsers(): array {
             'created_at'    => $data['created_at'] ?? '',
             'last_login_at' => $data['last_login_at'] ?? '',
             'language'      => $data['language'] ?? '',
-            'theme'         => $data['theme'] ?? ''
+            'theme'         => $data['theme'] ?? '',
+            'totp_enabled'  => !empty($data['totp_secret'])
         ];
     }
     return $result;
@@ -458,10 +459,7 @@ function loginUser(string $username, string $password): bool|string {
     $ip = getAuthClientIp();
     $remainingLockout = isLoginRateLimited($username, $ip);
     if ($remainingLockout > 0) {
-        $minutes = max(1, (int)ceil($remainingLockout / 60));
-        return function_exists('__')
-            ? __('login.error_rate_limited', $minutes)
-            : "Too many failed login attempts. Please try again in {$minutes} minute(s).";
+        return getRateLimitMessage($remainingLockout);
     }
 
     $users = readUsers();
@@ -469,20 +467,104 @@ function loginUser(string $username, string $password): bool|string {
         recordFailedLoginAttempt($username, $ip);
         $remainingLockout = isLoginRateLimited($username, $ip);
         if ($remainingLockout > 0) {
-            $minutes = max(1, (int)ceil($remainingLockout / 60));
-            return function_exists('__')
-                ? __('login.error_rate_limited', $minutes)
-                : "Too many failed login attempts. Please try again in {$minutes} minute(s).";
+            return getRateLimitMessage($remainingLockout);
         }
         return function_exists('__') ? __('login.error_invalid') : 'Invalid username or password.';
     }
-
-    clearLoginRateLimit($username, $ip);
 
     // Prevent session fixation by issuing a new ID after successful login
     if (session_status() === PHP_SESSION_ACTIVE) {
         session_regenerate_id(true);
     }
+
+    // Password is correct, 2FA code still missing
+    if (!empty($users[$username]['totp_secret'])) {
+        $_SESSION['pw_2fa_user'] = $username;
+        $_SESSION['pw_2fa_time'] = time();
+        return true;
+    }
+
+    finishLogin($username, $users, $ip);
+    return true;
+}
+
+/** Returns user waiting for the 2FA code, or null. */
+function getPendingTwoFactorUser(): ?string {
+    startAuth();
+    if (empty($_SESSION['pw_2fa_user'])) return null;
+
+    // Code must follow within 5 minutes
+    if (time() - (int)($_SESSION['pw_2fa_time'] ?? 0) > 300) {
+        cancelTwoFactorLogin();
+        return null;
+    }
+    return $_SESSION['pw_2fa_user'];
+}
+
+/** Cancels a login waiting for the 2FA code. */
+function cancelTwoFactorLogin(): void {
+    unset($_SESSION['pw_2fa_user'], $_SESSION['pw_2fa_time']);
+}
+
+/** Checks the 2FA code and logs in the user. */
+function verifyTwoFactorLogin(string $code): bool|string {
+    $username = getPendingTwoFactorUser();
+    if ($username === null) {
+        return function_exists('__') ? __('login.error_2fa_expired') : 'The login has expired. Please log in again.';
+    }
+
+    $ip = getAuthClientIp();
+    if (isLoginRateLimited($username, $ip) === 0) {
+        require_once __DIR__ . '/totp.php';
+        $users = readUsers();
+        $secret = $users[$username]['totp_secret'] ?? '';
+        $step = $secret !== '' ? verifyTotpCode($secret, $code, (int)($users[$username]['totp_last_step'] ?? 0)) : null;
+
+        if ($step !== null) {
+            if (session_status() === PHP_SESSION_ACTIVE) {
+                session_regenerate_id(true);
+            }
+            $users[$username]['totp_last_step'] = $step;
+            finishLogin($username, $users, $ip);
+            return true;
+        }
+        recordFailedLoginAttempt($username, $ip);
+    }
+
+    $remainingLockout = isLoginRateLimited($username, $ip);
+    if ($remainingLockout > 0) {
+        cancelTwoFactorLogin();
+        return getRateLimitMessage($remainingLockout);
+    }
+    return function_exists('__') ? __('login.error_2fa_invalid') : 'Invalid code.';
+}
+
+/** Returns the lockout message with the remaining minutes. */
+function getRateLimitMessage(int $remainingSeconds): string {
+    $minutes = max(1, (int)ceil($remainingSeconds / 60));
+    return function_exists('__')
+        ? __('login.error_rate_limited', $minutes)
+        : "Too many failed login attempts. Please try again in {$minutes} minute(s).";
+}
+
+/** Stores the 2FA secret of a user, removes it if the secret is null. */
+function setUserTotpSecret(string $username, ?string $secret, int $lastStep = 0): bool {
+    $users = readUsers();
+    if (!isset($users[$username])) return false;
+
+    if ($secret === null) {
+        unset($users[$username]['totp_secret'], $users[$username]['totp_last_step']);
+    } else {
+        $users[$username]['totp_secret'] = $secret;
+        $users[$username]['totp_last_step'] = $lastStep;
+    }
+    return writeUsers($users);
+}
+
+/** Creates the session after successful login */
+function finishLogin(string $username, array $users, string $ip): void {
+    clearLoginRateLimit($username, $ip);
+    cancelTwoFactorLogin();
 
     $_SESSION['pw_user']       = $username;
     $_SESSION['pw_role']       = $users[$username]['role'] ?? 'reader';
@@ -500,8 +582,6 @@ function loginUser(string $username, string $password): bool|string {
 
     require_once __DIR__ . '/activity.php';
     logActivity('user_login', 'auth');
-
-    return true;
 }
 
 /** Destroys the current session and clears the session cookie. */

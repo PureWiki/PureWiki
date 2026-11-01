@@ -37,7 +37,12 @@
         "submit": "Anmelden",
         "error_required": "Benutzername und Passwort sind erforderlich.",
         "error_invalid": "Ungültiger Benutzername oder Passwort.",
-        "error_rate_limited": "Zu viele fehlgeschlagene Anmeldeversuche. Bitte versuche es in %d Minute(n) erneut."
+        "error_rate_limited": "Zu viele fehlgeschlagene Anmeldeversuche. Bitte versuche es in %d Minute(n) erneut.",
+        "2fa_code": "Code aus deiner Authenticator-App",
+        "2fa_hint": "Öffne die App auf deinem Handy und gib den 6-stelligen Code ein.",
+        "2fa_submit": "Bestätigen",
+        "error_2fa_invalid": "Ungültiger Code.",
+        "error_2fa_expired": "Die Anmeldung ist abgelaufen. Bitte melde dich erneut an."
     },
     "auth": {
         "change_password": "Passwort ändern",
@@ -59,7 +64,19 @@
         "theme_light": "Helles Theme",
         "theme_dark": "Dunkles Theme",
         "theme_changed": "Theme erfolgreich geändert.",
-        "error_invalid_theme": "Ungültiges Theme ausgewählt."
+        "error_invalid_theme": "Ungültiges Theme ausgewählt.",
+        "2fa_enable": "Zwei-Faktor-Login einrichten",
+        "2fa_disable": "Zwei-Faktor-Login ausschalten",
+        "2fa_activate": "Aktivieren",
+        "2fa_deactivate": "Ausschalten",
+        "2fa_setup_text": "Scanne den QR-Code mit einer Authenticator-App wie Aegis oder Google Authenticator und gib danach den angezeigten Code ein.",
+        "2fa_secret": "Oder gib diesen Schlüssel in der App ein",
+        "2fa_open_app": "In Authenticator-App öffnen",
+        "2fa_disable_text": "Danach reicht dein Passwort zum Anmelden.",
+        "2fa_enabled": "Zwei-Faktor-Login ist jetzt aktiv.",
+        "2fa_disabled": "Zwei-Faktor-Login ausgeschaltet.",
+        "2fa_already_enabled": "Zwei-Faktor-Login ist bereits aktiv.",
+        "2fa_setup_expired": "Die Einrichtung ist abgelaufen. Bitte starte sie erneut."
     },
     "dashboard": {
         "title": "Globale Einstellungen",
@@ -574,6 +591,8 @@
         "save_success": "Einstellungen erfolgreich gespeichert.",
         "save_failed": "Einstellungen konnten nicht gespeichert werden.",
         "user_deleted": "Benutzer gelöscht.",
+        "reset_2fa": "Zwei-Faktor-Login zurücksetzen",
+        "reset_2fa_confirm": "Zwei-Faktor-Login für \"%s\" ausschalten? Der Benutzer kann sich dann nur mit Passwort anmelden und es neu einrichten.",
         "failed_delete_user": "Benutzer konnte nicht gelöscht werden.",
         "user_created": "Benutzer erfolgreich erstellt.",
         "failed_create_user": "Benutzer konnte nicht erstellt werden.",
@@ -629,6 +648,8 @@
         "activity_action_page_restore": "Version wiederhergestellt",
         "activity_action_user_create": "Benutzer erstellt",
         "activity_action_user_delete": "Benutzer gelöscht",
+        "activity_action_user_2fa_enable": "2FA aktiviert",
+        "activity_action_user_2fa_disable": "2FA deaktiviert",
         "activity_action_comment_approve": "Kommentar freigeschaltet",
         "activity_action_comment_hide": "Kommentar ausgeblendet",
         "activity_action_comment_delete": "Kommentar gelöscht",

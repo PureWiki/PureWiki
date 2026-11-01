@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added a `/robots.txt` that blocks the dashboard and API and links the sitemap. It blocks everything if indexing is turned off.
+- Added two-factor login with an authenticator app. Every user can set it up in the user menu, admins can reset it for other users.
 
 ### Security
 
@@ -26,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed an error when enabling, disabling or uninstalling an extension.
 - Fixed the backup download for installations in a subfolder.
 - Fixed the sitemap URLs for installations in a subfolder.
+- Fixed dialogs that were opened right after another dialog staying invisible.
 
 ## [0.3.0] - 2026-10-31
 

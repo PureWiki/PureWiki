@@ -571,7 +571,7 @@ input[type="number"]:focus::-webkit-inner-spin-button {
     position: absolute;
     top: calc(100% + 8px);
     right: 0;
-    min-width: 180px;
+    min-width: 220px;
     background: var(--pw-bg-panel);
     border: 1px solid var(--pw-border);
     border-radius: 8px;
@@ -633,6 +633,64 @@ input[type="number"]:focus::-webkit-inner-spin-button {
 
 .pw-user-dropdown-item.pw-danger:hover {
     background-color: rgba(220, 53, 69, 0.1);
+}
+
+/* Two-Factor Setup */
+.pw-2fa-dialog {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 5px;
+}
+
+.pw-2fa-dialog p {
+    margin: 0;
+    font-size: 13px;
+    color: var(--pw-text-muted);
+}
+
+.pw-2fa-dialog label {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 13px;
+    color: var(--pw-text-muted);
+}
+
+/* Only on mobile */
+.pw-2fa-app-link {
+    display: none;
+}
+
+@media (hover: none) and (pointer: coarse) {
+    .pw-2fa-app-link {
+        display: flex;
+        gap: 6px;
+        text-decoration: none;
+    }
+}
+
+.pw-2fa-qr {
+    align-self: center;
+    width: 180px;
+}
+
+.pw-2fa-qr svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 4px;
+}
+
+.pw-2fa-secret {
+    display: block;
+    padding: 8px 10px;
+    background: var(--pw-input-bg);
+    border: 1px solid var(--pw-border);
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 14px;
+    letter-spacing: 0.05em;
+    user-select: all;
 }
 
 

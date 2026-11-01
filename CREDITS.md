@@ -26,6 +26,7 @@ The following libraries are loaded via Content Delivery Networks to keep the pro
 | **[Prism.js](https://prismjs.com/)** | MIT | Lightweight syntax highlighter for code blocks. |
 | **[Croppie](https://foliotek.github.io/Croppie/)** | MIT | Customizable image cropping tool for media. |
 | **[Editor.js Drag-Drop](https://github.com/kompando/editorjs-drag-drop)** | MIT | Drag and drop support for editor blocks. |
+| **[QR Code Generator](https://github.com/kazuhikoarase/qrcode-generator)** | MIT | QR code for the two-factor login setup. |
 
 ---
 

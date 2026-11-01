@@ -1026,6 +1026,14 @@ function renderUserList(users) {
             lastLoginEl.title = __('settings.never_logged_in');
         }
 
+        const resetBtn = row.querySelector('.pw-user-2fa-reset-btn');
+        if (user.totp_enabled) {
+            resetBtn.addEventListener('click', () => resetUserTwoFactor(user.username));
+        } else {
+            row.querySelector('.pw-user-2fa-badge').remove();
+            resetBtn.remove();
+        }
+
         const btn = row.querySelector('.pw-user-delete-btn');
         btn.setAttribute('data-username', user.username);
         if (isSingleUser) {
@@ -1036,6 +1044,24 @@ function renderUserList(users) {
         }
         tbody.appendChild(row);
     });
+}
+
+/** Resets 2FA of a user via the API and reloads the list. */
+async function resetUserTwoFactor(username) {
+    const confirmed = await openDialog({
+        title: __('settings.reset_2fa'),
+        text: __('settings.reset_2fa_confirm', username),
+        type: 'confirm',
+        confirmText: __('common.confirm'),
+        cancelText: __('common.cancel')
+    });
+    if (!confirmed) return;
+
+    const result = await apiSafe('reset_user_2fa', { username });
+    if (result) {
+        notify(result.message, 'success');
+        loadUsers();
+    }
 }
 
 /** Deletes a user via the API and reloads the list. */
@@ -1448,6 +1474,10 @@ function getActivityActionMeta(action, targetType) {
             return { icon: 'mdi:account-plus-outline', badge: 'pw-badge-success', label: __('settings.activity_action_user_create') || 'User Created' };
         case 'user_delete':
             return { icon: 'mdi:account-remove-outline', badge: 'pw-badge-danger', label: __('settings.activity_action_user_delete') || 'User Deleted' };
+        case 'user_2fa_enable':
+            return { icon: 'mdi:shield-check-outline', badge: 'pw-badge-success', label: __('settings.activity_action_user_2fa_enable') };
+        case 'user_2fa_disable':
+            return { icon: 'mdi:shield-off-outline', badge: 'pw-badge-warning', label: __('settings.activity_action_user_2fa_disable') };
         case 'comment_approve':
             return { icon: 'mdi:comment-check-outline', badge: 'pw-badge-success', label: __('settings.activity_action_comment_approve') || 'Comment Approved' };
         case 'comment_hide':
