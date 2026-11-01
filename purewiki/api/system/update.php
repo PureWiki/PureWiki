@@ -13,6 +13,20 @@
 defined('PUREWIKI') || die('Direct access denied.');
 
 
+/** Replaces PureWiki block in the installed .htaccess. Dont update File without block. */
+function updateHtaccessBlock(string $sourceFile, string $targetFile): void {
+    $pattern = '/# BEGIN PureWiki\R.*?# END PureWiki/s';
+    $source = is_file($sourceFile) ? file_get_contents($sourceFile) : false;
+    $target = is_file($targetFile) ? file_get_contents($targetFile) : false;
+    if ($source === false || $target === false) return;
+    if (!preg_match($pattern, $source, $block) || !preg_match($pattern, $target)) return;
+
+    $updated = preg_replace_callback($pattern, fn() => $block[0], $target, 1);
+    if ($updated !== null && $updated !== $target) {
+        file_put_contents($targetFile, $updated);
+    }
+}
+
 /**
  * Compares two Version strings.
  * Uses SemVer 2.0.0 Version structure.
@@ -274,7 +288,10 @@ if ($action === 'install_update') {
     $targetRoot = realpath(__DIR__ . '/../../../');
 
     try {
-        if (file_exists($sourceRoot . '/index.php')) copy($sourceRoot . '/index.php', $targetRoot . '/index.php');
+        foreach (['index.php', 'router.php', 'nginx.conf.example'] as $file) {
+            if (file_exists($sourceRoot . '/' . $file)) copy($sourceRoot . '/' . $file, $targetRoot . '/' . $file);
+        }
+        updateHtaccessBlock($sourceRoot . '/.htaccess', $targetRoot . '/.htaccess');
         if (is_dir($sourceRoot . '/purewiki')) copyDirectory($sourceRoot . '/purewiki', $targetRoot . '/purewiki', ['.git']);
         foreach (['default', 'default_picocss'] as $theme) {
             if (is_dir($sourceRoot . '/themes/' . $theme)) copyDirectory($sourceRoot . '/themes/' . $theme, $targetRoot . '/themes/' . $theme, ['.git']);

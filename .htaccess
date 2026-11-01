@@ -1,7 +1,10 @@
 # ----------------------------------------------------------------------
 # PureWiki Apache Configuration (.htaccess)
 # ----------------------------------------------------------------------
+# Add own rules above "# BEGIN PureWiki" or below "# END PureWiki".
+# The PureWiki block is replaced on every update.
 
+# BEGIN PureWiki
 # URL Rewriting (PHP Router)
 Options -MultiViews
 
@@ -135,3 +138,4 @@ DirectoryIndex index.php
 
 # Prevent directory listing
 Options -Indexes
+# END PureWiki

@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Images now use lazy loading and keep their space while loading to prevent layout shifts.
+- The updater now also updates `router.php`, `nginx.conf.example` and the PureWiki block in `.htaccess`. Own rules outside the block are kept. A `.htaccess` without the block is not changed.
 
 ### Fixed
 
