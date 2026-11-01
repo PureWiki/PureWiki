@@ -276,7 +276,11 @@ function isMediaExtensionAllowed($extension) {
     if ($extension === '') return false;
 
     // Hardcoded blacklist
-    $blacklist = ['php', 'php3', 'php4', 'php5', 'php7', 'php8', 'phtml', 'exe', 'sh', 'bat', 'cgi', 'pl', 'jsp', 'asp', 'aspx', 'py', 'rb'];
+    $blacklist = [
+        'php', 'php2', 'php3', 'php4', 'php5', 'php6', 'php7', 'php8', 'phtml', 'pht', 'phps', 'phar',
+        'exe', 'sh', 'bat', 'cmd', 'cgi', 'pl', 'jsp', 'asp', 'aspx', 'py', 'rb', 'shtml',
+        'htaccess', 'htpasswd', 'ini', 'json',
+    ];
     if (in_array($extension, $blacklist)) {
         return false;
     }

@@ -78,6 +78,11 @@ if ($action === 'list_media') {
             if ($error === UPLOAD_ERR_OK) {
                 $extension = strtolower(pathinfo($name, PATHINFO_EXTENSION));
 
+                if (str_starts_with(basename($name), '.')) {
+                    $errors[] = "$name: Hidden files are not allowed.";
+                    continue;
+                }
+
                 require_once __DIR__ . '/../../core/media.php';
                 if (!isMediaExtensionAllowed($extension)) {
                     $errors[] = "$name: File type '$extension' is not allowed or prohibited for security reasons.";
@@ -189,7 +194,7 @@ if ($action === 'list_media') {
 
     // Basic sanitization
     $newName = basename($newName);
-    if ($newName === '' || $newName === '.' || $newName === '..') {
+    if ($newName === '' || str_starts_with($newName, '.')) {
         $response['message'] = 'Invalid new filename.';
         return;
     }
