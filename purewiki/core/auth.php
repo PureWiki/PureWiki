@@ -379,6 +379,15 @@ function startAuth(): void {
     }
 }
 
+/** Starts session if browser sent a session cookie */
+function resumeAuth(): bool {
+    if (session_status() === PHP_SESSION_NONE && empty($_COOKIE[session_name()])) {
+        return false;
+    }
+    startAuth();
+    return true;
+}
+
 /** Validates the session user against the users.json to check if user still exist and if role has changed. */
 function validateSessionUser(): bool {
     $checkInterval = 60; // Interval in seconds before next check for changes in users.json file
@@ -419,7 +428,9 @@ function validateSessionUser(): bool {
 
 /** Checks for an active, valid authenticated session. */
 function isLoggedIn(): bool {
-    startAuth();
+    if (!resumeAuth()) {
+        return false;
+    }
 
     if (empty($_SESSION['pw_user']) || empty($_SESSION['pw_login_time'])) {
         return false;

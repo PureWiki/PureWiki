@@ -42,7 +42,7 @@ function logActivity(string $action, string $targetType = 'system', ?string $tar
         return false;
     }
 
-    if (function_exists('startAuth')) startAuth();
+    if (function_exists('resumeAuth')) resumeAuth();
     $user = $_SESSION['pw_user'] ?? 'system';
     $role = $_SESSION['pw_role'] ?? 'guest';
 

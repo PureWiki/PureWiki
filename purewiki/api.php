@@ -75,7 +75,7 @@ require_once __DIR__ . '/core/extension_loader.php';
 
 ExtensionLoader::boot();
 
-startAuth();
+resumeAuth();
 
 $action = $_POST['action'] ?? $_GET['action'] ?? '';
 
