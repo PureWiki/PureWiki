@@ -50,8 +50,15 @@ server {
     gzip on;
     gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript image/svg+xml;
 
+    # Security: Block scripts in SVG files
+    location ~* \.svg$ {
+        expires 1y;
+        add_header Cache-Control "public, no-transform";
+        add_header Content-Security-Policy "script-src 'none'";
+    }
+
     # Caching for static assets
-    location ~* \.(ico|jpg|jpeg|png|gif|webp|svg|ttf|otf|woff|woff2)$ {
+    location ~* \.(ico|jpg|jpeg|png|gif|webp|ttf|otf|woff|woff2)$ {
         expires 1y;
         add_header Cache-Control "public, no-transform";
     }

@@ -150,6 +150,13 @@ function getWebpUrl($url) {
     return $url;
 }
 
+/** Returns false if SVG file contains scripts, event handlers or embedded HTML. */
+function isSvgSafe(string $absPath): bool {
+    $content = @file_get_contents($absPath);
+    if ($content === false) return false;
+    return !preg_match('/<script|<foreignObject|<iframe|<embed|<object|<!ENTITY|\son[a-z]+\s*=|javascript:/i', $content);
+}
+
 /** Returns [width, height] of a local image. Null for external, missing or SVG */
 function getLocalImageSize(string $url): ?array {
     if ($url === '' || str_starts_with($url, 'http') || str_starts_with($url, '//')) return null;

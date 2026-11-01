@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 
 - Passwords now need at least 8 characters in the setup and when creating a user.
+- SVG files with scripts can no longer be uploaded. `.htaccess` also blocks scripts in SVG files.
 
 ### Changed
 

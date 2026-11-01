@@ -84,6 +84,11 @@ if ($action === 'list_media') {
                     continue;
                 }
 
+                if ($extension === 'svg' && !isSvgSafe($tmpName)) {
+                    $errors[] = "$name: SVG files with scripts are not allowed.";
+                    continue;
+                }
+
                 $destPath = $targetDir . DIRECTORY_SEPARATOR . basename($name);
 
                 $systemFiles = ['page.json', 'page.draft.json', 'page.lock.json'];
@@ -234,6 +239,11 @@ if ($action === 'list_media') {
 
         if (!isMediaExtensionAllowed($extension)) {
             $response['message'] = "File type '$extension' is not allowed for security reasons.";
+            return;
+        }
+
+        if ($extension === 'svg' && !isSvgSafe($oldFilePath)) {
+            $response['message'] = 'SVG files with scripts are not allowed.';
             return;
         }
 
