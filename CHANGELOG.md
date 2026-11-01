@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed an error when enabling, disabling or uninstalling an extension.
 - Fixed the backup download for installations in a subfolder.
+- Fixed the sitemap URLs for installations in a subfolder.
 
 ## [0.3.0] - 2026-10-31
 
