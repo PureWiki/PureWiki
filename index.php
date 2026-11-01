@@ -57,6 +57,24 @@ if (isSetupCompleted() && str_starts_with($path, '/setup')) {
     exit;
 }
 
+// Generate robots.txt, a real robots.txt is served first by the web server
+if ($path === '/robots.txt') {
+    $config = getGlobalConfig();
+    header('Content-Type: text/plain; charset=utf-8');
+    echo "User-agent: *\n";
+    if (!empty($config['seo_prevent_indexing'])) {
+        echo "Disallow: /\n";
+        exit;
+    }
+    echo 'Disallow: ' . BASE_PATH . "/dashboard\n";
+    echo 'Disallow: ' . BASE_PATH . "/purewiki/api.php\n";
+    if (!empty($config['seo_enable_sitemap'])) {
+        $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || ($_SERVER['SERVER_PORT'] ?? '') == 443) ? 'https://' : 'http://';
+        echo "\nSitemap: " . $protocol . ($_SERVER['HTTP_HOST'] ?? 'localhost') . BASE_PATH . "/sitemap.xml\n";
+    }
+    exit;
+}
+
 if ($path === '/sitemap.xml') {
     $config = getGlobalConfig();
     if (!empty($config['seo_enable_sitemap'])) {
