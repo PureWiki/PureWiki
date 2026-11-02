@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Passwords now need at least 8 characters in the setup and when creating a user.
 - Blocked more unsafe file types and hidden files from being uploaded.
 - SVG files with scripts can no longer be uploaded. `.htaccess` also blocks scripts in SVG files.
+- The updater now downloads the release package and checks its SHA-256 checksum before installing.
 
 ### Changed
 

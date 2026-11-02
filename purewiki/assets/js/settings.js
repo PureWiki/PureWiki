@@ -946,6 +946,20 @@ async function runUpdate(release) {
         const dlRes = await apiSafe('download_update', { zip_url: release.zip_url });
         if (!dlRes) throw new Error(__('settings.failed_download_update'));
 
+        if (!dlRes.data.checksum_verified) {
+            const installAnyway = await openDialog({
+                title: __('settings.update_unverified_title'),
+                text: __('settings.update_unverified_text'),
+                type: 'confirm',
+                confirmText: __('settings.update_install_anyway'),
+                cancelText: __('common.cancel')
+            });
+            if (!installAnyway) {
+                await apiSafe('cleanup_update', {}, { silent: true });
+                throw Object.assign(new Error(), { cancelled: true });
+            }
+        }
+
         // Installation
         setProgress(85, __('settings.installing_update'), __('settings.installing_update_desc'));
         const instRes = await apiSafe('install_update');
@@ -968,6 +982,11 @@ async function runUpdate(release) {
         document.getElementById('pw-btn-check-updates').disabled = false;
         document.getElementById('pw-btn-start-update').disabled = false;
         window.removeEventListener('beforeunload', blockUnload);
+
+        if (err.cancelled) {
+            notify(__('settings.update_cancelled'), 'info');
+            return;
+        }
 
         openDialog({
             title: __('settings.update_failed'),

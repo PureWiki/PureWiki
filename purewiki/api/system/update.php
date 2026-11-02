@@ -27,6 +27,49 @@ function updateHtaccessBlock(string $sourceFile, string $targetFile): void {
     }
 }
 
+/** Returns the URL of the release asset PureWiki-<tag>.zip or GitHub source archive if missing. */
+function getReleaseZipUrl(array $release): string {
+    $assetName = 'PureWiki-' . ($release['tag_name'] ?? '') . '.zip';
+    foreach ($release['assets'] ?? [] as $asset) {
+        if (($asset['name'] ?? '') === $assetName && !empty($asset['browser_download_url'])) {
+            return $asset['browser_download_url'];
+        }
+    }
+    return $release['zipball_url'] ?? '';
+}
+
+/** Downloads a file with cURL, returns error message or empty string on success. */
+function downloadUpdateFile(string $url, string $targetFile, int $timeout): string {
+    $fp = fopen($targetFile, 'w+');
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_FILE, $fp);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
+    curl_setopt($ch, CURLOPT_USERAGENT, 'PureWiki-Updater/' . PUREWIKI_VERSION);
+    applyCurlSslOptions($ch);
+
+    $success = curl_exec($ch);
+    $httpCode = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlError = curl_error($ch);
+    fclose($fp);
+
+    if ($success && $httpCode === 200) return '';
+
+    if (file_exists($targetFile)) unlink($targetFile);
+    return 'HTTP: ' . $httpCode . ($curlError ? ' | cURL error: ' . $curlError : '');
+}
+
+/** Returns SHA256 hash from PureWiki-<tag>.zip.sha256 or null if missing or invalid. */
+function getReleaseChecksum(string $zipUrl, string $tempFile): ?string {
+    if (downloadUpdateFile($zipUrl . '.sha256', $tempFile, 30) !== '') return null;
+
+    // Format of sha256sum: "<hash>  <file name>"
+    $hash = strtolower((string) strtok(trim((string) file_get_contents($tempFile)), " \t"));
+    unlink($tempFile);
+    return preg_match('/^[a-f0-9]{64}$/', $hash) ? $hash : null;
+}
+
 /**
  * Compares two Version strings.
  * Uses SemVer 2.0.0 Version structure.
@@ -145,7 +188,7 @@ if ($action === 'check_for_updates') {
                 'release_name' => $targetRelease['name'] ?? $targetRelease['tag_name'],
                 'release_notes' => $releaseNotes,
                 'published_at' => $targetRelease['published_at'] ?? '',
-                'zip_url' => $targetRelease['zipball_url'] ?? '',
+                'zip_url' => getReleaseZipUrl($targetRelease),
                 'html_url' => $targetRelease['html_url'] ?? ''
             ];
         } else {
@@ -211,29 +254,25 @@ if ($action === 'download_update') {
     if (!file_exists($updatesDir)) createDirectory($updatesDir);
     $targetFile = $updatesDir . '/update_temp.zip';
 
-    $ch = curl_init();
-    $fp = fopen($targetFile, 'w+');
-    curl_setopt($ch, CURLOPT_URL, $zipUrl);
-    curl_setopt($ch, CURLOPT_FILE, $fp);
-    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 120);
-    curl_setopt($ch, CURLOPT_USERAGENT, 'PureWiki-Updater/' . PUREWIKI_VERSION);
-
-    applyCurlSslOptions($ch);
-
-    $success = curl_exec($ch);
-    $httpCode = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    $curlError = curl_error($ch);
-    fclose($fp);
-
-    if ($success && $httpCode === 200) {
-        $response['success'] = true;
-        $response['data'] = ['file_size' => filesize($targetFile)];
-    } else {
-        if (file_exists($targetFile)) unlink($targetFile);
-        $response['message'] = 'Failed to download update package. HTTP: ' . $httpCode
-            . ($curlError ? ' | cURL error: ' . $curlError : '');
+    $error = downloadUpdateFile($zipUrl, $targetFile, 120);
+    if ($error !== '') {
+        $response['message'] = 'Failed to download update package. ' . $error;
+        return;
     }
+    
+    $isReleaseAsset = str_contains($parsedUrl['path'] ?? '', '/releases/download/');
+    $expected = $isReleaseAsset ? getReleaseChecksum($zipUrl, $targetFile . '.sha256') : null;
+
+    // A wrong checksum --> do not install
+    if ($expected !== null && !hash_equals($expected, hash_file('sha256', $targetFile))) {
+        unlink($targetFile);
+        $response['message'] = 'Checksum of the update package does not match.';
+        return;
+    }
+
+    // Without checksum --> dashboard asks before installing
+    $response['success'] = true;
+    $response['data'] = ['file_size' => filesize($targetFile), 'checksum_verified' => $expected !== null];
 }
 
 if ($action === 'start_pre_update_backup') {
