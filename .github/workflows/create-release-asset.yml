@@ -1,5 +1,6 @@
 # This GitHub Action creates a ZIP archive of the repository when
 # a new release is published and attaches it as a better named release asset.
+# A SHA-256 checksum file is attached as well, so the updater can verify the download.
 
 name: Upload Release Asset
 
@@ -12,17 +13,26 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    
+    env:
+      ZIP_NAME: PureWiki-${{ github.ref_name }}.zip
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
       - name: Create Zip Archive
-        run: zip -r "PureWiki-${{ github.ref_name }}.zip" . -x "*.git*" ".github*"
+        run: zip -r "$ZIP_NAME" . -x "*.git*" ".github*"
 
-      - name: Upload Zip to Release
+      - name: Create SHA-256 Checksum
+        run: |
+          sha256sum "$ZIP_NAME" > "$ZIP_NAME.sha256"
+          cat "$ZIP_NAME.sha256"
+
+      - name: Upload Zip and Checksum to Release
         uses: softprops/action-gh-release@v2
         with:
-          files: "PureWiki-${{ github.ref_name }}.zip"
+          files: |
+            ${{ env.ZIP_NAME }}
+            ${{ env.ZIP_NAME }}.sha256
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
