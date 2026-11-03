@@ -6,9 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- The startpage now uses the Schema.org type `WebSite` instead of `Article`.
+
 ### Fixed
 
 - Fixed translated page files (like `page.en.json`) showing up in the media manager.
+- Fixed 404 pages and search page getting Schema.org data.
 
 ## [0.3.1] - 2026-11-02
 

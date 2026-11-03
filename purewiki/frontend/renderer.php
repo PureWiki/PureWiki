@@ -251,6 +251,8 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
         }
     }
 
+    $isStartpage = $contextPath === '/';
+
     if (!empty($config['seo_auto_opengraph'])) {
         $seoTags[] = '<meta property="og:title" content="' . htmlspecialchars($title) . '">';
         if (!empty($description)) {
@@ -258,7 +260,7 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
         }
         $seoTags[] = '<meta property="og:url" content="' . htmlspecialchars($currentUrl) . '">';
         $seoTags[] = '<meta property="og:site_name" content="' . htmlspecialchars($wikiName) . '">';
-        $seoTags[] = '<meta property="og:type" content="article">';
+        $seoTags[] = '<meta property="og:type" content="' . ($isStartpage ? 'website' : 'article') . '">';
     }
 
     if (!empty($config['seo_twitter_cards'])) {
@@ -285,7 +287,30 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
         }
     }
 
-    if (!empty($config['seo_schema_org'])) {
+    // No structured data for error and system pages
+    $hasSchema = !empty($config['seo_schema_org']) && empty($options['noindex']) && http_response_code() !== 404;
+
+    // Startpage describes the wiki
+    if ($hasSchema && $isStartpage) {
+        $schemaData = [
+            '@context' => 'https://schema.org',
+            '@type' => 'WebSite',
+            'name' => $wikiName,
+            'url' => $currentUrl,
+        ];
+        if (!empty($description)) {
+            $schemaData['description'] = $description;
+        }
+
+        $hasTranslation = defined('CURRENT_LANG') && CURRENT_LANG !== '' && str_ends_with(basename($pageJsonPath), '.' . CURRENT_LANG . '.json');
+        if ($hasTranslation) {
+            $schemaData['inLanguage'] = CURRENT_LANG;
+        } elseif (!empty($config['i18n_enabled'])) {
+            require_once __DIR__ . '/../core/i18n_pages.php';
+            $schemaData['inLanguage'] = getDefaultPageLang();
+        }
+        $seoTags[] = '<script type="application/ld+json">' . json_encode($schemaData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . '</script>';
+    } elseif ($hasSchema) {
         $schemaData = [
             '@context' => 'https://schema.org',
             '@type' => 'Article',
