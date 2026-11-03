@@ -15,6 +15,11 @@ defined('PUREWIKI') || die('Direct access denied.');
 require_once __DIR__ . '/misc.php';
 require_once __DIR__ . '/fs.php';
 
+/** Returns true if filename is a page system file. */
+function isPageSystemFile(string $filename): bool {
+    return (bool) preg_match('/^page(\.[a-z0-9_-]+)*\.json$/i', basename($filename));
+}
+
 /**
  * Scans a directory for media files, excluding system JSON files.
  * @param string $dir Absolute path to the directory.
@@ -24,7 +29,7 @@ function getMediaFiles($dir) {
     if (!is_dir($dir)) return [];
 
     $files = [];
-    $rawFiles = array_filter(scandir($dir), fn($i) => !in_array($i, ['.', '..', 'page.json', 'page.draft.json', 'page.lock.json']) && is_file($dir . DIRECTORY_SEPARATOR . $i));
+    $rawFiles = array_filter(scandir($dir), fn($i) => !in_array($i, ['.', '..']) && !isPageSystemFile($i) && is_file($dir . DIRECTORY_SEPARATOR . $i));
     $lookup = array_flip($rawFiles);
 
     foreach ($rawFiles as $name) {

@@ -96,8 +96,7 @@ if ($action === 'list_media') {
 
                 $destPath = $targetDir . DIRECTORY_SEPARATOR . basename($name);
 
-                $systemFiles = ['page.json', 'page.draft.json', 'page.lock.json'];
-                if (in_array($name, $systemFiles)) {
+                if (isPageSystemFile($name)) {
                     $errors[] = "$name: Cannot overwrite system files.";
                     continue;
                 }
@@ -161,8 +160,7 @@ if ($action === 'list_media') {
     if ($targetDir && isPathInDir($targetDir, $pagesDir) && is_dir($targetDir)) {
         $fileToDelete = $targetDir . DIRECTORY_SEPARATOR . basename($filename);
 
-        $systemFiles = ['page.json', 'page.draft.json', 'page.lock.json'];
-        if (in_array(basename($filename), $systemFiles)) {
+        if (isPageSystemFile($filename)) {
             $response['message'] = 'Cannot delete system files.';
             return;
         }
@@ -207,8 +205,7 @@ if ($action === 'list_media') {
         $newExtension = $oldExtension;
     }
 
-    $systemFiles = ['page.json', 'page.draft.json', 'page.lock.json'];
-    if (in_array(basename($oldName), $systemFiles) || in_array($newName, $systemFiles)) {
+    if (isPageSystemFile($oldName) || isPageSystemFile($newName)) {
         $response['message'] = 'Cannot rename system files.';
         return;
     }
