@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed 404 pages and search page getting Schema.org data.
 - Fixed hreflang links pointing to languages a page was not translated to. Pages without translation now use the URL of the default language as canonical.
 - Fixed the sitemap listing private pages, pages with a redirect and pages that were never published.
+- Fixed pages with a trailing slash in the URL (like `/page/`) using their own canonical URL instead of the one without slash.
 
 ## [0.3.1] - 2026-11-02
 

@@ -212,7 +212,8 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
     $hasTranslation = defined('CURRENT_LANG') && CURRENT_LANG !== '' && str_ends_with(basename($pageJsonPath), '.' . CURRENT_LANG . '.json');
     // Pages without translation show the default language content, so they point to its URL
     $langPrefix = $hasTranslation ? '/' . CURRENT_LANG : '';
-    $currentUrl = rtrim($protocol . $host . BASE_PATH, '/') . $langPrefix . ($contextPath === '/' ? '' : $contextPath);
+    $urlPath = rtrim($contextPath, '/');
+    $currentUrl = rtrim($protocol . $host . BASE_PATH, '/') . $langPrefix . $urlPath;
 
     // Result pages of a paginated page list
     ['page' => $resultPage, 'pages' => $resultPages] = pageRenderFlags();
@@ -244,17 +245,14 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
         );
         if (!empty($translatedLangs)) {
             $baseUrlLang = rtrim($protocol . $host . BASE_PATH, '/');
-            $cleanContextPath = ltrim($contextPath, '/');
-            $pathAppend = ($cleanContextPath !== '') ? '/' . $cleanContextPath : '';
-
-            $xDefaultUrl = $baseUrlLang . $pathAppend;
+            $xDefaultUrl = $baseUrlLang . $urlPath;
             if ($xDefaultUrl === '') $xDefaultUrl = '/';
             
             $seoTags[] = '<link rel="alternate" hreflang="x-default" href="' . htmlspecialchars($xDefaultUrl) . '">';
             $seoTags[] = '<link rel="alternate" hreflang="' . htmlspecialchars($defaultLang) . '" href="' . htmlspecialchars($xDefaultUrl) . '">';
 
             foreach ($translatedLangs as $lang) {
-                $langUrl = $baseUrlLang . '/' . $lang . $pathAppend;
+                $langUrl = $baseUrlLang . '/' . $lang . $urlPath;
                 $seoTags[] = '<link rel="alternate" hreflang="' . htmlspecialchars($lang) . '" href="' . htmlspecialchars($langUrl) . '">';
             }
         }
