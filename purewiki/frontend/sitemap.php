@@ -15,6 +15,7 @@ defined('PUREWIKI') || die('Direct access denied.');
 require_once __DIR__ . '/../core/config.php';
 require_once __DIR__ . '/../core/tree.php';
 require_once __DIR__ . '/../core/fs.php';
+require_once __DIR__ . '/../core/json.php';
 
 // Prepare base URL
 $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443)) ? "https://" : "http://";
@@ -41,6 +42,14 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL;
 $xhtmlNs = ($i18nEnabled && !empty($supportedLangs)) ? ' xmlns:xhtml="http://www.w3.org/1999/xhtml"' : '';
 echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"' . $xhtmlNs . '>' . PHP_EOL;
 
+/** Returns true if page file is published, public and has no active redirect. */
+function isIndexablePage(string $pageFile): bool {
+    $data = file_exists($pageFile) ? readJson($pageFile, null) : null;
+    return is_array($data)
+        && empty($data['isPrivate'])
+        && (empty($data['Settings']['enable_redirect']) || empty($data['Settings']['redirect_url']));
+}
+
 /**
  * Builds hreflang alternate link tags for a given page path.
  * Only includes languages for translated pages.
@@ -57,12 +66,12 @@ function getSitemapAlternates(string $baseUrl, string $path, bool $i18nEnabled, 
     if (!$i18nEnabled || empty($supportedLangs)) return '';
 
     foreach ($supportedLangs as $lang) {
-        // Only add if translation exists
+        // Only add if translation exists and can be indexed
         if ($pagesDir !== '') {
             $pageSubPath = ($path === '/' || $path === '') ? '' : trim($path, '/') . '/';
             $translationFile = rtrim($pagesDir, '/') . '/' . $pageSubPath . 'page.' . $lang . '.json';
-            if (!file_exists($translationFile)) {
-                continue; // Skip page if translation does not exist
+            if (!isIndexablePage($translationFile)) {
+                continue;
             }
         }
         $langUrl = $baseUrl . '/' . $lang . ($path === '/' || $path === '' ? '' : $path);
@@ -79,16 +88,7 @@ function getSitemapAlternates(string $baseUrl, string $path, bool $i18nEnabled, 
 }
 
 // Add Startpage
-$startpageJson = rtrim($rootDir, '/') . '/page.json';
-$isStartpagePublic = true;
-if (file_exists($startpageJson)) {
-    $data = readJson($startpageJson, null);
-    if (!empty($data['isPrivate'])) {
-        $isStartpagePublic = false;
-    }
-}
-
-if ($isStartpagePublic) {
+if (isIndexablePage(rtrim($rootDir, '/') . '/page.json')) {
     $alternates = getSitemapAlternates($baseUrl, '/', $i18nEnabled, $supportedLangs, $defaultLang, $rootDir);
 
     echo '  <url>' . PHP_EOL;
@@ -100,9 +100,7 @@ if ($isStartpagePublic) {
 
     if ($i18nEnabled && !empty($supportedLangs)) {
         foreach ($supportedLangs as $lang) {
-            // Only add language startpage if translation exists
-            $startpageLangJson = rtrim($rootDir, '/') . '/page.' . $lang . '.json';
-            if (!file_exists($startpageLangJson)) continue;
+            if (!isIndexablePage(rtrim($rootDir, '/') . '/page.' . $lang . '.json')) continue;
 
             $langUrl = $baseUrl . '/' . $lang;
             echo '  <url>' . PHP_EOL;
@@ -129,6 +127,15 @@ function renderSitemapNodes(array $nodes, string $baseUrl, bool $i18nEnabled, ar
     foreach ($nodes as $node) {
         $path = '/' . trim($node['path'], '/');
 
+        // Skip private, redirected and unpublished pages
+        if (!isIndexablePage(rtrim($pagesDir, '/') . $path . '/page.json')) {
+            // Subpages can be public
+            if (!empty($node['children'])) {
+                renderSitemapNodes($node['children'], $baseUrl, $i18nEnabled, $supportedLangs, $defaultLang, $pagesDir);
+            }
+            continue;
+        }
+
         $alternates = getSitemapAlternates($baseUrl, $path, $i18nEnabled, $supportedLangs, $defaultLang, $pagesDir);
         $depth      = count(explode('/', trim($node['path'], '/')));
         $priority   = max(0.5, 1.0 - ($depth * 0.1));
@@ -145,7 +152,7 @@ function renderSitemapNodes(array $nodes, string $baseUrl, bool $i18nEnabled, ar
             foreach ($supportedLangs as $lang) {
                 $pageSubPath     = trim($node['path'], '/') . '/';
                 $translationFile = rtrim($pagesDir, '/') . '/' . $pageSubPath . 'page.' . $lang . '.json';
-                if (!file_exists($translationFile)) continue;
+                if (!isIndexablePage($translationFile)) continue;
 
                 $langUrl = $baseUrl . '/' . $lang . $path;
                 echo '  <url>' . PHP_EOL;

@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed translated page files (like `page.en.json`) showing up in the media manager.
 - Fixed 404 pages and search page getting Schema.org data.
 - Fixed hreflang links pointing to languages a page was not translated to. Pages without translation now use the URL of the default language as canonical.
+- Fixed the sitemap listing private pages, pages with a redirect and pages that were never published.
 
 ## [0.3.1] - 2026-11-02
 
