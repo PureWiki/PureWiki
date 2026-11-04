@@ -236,6 +236,7 @@ function listUsers(): array {
     foreach ($users as $username => $data) {
         $result[] = [
             'username'      => $username,
+            'display_name'  => $data['display_name'] ?? '',
             'role'          => $data['role'] ?? 'reader',
             'created_at'    => $data['created_at'] ?? '',
             'last_login_at' => $data['last_login_at'] ?? '',
@@ -341,6 +342,36 @@ function changeUserTheme(string $username, string $theme): bool|string {
     }
 
     return true;
+}
+
+/** Sets public display name of a user. Empty name removes it. */
+function changeUserDisplayName(string $username, string $displayName): bool|string {
+    $username = trim($username);
+    $displayName = trim(preg_replace('/\s+/u', ' ', $displayName) ?? '');
+
+    if (mb_strlen($displayName) > 100) {
+        return function_exists('__') ? __('auth.error_display_name_too_long') : 'Display name may be at most 100 characters long.';
+    }
+
+    $users = readUsers();
+    if (!isset($users[$username])) {
+        return function_exists('__') ? __('auth.error_user_not_found') : 'User not found.';
+    }
+
+    if ($displayName === '') {
+        unset($users[$username]['display_name']);
+    } else {
+        $users[$username]['display_name'] = $displayName;
+    }
+    writeUsers($users);
+
+    return true;
+}
+
+/** Returns public display name of user or empty string if none is set. */
+function getUserDisplayName(string $username): string {
+    if ($username === '') return '';
+    return (string) (readUsers()[$username]['display_name'] ?? '');
 }
 
 /** Generates a 1-2 character uppercase initials badge string for a username. */

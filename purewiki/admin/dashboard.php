@@ -63,6 +63,9 @@ require_once __DIR__ . '/layout_head.php';
                         <iconify-icon icon="<?php echo $currentTheme === 'light' ? 'mdi:weather-night' : 'mdi:weather-sunny'; ?>"></iconify-icon>
                         <span id="pw-user-theme-label"><?php echo $currentTheme === 'light' ? __('auth.theme_dark') : __('auth.theme_light'); ?></span>
                     </button>
+                    <button class="pw-user-dropdown-item" id="pw-btn-change-display-name" data-display-name="<?php echo htmlspecialchars(getUserDisplayName($_SESSION['pw_user'] ?? '')); ?>">
+                        <iconify-icon icon="mdi:card-account-details-outline"></iconify-icon> <?php echo __('auth.change_display_name'); ?>
+                    </button>
                     <button class="pw-user-dropdown-item" id="pw-btn-change-language">
                         <iconify-icon icon="mdi:translate"></iconify-icon> <?php echo __('auth.change_language'); ?>
                     </button>

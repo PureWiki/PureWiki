@@ -310,6 +310,7 @@ function initUserMenu() {
     const btnToggleTheme = document.getElementById('pw-btn-toggle-theme');
     const btnChangeLang = document.getElementById('pw-btn-change-language');
     const btnChangePw = document.getElementById('pw-btn-change-password');
+    const btnChangeName = document.getElementById('pw-btn-change-display-name');
 
     if (!wrapper || !toggleBtn || !dropdown) return;
 
@@ -361,6 +362,14 @@ function initUserMenu() {
         });
     }
 
+    if (btnChangeName) {
+        btnChangeName.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleMenu(false);
+            openChangeDisplayNameDialog(btnChangeName);
+        });
+    }
+
     if (btnChangeLang) {
         btnChangeLang.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -375,6 +384,41 @@ function initUserMenu() {
             toggleMenu(false);
             openChangePasswordDialog();
         });
+    }
+}
+
+/** Opens dialog to change the public display name of the current user */
+async function openChangeDisplayNameDialog(button) {
+    if (!document.getElementById('pw-dialog-overlay')) {
+        initDialogSystem();
+    }
+
+    const current = button.dataset.displayName || '';
+    const html = `
+        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 5px;">
+            <label for="pw-user-display-name" style="display: block; font-size: 13px; color: var(--pw-text-muted);">${__('auth.display_name_hint')}</label>
+            <input id="pw-user-display-name" type="text" class="pw-input pw-w-full" maxlength="100" value="${escapeHtml(current)}" placeholder="${__('auth.display_name_placeholder')}">
+        </div>
+    `;
+
+    const confirmed = await openDialog({
+        title: __('auth.change_display_name'),
+        html: html,
+        type: 'confirm',
+        confirmText: __('common.save'),
+        cancelText: __('common.cancel')
+    });
+
+    if (!confirmed) return;
+
+    const input = document.getElementById('pw-user-display-name');
+    const displayName = input ? input.value.trim() : '';
+    if (displayName === current) return;
+
+    const res = await apiSafe('change_display_name', { display_name: displayName });
+    if (res && res.success !== false) {
+        button.dataset.displayName = displayName;
+        notify(res.message || __('auth.display_name_changed'), 'success');
     }
 }
 

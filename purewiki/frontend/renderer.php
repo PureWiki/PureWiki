@@ -85,7 +85,9 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
             if (empty($description) && !empty($config['wiki_description'])) {
                 $description = $config['wiki_description'];
             }
-            $author       = $pageData['Author']      ?? '';
+            // Public display name only, the stored author is the login name
+            require_once __DIR__ . '/../core/auth.php';
+            $author       = getUserDisplayName((string) ($pageData['Author'] ?? ''));
 
             // Resolve layout from page settings (strip .php if present, fallback to 'page')
             $rawLayout  = $pageData['Settings']['Layout'] ?? '';
