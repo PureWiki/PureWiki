@@ -45,16 +45,13 @@ if ($action === 'start_backup') {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         $response['message'] = 'Invalid request method. POST required.';
     } else {
-        if (isBackupRunning()) {
-            $response['message'] = 'A backup is already in progress.';
-        } else {
-            ensureBackupDirectoryExists();
-
+        try {
             // createBackup() manages the lock file
-            $result = createBackup();
-
+            $response['file'] = createBackup();
             $response['success'] = true;
             $response['message'] = 'Backup completed.';
+        } catch (PureWikiException $e) {
+            $response['message'] = $e->getMessage();
         }
     }
 }

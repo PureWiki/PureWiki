@@ -12,6 +12,7 @@
 
 defined('PUREWIKI') || die('Direct access denied.');
 
+require_once __DIR__ . '/exception.php';
 require_once __DIR__ . '/fs.php';
 require_once __DIR__ . '/misc.php';
 
@@ -118,35 +119,45 @@ function getBackupPath($filename) {
  * Creates a new backup of the wiki.
  *
  * @param string $prefix Optional prefix for the backup filename
- * @return bool
+ * @return string Filename of created backup
+ * @throws PureWikiException If backup could not be created
  */
 function createBackup($prefix = 'purewiki_backup') {
+    ensureBackupDirectoryExists();
     $backupDir = getBackupDir();
     $lockFile = $backupDir . '/.backup.lock';
 
     if (isBackupRunning()) {
-        return false;
+        throw new PureWikiException('A backup is already in progress.');
     }
 
-    // Create lock file
-    file_put_contents($lockFile, time());
+    // Timeout would end the request before the lock file is removed
+    if (function_exists('set_time_limit')) {
+        @set_time_limit(0);
+    }
+    ignore_user_abort(true);
+
+    if (@file_put_contents($lockFile, time()) === false) {
+        throw new PureWikiException('Backup failed: backups folder is not writable.');
+    }
+
+    $timestamp = date('Y-m-d_H-i-s');
+    $tarFile = $backupDir . '/' . $prefix . '_' . $timestamp . '.tar';
+    $rootDir = realpath(__DIR__ . '/../..');
+
+    // Phar checks every dotted part of the path for a archive, which hits open_basedir above web root
+    $previousHandler = set_error_handler(function ($severity, $message, $file, $line) use (&$previousHandler) {
+        if (str_contains($message, 'open_basedir restriction in effect')) {
+            return true;
+        }
+        return $previousHandler ? $previousHandler($severity, $message, $file, $line) : false;
+    });
 
     try {
-        $timestamp = date('Y-m-d_H-i-s');
-        $tarFile = $backupDir . '/' . $prefix . '_' . $timestamp . '.tar';
-        $rootDir = realpath(__DIR__ . '/../..');
-
-        try {
-            if (file_exists($tarFile)) {
-                unlink($tarFile);
-            }
-            $phar = new PharData($tarFile);
-        } catch (Exception $e) {
-            error_log("BackupHelper: Could not open tar file for writing: " . $e->getMessage());
-            return false;
+        if (file_exists($tarFile)) {
+            unlink($tarFile);
         }
-
-        require_once __DIR__ . '/fs.php';
+        $phar = new PharData($tarFile);
 
         // Folders and files to exclude from the backup
         $excludes = ['backups', 'cache'];
@@ -184,13 +195,25 @@ function createBackup($prefix = 'purewiki_backup') {
 
         unset($phar);
 
-        return true;
-    } catch (Exception $e) {
-        error_log("BackupHelper: Critical error during backup: " . $e->getMessage());
-        return false;
+        clearstatcache(true, $tarFile);
+        if (!is_file($tarFile) || filesize($tarFile) === 0) {
+            throw new RuntimeException('Archive was not written.');
+        }
+
+        return basename($tarFile);
+    } catch (Throwable $e) {
+        // Remove not finished archive so it does not show up as valid backup
+        unset($phar);
+        if (is_file($tarFile)) {
+            @unlink($tarFile);
+        }
+
+        error_log('PureWiki: Backup failed: ' . $e->getMessage());
+        throw new PureWikiException('Backup failed: ' . $e->getMessage(), 0, $e);
     } finally {
+        restore_error_handler();
         if (file_exists($lockFile)) {
-            unlink($lockFile);
+            @unlink($lockFile);
         }
     }
 }

@@ -11,6 +11,7 @@
  */
 
 let currentRelease = null;
+let backupRequestActive = false;
 
 // Constants for polling backup status
 const UPDATE_BACKUP_POLL_ATTEMPTS = 60; //max attempts until timeout (pre-update backup)
@@ -922,7 +923,8 @@ async function runUpdate(release) {
 
         // Pre-Update Backup
         setProgress(30, __('settings.creating_backup'), __('settings.creating_backup_desc'));
-        await apiSafe('start_pre_update_backup');
+        const backupRes = await apiSafe('start_pre_update_backup');
+        if (!backupRes) throw new Error(__('settings.update_backup_failed'));
 
         // Poll for backup completion
         await new Promise((resolve, reject) => {
@@ -1168,29 +1170,35 @@ function renderBackupList(backups) {
     });
 }
 
-/** Starts a new backup in the background. */
+/** Creates a new backup and reloads the list when it is done. */
 async function startBackup() {
     const btn = document.getElementById('pw-btn-start-backup');
+    if (!btn || btn.disabled) return;
 
+    btn.disabled = true;
+    btn.innerHTML = '<iconify-icon icon="line-md:loading-loop" style="margin-right: 5px;"></iconify-icon> ' + __('settings.backup_progress');
+
+    // The request only returns when the backup is done, apiSafe() shows the error message on failure
+    backupRequestActive = true;
     const result = await apiSafe('start_backup');
-
+    backupRequestActive = false;
     if (result) {
-        notify(__('settings.backup_started'), 'success');
-        // Update button state immediately
-        if (btn) {
-            btn.disabled = true;
-            btn.innerHTML = '<iconify-icon icon="line-md:loading-loop" style="margin-right: 5px;"></iconify-icon> ' + __('settings.backup_progress');
-        }
+        notify(__('settings.backup_finished'), 'success');
     }
+
+    loadBackups();
+    btn.disabled = false;
+    btn.innerHTML = '<iconify-icon icon="mdi:zip-box-outline" style="margin-right: 5px;"></iconify-icon> ' + __('settings.start_backup');
 }
 
 /** Checks if a backup is currently running and updates the UI. */
 async function checkBackupStatus() {
     const btn = document.getElementById('pw-btn-start-backup');
-    if (!btn) return;
+    // startBackup() handles the button itself while its request runs
+    if (!btn || backupRequestActive) return;
 
     const result = await apiSafe('get_backup_status', {}, { silent: true });
-    if (result) {
+    if (result && !backupRequestActive) {
         if (result.running) {
             btn.disabled = true;
             btn.innerHTML = '<iconify-icon icon="line-md:loading-loop" style="margin-right: 5px;"></iconify-icon> ' + __('settings.backup_progress');

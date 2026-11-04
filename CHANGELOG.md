@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed failed backups being reported as done. The dashboard now shows the error and an update stops if backup fails.
+- Fixed backups failing with `open_basedir` error on hosts where a folder above the wiki has a dot in its name.
 - Fixed translated page files (like `page.en.json`) showing up in the media manager.
 - Fixed 404 pages and search page getting Schema.org data.
 - Fixed hreflang links pointing to languages a page was not translated to. Pages without translation now use the URL of the default language as canonical.

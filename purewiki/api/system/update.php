@@ -276,13 +276,14 @@ if ($action === 'download_update') {
 }
 
 if ($action === 'start_pre_update_backup') {
-    ensureBackupDirectoryExists();
-
-    // createBackup() manages the lock file
-    createBackup('pre_update');
-
-    $response['success'] = true;
-    $response['message'] = 'Pre-update backup completed.';
+    try {
+        // createBackup() manages the lock file
+        $response['file'] = createBackup('pre_update');
+        $response['success'] = true;
+        $response['message'] = 'Pre-update backup completed.';
+    } catch (PureWikiException $e) {
+        $response['message'] = $e->getMessage();
+    }
 }
 
 if ($action === 'get_update_backup_status') {
