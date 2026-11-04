@@ -224,14 +224,11 @@ if (str_starts_with($path, '/dashboard/login')) {
     if (!$isPreview && file_exists($pageJsonPath)) {
         $pageData = readJson($pageJsonPath, null);
         
-        // Private Page Check
         if (!empty($pageData['isPrivate']) && !isLoggedIn()) {
-            header('Location: ' . BASE_PATH . '/');
-            exit;
-        }
-
-        // Custom Redirect Check
-        if (!empty($pageData['Settings']['enable_redirect']) && !empty($pageData['Settings']['redirect_url'])) {
+            // Private pages render the 404 page if user is not logged in
+            $pageJsonPath = '';
+        } elseif (!empty($pageData['Settings']['enable_redirect']) && !empty($pageData['Settings']['redirect_url'])) {
+            // Custom redirect
             header('Location: ' . $pageData['Settings']['redirect_url']);
             exit;
         }

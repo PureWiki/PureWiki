@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - The startpage now uses the Schema.org type `WebSite` instead of `Article`.
+- Private pages now show the 404 page to visitors who are not logged in, instead of redirecting to the startpage.
 
 ### Fixed
 
