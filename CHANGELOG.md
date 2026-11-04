@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added an SEO title to the page settings. It replaces the browser title and `og:title` of the page.
+- Added the last modified date of each page to the sitemap, so search engines find changed pages faster.
 
 ### Changed
 

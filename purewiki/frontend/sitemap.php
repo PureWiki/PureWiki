@@ -50,6 +50,13 @@ function isIndexablePage(string $pageFile): bool {
         && (empty($data['Settings']['enable_redirect']) || empty($data['Settings']['redirect_url']));
 }
 
+/** Returns the lastmod tag from DateModified of page file or empty string if date is missing. */
+function getSitemapLastmod(string $pageFile): string {
+    $data = readJson($pageFile, null);
+    $time = strtotime((string) ($data['DateModified'] ?? ''));
+    return $time ? '    <lastmod>' . date('Y-m-d', $time) . '</lastmod>' . PHP_EOL : '';
+}
+
 /**
  * Builds hreflang alternate link tags for a given page path.
  * Only includes languages for translated pages.
@@ -93,6 +100,7 @@ if (isIndexablePage(rtrim($rootDir, '/') . '/page.json')) {
 
     echo '  <url>' . PHP_EOL;
     echo '    <loc>' . htmlspecialchars($baseUrl . '/') . '</loc>' . PHP_EOL;
+    echo getSitemapLastmod(rtrim($rootDir, '/') . '/page.json');
     echo $alternates;
     echo '    <changefreq>daily</changefreq>' . PHP_EOL;
     echo '    <priority>1.0</priority>' . PHP_EOL;
@@ -100,11 +108,13 @@ if (isIndexablePage(rtrim($rootDir, '/') . '/page.json')) {
 
     if ($i18nEnabled && !empty($supportedLangs)) {
         foreach ($supportedLangs as $lang) {
-            if (!isIndexablePage(rtrim($rootDir, '/') . '/page.' . $lang . '.json')) continue;
+            $startpageLangJson = rtrim($rootDir, '/') . '/page.' . $lang . '.json';
+            if (!isIndexablePage($startpageLangJson)) continue;
 
             $langUrl = $baseUrl . '/' . $lang;
             echo '  <url>' . PHP_EOL;
             echo '    <loc>' . htmlspecialchars($langUrl) . '</loc>' . PHP_EOL;
+            echo getSitemapLastmod($startpageLangJson);
             echo $alternates;
             echo '    <changefreq>daily</changefreq>' . PHP_EOL;
             echo '    <priority>1.0</priority>' . PHP_EOL;
@@ -126,9 +136,10 @@ if (isIndexablePage(rtrim($rootDir, '/') . '/page.json')) {
 function renderSitemapNodes(array $nodes, string $baseUrl, bool $i18nEnabled, array $supportedLangs, string $defaultLang, string $pagesDir): void {
     foreach ($nodes as $node) {
         $path = '/' . trim($node['path'], '/');
+        $pageJson = rtrim($pagesDir, '/') . $path . '/page.json';
 
         // Skip private, redirected and unpublished pages
-        if (!isIndexablePage(rtrim($pagesDir, '/') . $path . '/page.json')) {
+        if (!isIndexablePage($pageJson)) {
             // Subpages can be public
             if (!empty($node['children'])) {
                 renderSitemapNodes($node['children'], $baseUrl, $i18nEnabled, $supportedLangs, $defaultLang, $pagesDir);
@@ -143,6 +154,7 @@ function renderSitemapNodes(array $nodes, string $baseUrl, bool $i18nEnabled, ar
         // Default language entry
         echo '  <url>' . PHP_EOL;
         echo '    <loc>' . htmlspecialchars($baseUrl . $path) . '</loc>' . PHP_EOL;
+        echo getSitemapLastmod($pageJson);
         echo $alternates;
         echo '    <changefreq>weekly</changefreq>' . PHP_EOL;
         echo '    <priority>' . number_format($priority, 1) . '</priority>' . PHP_EOL;
@@ -157,6 +169,7 @@ function renderSitemapNodes(array $nodes, string $baseUrl, bool $i18nEnabled, ar
                 $langUrl = $baseUrl . '/' . $lang . $path;
                 echo '  <url>' . PHP_EOL;
                 echo '    <loc>' . htmlspecialchars($langUrl) . '</loc>' . PHP_EOL;
+                echo getSitemapLastmod($translationFile);
                 echo $alternates;
                 echo '    <changefreq>weekly</changefreq>' . PHP_EOL;
                 echo '    <priority>' . number_format($priority, 1) . '</priority>' . PHP_EOL;
