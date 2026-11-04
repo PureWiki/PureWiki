@@ -53,12 +53,8 @@ echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"' . $xhtmlNs . 
  * @param string $pagesDir      Absolute path to the pages directory for existence checks
  */
 function getSitemapAlternates(string $baseUrl, string $path, bool $i18nEnabled, array $supportedLangs, string $defaultLang, string $pagesDir = ''): string {
-    $alternates = '';
+    $langLinks = '';
     if (!$i18nEnabled || empty($supportedLangs)) return '';
-
-    $canonicalUrl = $baseUrl . ($path === '' || $path === '/' ? '/' : $path);
-    $alternates .= '    <xhtml:link rel="alternate" hreflang="x-default" href="' . htmlspecialchars($canonicalUrl) . '" />' . PHP_EOL;
-    $alternates .= '    <xhtml:link rel="alternate" hreflang="' . htmlspecialchars($defaultLang) . '" href="' . htmlspecialchars($canonicalUrl) . '" />' . PHP_EOL;
 
     foreach ($supportedLangs as $lang) {
         // Only add if translation exists
@@ -70,10 +66,16 @@ function getSitemapAlternates(string $baseUrl, string $path, bool $i18nEnabled, 
             }
         }
         $langUrl = $baseUrl . '/' . $lang . ($path === '/' || $path === '' ? '' : $path);
-        $alternates .= '    <xhtml:link rel="alternate" hreflang="' . htmlspecialchars($lang) . '" href="' . htmlspecialchars($langUrl) . '" />' . PHP_EOL;
+        $langLinks .= '    <xhtml:link rel="alternate" hreflang="' . htmlspecialchars($lang) . '" href="' . htmlspecialchars($langUrl) . '" />' . PHP_EOL;
     }
 
-    return $alternates;
+    // No alternates for pages without translation
+    if ($langLinks === '') return '';
+
+    $canonicalUrl = $baseUrl . ($path === '' || $path === '/' ? '/' : $path);
+    return '    <xhtml:link rel="alternate" hreflang="x-default" href="' . htmlspecialchars($canonicalUrl) . '" />' . PHP_EOL
+        . '    <xhtml:link rel="alternate" hreflang="' . htmlspecialchars($defaultLang) . '" href="' . htmlspecialchars($canonicalUrl) . '" />' . PHP_EOL
+        . $langLinks;
 }
 
 // Add Startpage
@@ -104,7 +106,7 @@ if ($isStartpagePublic) {
 
             $langUrl = $baseUrl . '/' . $lang;
             echo '  <url>' . PHP_EOL;
-            echo '    <loc>' . htmlspecialchars($langUrl . '/') . '</loc>' . PHP_EOL;
+            echo '    <loc>' . htmlspecialchars($langUrl) . '</loc>' . PHP_EOL;
             echo $alternates;
             echo '    <changefreq>daily</changefreq>' . PHP_EOL;
             echo '    <priority>1.0</priority>' . PHP_EOL;

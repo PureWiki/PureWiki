@@ -209,7 +209,9 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
 
     $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443)) ? "https://" : "http://";
     $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-    $langPrefix = defined('CURRENT_LANG') && CURRENT_LANG !== '' ? '/' . CURRENT_LANG : '';
+    $hasTranslation = defined('CURRENT_LANG') && CURRENT_LANG !== '' && str_ends_with(basename($pageJsonPath), '.' . CURRENT_LANG . '.json');
+    // Pages without translation show the default language content, so they point to its URL
+    $langPrefix = $hasTranslation ? '/' . CURRENT_LANG : '';
     $currentUrl = rtrim($protocol . $host . BASE_PATH, '/') . $langPrefix . ($contextPath === '/' ? '' : $contextPath);
 
     // Result pages of a paginated page list
@@ -233,9 +235,14 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
     if (!empty($config['i18n_enabled'])) {
         require_once __DIR__ . '/../core/i18n_pages.php';
         $supportedLangs = getSupportedPageLangs();
-        if (!empty($supportedLangs)) {
-            $defaultLang = getDefaultPageLang();
-            
+        $defaultLang = getDefaultPageLang();
+        $pageDir = dirname($pageJsonPath);
+        // Only languages with a published translation of this page
+        $translatedLangs = array_filter(
+            $supportedLangs,
+            fn($lang) => $lang !== $defaultLang && file_exists($pageDir . '/' . getPageFilename($lang))
+        );
+        if (!empty($translatedLangs)) {
             $baseUrlLang = rtrim($protocol . $host . BASE_PATH, '/');
             $cleanContextPath = ltrim($contextPath, '/');
             $pathAppend = ($cleanContextPath !== '') ? '/' . $cleanContextPath : '';
@@ -246,7 +253,7 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
             $seoTags[] = '<link rel="alternate" hreflang="x-default" href="' . htmlspecialchars($xDefaultUrl) . '">';
             $seoTags[] = '<link rel="alternate" hreflang="' . htmlspecialchars($defaultLang) . '" href="' . htmlspecialchars($xDefaultUrl) . '">';
 
-            foreach ($supportedLangs as $lang) {
+            foreach ($translatedLangs as $lang) {
                 $langUrl = $baseUrlLang . '/' . $lang . $pathAppend;
                 $seoTags[] = '<link rel="alternate" hreflang="' . htmlspecialchars($lang) . '" href="' . htmlspecialchars($langUrl) . '">';
             }
@@ -305,7 +312,6 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
             $schemaData['description'] = $description;
         }
 
-        $hasTranslation = defined('CURRENT_LANG') && CURRENT_LANG !== '' && str_ends_with(basename($pageJsonPath), '.' . CURRENT_LANG . '.json');
         if ($hasTranslation) {
             $schemaData['inLanguage'] = CURRENT_LANG;
         } elseif (!empty($config['i18n_enabled'])) {
