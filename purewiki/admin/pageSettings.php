@@ -75,7 +75,14 @@ require_once __DIR__ . '/layout_head.php';
         <!-- Main Content -->
         <main class="pw-dashboard-main pw-w-full">
             <div class="pw-settings-panel pw-w-xlg" style="margin: 0 auto;">
-               
+
+                <!-- SEO Title -->
+                <div class="pw-setting-field">
+                    <label for="ps-seo-title" class="pw-setting-label"><?php echo __('editor.seo_title_label'); ?></label>
+                    <p class="pw-setting-description"><?php echo __('editor.seo_title_hint'); ?></p>
+                    <input type="text" id="ps-seo-title" class="pw-input pw-w-full" placeholder="<?php echo __('editor.seo_title_placeholder'); ?>">
+                </div>
+
                 <!-- Description -->
                 <div class="pw-setting-field">
                     <label for="ps-description" class="pw-setting-label"><?php echo __('editor.description_label'); ?></label>

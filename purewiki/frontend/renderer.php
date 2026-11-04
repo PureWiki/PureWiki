@@ -38,6 +38,7 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
     $dateCreated = '';
     $dateModified = '';
     $description = '';
+    $seoTitle = '';
     $author = '';
     $pageLayout = 'page';
     $tagsHtml = '';
@@ -72,6 +73,7 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
 
     if ($pageData) {
             $title = $pageData['pagetitle'] ?? $fallbackTitle;
+            $seoTitle = trim((string) ($pageData['Settings']['seo_title'] ?? ''));
             $blocks = $pageData['blocks'] ?? [];
             $contentHtml = parseBlocksToHtml($blocks, $contextPath);
 
@@ -252,9 +254,10 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
     }
 
     $isStartpage = $contextPath === '/';
+    $shareTitle = $seoTitle !== '' ? $seoTitle : $title;
 
     if (!empty($config['seo_auto_opengraph'])) {
-        $seoTags[] = '<meta property="og:title" content="' . htmlspecialchars($title) . '">';
+        $seoTags[] = '<meta property="og:title" content="' . htmlspecialchars($shareTitle) . '">';
         if (!empty($description)) {
             $seoTags[] = '<meta property="og:description" content="' . htmlspecialchars($description) . '">';
         }
@@ -265,7 +268,7 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
 
     if (!empty($config['seo_twitter_cards'])) {
         $seoTags[] = '<meta name="twitter:card" content="summary_large_image">';
-        $seoTags[] = '<meta name="twitter:title" content="' . htmlspecialchars($title) . '">';
+        $seoTags[] = '<meta name="twitter:title" content="' . htmlspecialchars($shareTitle) . '">';
         if (!empty($description)) {
             $seoTags[] = '<meta name="twitter:description" content="' . htmlspecialchars($description) . '">';
         }
@@ -344,6 +347,10 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
         [$title, $wikiName],
         $titleFormat
     );
+    // SEO title from page settings replaces title format
+    if ($seoTitle !== '') {
+        $renderedTitle = $seoTitle;
+    }
 
     $finalOutput = $themeTemplate;
 

@@ -105,6 +105,9 @@ function applyPageSettings(array $data, array $postData): array {
         $displayDate = trim((string) $postData['display_date']);
         $data['Settings']['display_date'] = preg_match('/^\d{4}-\d{2}-\d{2}$/', $displayDate) ? $displayDate : '';
     }
+    if (isset($postData['seo_title']) && is_string($postData['seo_title'])) {
+        $data['Settings']['seo_title'] = trim(preg_replace('/\s+/u', ' ', $postData['seo_title']) ?? '');
+    }
     if (isset($postData['preview_image'])) {
         $data['Settings']['preview_image'] = sanitizePreviewImageUrl((string) $postData['preview_image']);
     }

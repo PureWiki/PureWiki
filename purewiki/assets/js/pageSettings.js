@@ -15,6 +15,7 @@
  * An optional 'default' value - used when the field is not set in the page data.
  */
 const pageSettings = [
+    { key: 'seo_title',          el: 'ps-seo-title',          path: 'Settings.seo_title'            },
     { key: 'description',        el: 'ps-description',        path: 'description'                   },
     { key: 'tags',               el: 'ps-tags',               path: 'Tags'                          },
     { key: 'display_date',       el: 'ps-display-date',       path: 'Settings.display_date'         },
