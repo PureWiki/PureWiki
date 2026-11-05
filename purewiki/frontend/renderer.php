@@ -14,6 +14,8 @@
 defined('PUREWIKI') || die('Direct access denied.');
 
 require_once __DIR__ . '/parser.php';
+require_once __DIR__ . '/template.php';
+require_once __DIR__ . '/seo.php';
 require_once __DIR__ . '/../core/config.php';
 require_once __DIR__ . '/../core/tree.php';
 require_once __DIR__ . '/../core/nav.php';
@@ -33,406 +35,72 @@ require_once __DIR__ . '/../version.php';
  * @return string Final HTML output
  */
 function renderPage(string $pageJsonPath, string $fallbackTitle, string $contextPath = '/', array $options = []): string {
-    $title = 'PureWiki';
-    $contentHtml = '';
-    $dateCreated = '';
-    $dateModified = '';
-    $description = '';
-    $seoTitle = '';
-    $author = '';
-    $pageLayout = 'page';
-    $tagsHtml = '';
-    $pageData = [];
-    $seoTags = [];
-    $faviconUrl = '';
-
     // Log page render time if debug mode is enabled
     $renderStart = isDebugMode() ? microtime(true) : 0.0;
 
-    // Load global config
     $config    = getGlobalConfig();
-    $wikiName  = $config['wiki_name']     ?? 'PureWiki';
     $themeName = $config['current_theme'] ?? 'default';
+    $pageData  = loadPageData($pageJsonPath, $options);
+    $page      = buildPageContext($pageData, $fallbackTitle, $pageJsonPath, $contextPath, $config);
 
-    if (isset($options['pageData'])) {
-        $pageData = $options['pageData'];
-    } elseif (file_exists($pageJsonPath)) {
-        $pageData = readJson($pageJsonPath, null);
-    } else {
-        http_response_code(404);
-        // Fallback to virtual 404 page (pages Folder Override first, then System Default)
-        $UserPath   = __DIR__ . '/../../pages/_virtual/404/page.json';
-        $SystemPath = getVirtualPagesDir() . '/_virtual/404/page.json';
-
-        if (file_exists($UserPath)) {
-            $pageData = readJson($UserPath, null);
-        } elseif (file_exists($SystemPath)) {
-            $pageData = readJson($SystemPath, null);
-        }
-    }
-
-    if ($pageData) {
-            $title = $pageData['pagetitle'] ?? $fallbackTitle;
-            $seoTitle = trim((string) ($pageData['Settings']['seo_title'] ?? ''));
-            $blocks = $pageData['blocks'] ?? [];
-            $contentHtml = parseBlocksToHtml($blocks, $contextPath);
-
-            $rawCreated   = $pageData['DateCreated']  ?? '';
-            $rawModified  = $pageData['DateModified'] ?? '';
-            $dateCreated  = $rawCreated  ? date('d.m.Y', strtotime($rawCreated))  : '';
-            $dateModified = $rawModified ? date('d.m.Y', strtotime($rawModified)) : '';
-            $description  = $pageData['description'] ?? $pageData['Description'] ?? '';
-            if (empty($description) && !empty($config['wiki_description'])) {
-                $description = $config['wiki_description'];
-            }
-            // Public display name only, the stored author is the login name
-            require_once __DIR__ . '/../core/auth.php';
-            $author       = getUserDisplayName((string) ($pageData['Author'] ?? ''));
-
-            // Resolve layout from page settings (strip .php if present, fallback to 'page')
-            $rawLayout  = $pageData['Settings']['Layout'] ?? '';
-            if ($rawLayout !== '') {
-                $pageLayout = pathinfo($rawLayout, PATHINFO_FILENAME);
-            }
-            if (!empty($pageData['Tags']) && is_array($pageData['Tags'])) {
-                $tagsHtml = renderTagsHtml($pageData['Tags'], $config);
-            }
-    } else {
-        // Fallback if _404 is missing
-        $title = 'Page Not Found - PureWiki';
-        $contentHtml = '<h2>404 - Not Found</h2><p>The page you are looking for does not exist.</p>';
-        if ($contextPath !== '/') {
-            $contentHtml .= '<a href="' . BASE_PATH . '/">Go to Startpage</a>';
-        }
-    }
-
-    // Resolve the template file in the following order:
-    // 1. themes/{current_theme}/{layout}.php
-    // 2. themes/{current_theme}/page.php
-    // 3. themes/default/page.php
-    $themeBase   = realpath(__DIR__ . '/../../themes') ?: __DIR__ . '/../../themes';
-    $templates = [
-        $themeBase . '/' . $themeName . '/' . $pageLayout . '.php',
-        $themeBase . '/' . $themeName . '/page.php',
-        $themeBase . '/default/page.php',
-    ];
-
-    // System templates first, fall back to the page layout
-    if (!empty($options['template'])) {
-        array_unshift($templates, $themeBase . '/' . $themeName . '/' . $options['template'] . '.php');
-    }
-
-    $templateFile = null;
-    foreach ($templates as $currentTemplate) {
-        if (file_exists($currentTemplate)) {
-            $templateFile = $currentTemplate;
-            break;
-        }
-    }
-
+    $templates    = getTemplateCandidates($themeName, $page['layout'], !empty($options['template']) ? (string) $options['template'] : '');
+    $templateFile = findTemplateFile($templates);
     if (!$templateFile) {
-        pw_debug('No theme template found', ['theme' => $themeName, 'layout' => $pageLayout], 'WARN', 'renderer');
+        pw_debug('No theme template found', ['theme' => $themeName, 'layout' => $page['layout']], 'WARN', 'renderer');
         return '<h1>No theme template found.</h1>';
     }
 
     // Without system template the macro is shown as content
     if (!empty($options['macro']) && $templateFile !== $templates[0]) {
-        $contentHtml = resolveMacros('{{ macro:' . $options['macro'] . ' }}', ['contextPath' => $contextPath, 'pageData' => $pageData, 'config' => $config]);
+        $page['contentHtml'] = resolveMacros('{{ macro:' . $options['macro'] . ' }}', ['contextPath' => $contextPath, 'pageData' => $pageData, 'config' => $config]);
     }
 
-    $themeUrl = BASE_PATH . '/themes/' . $themeName . '/';
+    $html = renderThemeTemplate($templateFile, [
+        'title'        => $page['title'],
+        'contentHtml'  => $page['contentHtml'],
+        'pageData'     => $pageData,
+        'config'       => $config,
+        'contextPath'  => $contextPath,
+        'wikiName'     => $page['wikiName'],
+        'themeName'    => $themeName,
+        'themeUrl'     => getThemeUrl($themeName),
+        'description'  => $page['description'],
+        'author'       => $page['author'],
+        'dateCreated'  => $page['dateCreated'],
+        'dateModified' => $page['dateModified'],
+        'options'      => $options,
+    ]);
 
-    ob_start();
-    include $templateFile;
-    $themeTemplate = ob_get_clean();
+    // Head hooks run before macros, so macros never see their output
+    $customHead = buildCustomHeadAssets($config, $themeName);
 
-    // Build nav links
-    $navLinksHtml = '';
-    $navLinks = getNavLinks();
-    foreach ($navLinks as $link) {
-        $linkText = !empty($link['link_text']) ? $link['link_text'] : $link['title'];
-        $linkPath = $link['path'];
-        // Prepend BASE_PATH for internal links
-        if (str_starts_with($linkPath, '/')) {
-            $linkPath = BASE_PATH . $linkPath;
-        }
-        $navLinksHtml .= '<li><a href="' . htmlspecialchars($linkPath) . '">' . htmlspecialchars($linkText) . '</a></li>';
-    }
+    // Runs after parsing, page list sets result page and 404 status
+    $faviconUrl = resolveFaviconUrl($config);
+    $headTags = $faviconUrl !== '' ? ['<link rel="icon" href="' . htmlspecialchars($faviconUrl) . '">'] : [];
+    array_push($headTags, ...buildSeoTags($page, $config, $options));
 
-    // Color overrides from theme settings
-    $themeColorsCss = buildThemeColorsCss($config, $themeName);
-
-    // inject custom code blocks
-    $customCss = trim($config['custom_css'] ?? '');
-    if ($customCss !== '' && stripos($customCss, '<style') === false) {
-        $customCss = "<style>\n{$customCss}\n</style>";
-    }
-
-    $customJsHead = trim($config['custom_js_head'] ?? '');
-    if ($customJsHead !== '' && stripos($customJsHead, '<script') === false) {
-        $customJsHead = "<script>\n{$customJsHead}\n</script>";
-    }
-
-    $customJsFooter = trim($config['custom_js_footer'] ?? '');
-    if ($customJsFooter !== '' && stripos($customJsFooter, '<script') === false) {
-        $customJsFooter = "<script>\n{$customJsFooter}\n</script>";
-    }
-
-    $customHtmlHead = trim($config['custom_html_head'] ?? '');
-    $customHtmlFooter = trim($config['custom_html_footer'] ?? '');
-
-    if (isLoggedIn() && ($config['enable_admin_menu'] ?? false)) {
-        AssetManager::requireIconify();
-    }
-
-    // Inject BASE_PATH and CURRENT_LANG into the frontend so JS can use it
-    $pwBasePathScript = "<script>window.PW_BASE_PATH = '" . addslashes(BASE_PATH) . "'; window.PW_CURRENT_LANG = '" . addslashes(defined('CURRENT_LANG') ? CURRENT_LANG : '') . "';</script>";
-
-    $extHead = '';
-    if (class_exists('ExtensionLoader')) {
-        ob_start();
-        ExtensionLoader::doAction('frontend.head_css');
-        ExtensionLoader::doAction('frontend.head_js');
-        $extHead = ob_get_clean();
-    }
-
-    // SEO Meta Tags Generation
-    if (!empty($config['wiki_favicon'])) {
-        $faviconUrl = $config['wiki_favicon'];
-        if (str_starts_with($faviconUrl, '/')) {
-            $faviconUrl = BASE_PATH . $faviconUrl;
-        }
-        $seoTags[] = '<link rel="icon" href="' . htmlspecialchars($faviconUrl) . '">';
-    }
-
-    if (!empty($config['seo_prevent_indexing']) || !empty($options['noindex'])) {
-        $seoTags[] = '<meta name="robots" content="noindex, nofollow">';
-    }
-
-    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443)) ? "https://" : "http://";
-    $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-    $hasTranslation = defined('CURRENT_LANG') && CURRENT_LANG !== '' && str_ends_with(basename($pageJsonPath), '.' . CURRENT_LANG . '.json');
-    // Pages without translation show the default language content, so they point to its URL
-    $langPrefix = $hasTranslation ? '/' . CURRENT_LANG : '';
-    $urlPath = rtrim($contextPath, '/');
-    $currentUrl = rtrim($protocol . $host . BASE_PATH, '/') . $langPrefix . $urlPath;
-
-    // Result pages of a paginated page list
-    ['page' => $resultPage, 'pages' => $resultPages] = pageRenderFlags();
-    if ($resultPage > 0 && $resultPage <= $resultPages) {
-        $baseUrl = $currentUrl;
-        $pageUrl = fn(int $page) => $baseUrl . ($page > 1 ? '?page=' . $page : '');
-        $currentUrl = $pageUrl($resultPage);
-        if ($resultPage > 1) {
-            $seoTags[] = '<link rel="prev" href="' . htmlspecialchars($pageUrl($resultPage - 1)) . '">';
-        }
-        if ($resultPage < $resultPages) {
-            $seoTags[] = '<link rel="next" href="' . htmlspecialchars($pageUrl($resultPage + 1)) . '">';
-        }
-    }
-
-    if (!empty($config['seo_auto_canonical'])) {
-        $seoTags[] = '<link rel="canonical" href="' . htmlspecialchars($currentUrl) . '">';
-    }
-
-    if (!empty($config['i18n_enabled'])) {
-        require_once __DIR__ . '/../core/i18n_pages.php';
-        $supportedLangs = getSupportedPageLangs();
-        $defaultLang = getDefaultPageLang();
-        $pageDir = dirname($pageJsonPath);
-        // Only languages with a published translation of this page
-        $translatedLangs = array_filter(
-            $supportedLangs,
-            fn($lang) => $lang !== $defaultLang && file_exists($pageDir . '/' . getPageFilename($lang))
-        );
-        if (!empty($translatedLangs)) {
-            $baseUrlLang = rtrim($protocol . $host . BASE_PATH, '/');
-            $xDefaultUrl = $baseUrlLang . $urlPath;
-            if ($xDefaultUrl === '') $xDefaultUrl = '/';
-            
-            $seoTags[] = '<link rel="alternate" hreflang="x-default" href="' . htmlspecialchars($xDefaultUrl) . '">';
-            $seoTags[] = '<link rel="alternate" hreflang="' . htmlspecialchars($defaultLang) . '" href="' . htmlspecialchars($xDefaultUrl) . '">';
-
-            foreach ($translatedLangs as $lang) {
-                $langUrl = $baseUrlLang . '/' . $lang . $urlPath;
-                $seoTags[] = '<link rel="alternate" hreflang="' . htmlspecialchars($lang) . '" href="' . htmlspecialchars($langUrl) . '">';
-            }
-        }
-    }
-
-    $isStartpage = $contextPath === '/';
-    $shareTitle = $seoTitle !== '' ? $seoTitle : $title;
-
-    if (!empty($config['seo_auto_opengraph'])) {
-        $seoTags[] = '<meta property="og:title" content="' . htmlspecialchars($shareTitle) . '">';
-        if (!empty($description)) {
-            $seoTags[] = '<meta property="og:description" content="' . htmlspecialchars($description) . '">';
-        }
-        $seoTags[] = '<meta property="og:url" content="' . htmlspecialchars($currentUrl) . '">';
-        $seoTags[] = '<meta property="og:site_name" content="' . htmlspecialchars($wikiName) . '">';
-        $seoTags[] = '<meta property="og:type" content="' . ($isStartpage ? 'website' : 'article') . '">';
-    }
-
-    if (!empty($config['seo_twitter_cards'])) {
-        $seoTags[] = '<meta name="twitter:card" content="summary_large_image">';
-        $seoTags[] = '<meta name="twitter:title" content="' . htmlspecialchars($shareTitle) . '">';
-        if (!empty($description)) {
-            $seoTags[] = '<meta name="twitter:description" content="' . htmlspecialchars($description) . '">';
-        }
-    }
-
-    // Preview image of the page replaces the global one
-    $pageImageUrl = (string) ($pageData['Settings']['preview_image'] ?? '');
-    if ($pageImageUrl !== '' || !empty($config['seo_og_image_url'])) {
-        $imageUrl = $pageImageUrl !== '' ? $pageImageUrl : $config['seo_og_image_url'];
-        // resolve relative image urls
-        if (!preg_match('~^(?:f|ht)tps?://~i', $imageUrl)) {
-            // If it starts with a slash, we make it absolute for OpenGraph (requires full URL)
-            // OpenGraph usually works best with absolute URLs including domain.
-            $imageUrl = $protocol . $host . ($pageImageUrl !== '' ? BASE_PATH : '') . '/' . ltrim($imageUrl, '/');
-        }
-        $seoTags[] = '<meta property="og:image" content="' . htmlspecialchars($imageUrl) . '">';
-        if (!empty($config['seo_twitter_cards'])) {
-            $seoTags[] = '<meta name="twitter:image" content="' . htmlspecialchars($imageUrl) . '">';
-        }
-    }
-
-    // No structured data for error and system pages
-    $hasSchema = !empty($config['seo_schema_org']) && empty($options['noindex']) && http_response_code() !== 404;
-
-    // Startpage describes the wiki
-    if ($hasSchema && $isStartpage) {
-        $schemaData = [
-            '@context' => 'https://schema.org',
-            '@type' => 'WebSite',
-            'name' => $wikiName,
-            'url' => $currentUrl,
-        ];
-        if (!empty($description)) {
-            $schemaData['description'] = $description;
-        }
-
-        if ($hasTranslation) {
-            $schemaData['inLanguage'] = CURRENT_LANG;
-        } elseif (!empty($config['i18n_enabled'])) {
-            require_once __DIR__ . '/../core/i18n_pages.php';
-            $schemaData['inLanguage'] = getDefaultPageLang();
-        }
-        $seoTags[] = '<script type="application/ld+json">' . json_encode($schemaData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . '</script>';
-    } elseif ($hasSchema) {
-        $schemaData = [
-            '@context' => 'https://schema.org',
-            '@type' => 'Article',
-            'headline' => $title,
-            'url' => $currentUrl,
-        ];
-        if (!empty($description)) {
-            $schemaData['description'] = $description;
-        }
-        if (!empty($author)) {
-            $schemaData['author'] = [
-                '@type' => 'Person',
-                'name' => $author
-            ];
-        }
-        if (!empty($rawCreated)) {
-            $schemaData['datePublished'] = date('c', strtotime($rawCreated));
-        }
-        if (!empty($rawModified)) {
-            $schemaData['dateModified'] = date('c', strtotime($rawModified));
-        }
-        if (isset($imageUrl) && !empty($imageUrl)) {
-            $schemaData['image'] = $imageUrl;
-        }
-        $seoTags[] = '<script type="application/ld+json">' . json_encode($schemaData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . '</script>';
-    }
-
-    $titleFormat = $config['seo_title_format'] ?? '{{ page_title }} - {{ wiki_name }}';
-    $renderedTitle = str_replace(
-        ['{{ page_title }}', '{{ wiki_name }}'],
-        [$title, $wikiName],
-        $titleFormat
-    );
-    // SEO title from page settings replaces title format
-    if ($seoTitle !== '') {
-        $renderedTitle = $seoTitle;
-    }
-
-    $finalOutput = $themeTemplate;
-
-    // Resolve Macros first
-    $finalOutput = resolveMacros($finalOutput, [
+    // Macros and virtual pages first, icon check needs their output
+    $html = resolveTemplateStructure($html, [
         'contextPath' => $contextPath,
-        'wikiName' => $wikiName,
+        'wikiName' => $page['wikiName'],
         'pageData' => $pageData,
         'config' => $config
     ]);
-
-    // Resolve Virtual Pages
-    $finalOutput = resolveVirtualPages($finalOutput, $pageData ?: [], $contextPath);
-
-    // Check if any icon is present in output or content
-    if (str_contains($finalOutput, '<iconify-icon') || str_contains($contentHtml, '<iconify-icon')) {
+    if (str_contains($html, '<iconify-icon') || str_contains($page['contentHtml'], '<iconify-icon')) {
         AssetManager::requireIconify();
     }
 
-    $extFooter = '';
-    if (class_exists('ExtensionLoader')) {
-        ob_start();
-        ExtensionLoader::doAction('frontend.footer_js');
-        $extFooter = ob_get_clean();
-    }
+    // Footer hooks may add assets, so they run before head assets are built
+    $assetsFooter = buildFooterAssets($config);
+    $assetsHead   = buildHeadAssets($customHead, $headTags);
 
-    $assetsHead = $pwBasePathScript . "\n" . AssetManager::getStyles() . AssetManager::getScripts('head') . "\n" . $themeColorsCss . "\n" . $customCss . "\n" . $customHtmlHead . "\n" . $customJsHead . $extHead;
-    if (!empty($seoTags)) {
-        $assetsHead .= "\n" . implode("\n", $seoTags) . "\n";
-    }
-
-    $assetsFooter = AssetManager::getScripts('footer') . AssetManager::getInlineScripts() . "\n" . $customHtmlFooter . "\n" . $customJsFooter . $extFooter;
-
-    // Replace all placeholders
-    $vars = [
-        'title'             => htmlspecialchars($renderedTitle),
-        'page_title'        => htmlspecialchars($title),
-        'assets_head'       => $assetsHead,
-        'assets_footer'     => $assetsFooter,
-        'content'           => $contentHtml,
-        'date_created'      => htmlspecialchars($dateCreated),
-        'date_modified'     => htmlspecialchars($dateModified),
-        'date_created_iso'  => !empty($rawCreated) ? date('Y-m-d', strtotime($rawCreated)) : '',
-        'date_modified_iso' => !empty($rawModified) ? date('Y-m-d', strtotime($rawModified)) : '',
-        'description'       => htmlspecialchars($description),
-        'wiki_description'  => htmlspecialchars($config['wiki_description'] ?? ''),
-        'wiki_name'         => htmlspecialchars($wikiName),
-        'wiki_logo'         => htmlspecialchars(str_starts_with($config['wiki_logo'] ?? '', '/') ? BASE_PATH . $config['wiki_logo'] : ($config['wiki_logo'] ?? '')),
-        'wiki_favicon'      => htmlspecialchars($faviconUrl ?? ''),
-        'author'            => htmlspecialchars($author),
-        'nav_links'         => $navLinksHtml,
-        'context_path'      => htmlspecialchars($contextPath),
-        'current_year'      => date('Y'),
-        'current_theme'     => htmlspecialchars($themeName),
-        'base_url'          => htmlspecialchars(BASE_PATH . ((defined('CURRENT_LANG') && CURRENT_LANG !== '') ? '/' . CURRENT_LANG . '/' : '/')),
-        'theme_url'         => htmlspecialchars($themeUrl),
-        'pw_base_path'      => htmlspecialchars(BASE_PATH),
-        'show_left_sidebar'  => !($pageData['Settings']['hide_left_sidebar']  ?? false),
-        'show_right_sidebar' => !($pageData['Settings']['hide_right_sidebar'] ?? false),
-        'tags'               => $tagsHtml,
-        'lang'               => htmlspecialchars(getFrontendLanguage()),
-    ];
-
-    // Resolve conditions (if / else / endif)
-    $finalOutput = resolveConditions($finalOutput, $vars);
-
-    $finalOutput = preg_replace_callback('/{{\s*([a-zA-Z0-9_]+)\s*}}/', function($matches) use ($vars) {
-        $key = $matches[1];
-        return $vars[$key] ?? $matches[0]; // keep original if key is unknown
-    }, $finalOutput);
+    $html = resolveTemplateVars($html, buildTemplateVars($page, $config, $themeName, $assetsHead, $assetsFooter));
 
     // In-Page Admin Menu
-    injectAdminMenu($finalOutput, $config, $contextPath);
+    injectAdminMenu($html, $config, $contextPath);
 
     if (class_exists('ExtensionLoader')) {
-        $finalOutput = ExtensionLoader::applyFilter('renderer.html', $finalOutput, ['path' => $contextPath, 'page' => $pageData]);
+        $html = ExtensionLoader::applyFilter('renderer.html', $html, ['path' => $contextPath, 'page' => $pageData]);
     }
 
     if (isDebugMode()) {
@@ -444,111 +112,249 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
         ], 'INFO', 'renderer');
     }
 
-    return $finalOutput;
-}
-
-/**
- * Resolves if / else / endif logic in the template.
- * Supported format: {{ if variable }} ... {{ else }} ... {{ endif }}
- *
- * @param string $html The HTML content to process
- * @param array $vars The variables available in the current context
- * @return string The processed HTML
- */
-function resolveConditions(string $html, array $vars): string {
-    $ifCount = preg_match_all('/{{\s*if\s+[a-zA-Z0-9_]+\s*}}/', $html);
-    $endifCount = preg_match_all('/{{\s*endif\s*}}/', $html);
-
-    if ($ifCount !== $endifCount) {
-        return "<!-- Template Error: Mismatched {{ if }} and {{ endif }} count ($ifCount ifs, $endifCount endifs) -->\n" . $html;
-    }
-
-    $pattern = '/{{\s*if\s+([a-zA-Z0-9_]+)\s*}}((?:(?!{{\s*if\s+[a-zA-Z0-9_]+\s*}}).)*?){{\s*endif\s*}}/s';
-
-    $loopCount = 0;
-    while (preg_match('/{{\s*if\s+[a-zA-Z0-9_]+\s*}}/', $html) && $loopCount < 50) {
-        $html = preg_replace_callback($pattern, function($matches) use ($vars) {
-            $conditionKey = $matches[1];
-            $innerBlock = $matches[2];
-
-            $parts = preg_split('/{{\s*else\s*}}/', $innerBlock, 2);
-            $trueBlock = $parts[0];
-            $falseBlock = $parts[1] ?? '';
-
-            $conditionValue = $vars[$conditionKey] ?? null;
-            if (!empty($conditionValue)) {
-                return $trueBlock;
-            } else {
-                return $falseBlock;
-            }
-        }, $html, -1, $count);
-
-        if ($count === 0) {
-            $html = "<!-- Template Error: Malformed {{ if }} blocks detected -->\n" . $html;
-            break;
-        }
-        $loopCount++;
-    }
-
     return $html;
 }
 
+/** Returns page data from options or page.json, else 404 page and sets 404 status. */
+function loadPageData(string $pageJsonPath, array $options): ?array {
+    if (isset($options['pageData'])) {
+        $pageData = $options['pageData'];
+    } elseif (file_exists($pageJsonPath)) {
+        $pageData = readJson($pageJsonPath, null);
+    } else {
+        http_response_code(404);
+        // User override of 404 page first, then system default
+        $userPath   = getPageDir() . '/_virtual/404/page.json';
+        $systemPath = getVirtualPagesDir() . '/_virtual/404/page.json';
+
+        $pageData = [];
+        if (file_exists($userPath)) {
+            $pageData = readJson($userPath, null);
+        } elseif (file_exists($systemPath)) {
+            $pageData = readJson($systemPath, null);
+        }
+    }
+    return is_array($pageData) ? $pageData : null;
+}
+
 /**
- * Resolves virtual pages in the format {{ virtual:pagename }}.
- * Dynamically looks up /purewiki/data/pages/_pagename/page.json and /pages/_pagename/page.json and parses its blocks.
- *
- * @param string $html The HTML content to process
- * @param array $parentPageData The data of the current page being rendered
- * @param string $contextPath The current request path
- * @return string The processed HTML with rendered virtual pages
+ * Returns page values for templates and SEO tags.
+ * Parses the blocks, so it sets result page of a page list and 404 status.
  */
-function resolveVirtualPages(string $html, array $parentPageData, string $contextPath): string {
-    $pagesDir = getPageDir();
+function buildPageContext(?array $pageData, string $fallbackTitle, string $pageJsonPath, string $contextPath, array $config): array {
+    $page = [
+        'pageData'     => $pageData,
+        'pageJsonPath' => $pageJsonPath,
+        'contextPath'  => $contextPath,
+        'wikiName'     => $config['wiki_name'] ?? 'PureWiki',
+        'title'        => 'PureWiki',
+        'seoTitle'     => '',
+        'contentHtml'  => '',
+        'rawCreated'   => '',
+        'rawModified'  => '',
+        'dateCreated'  => '',
+        'dateModified' => '',
+        'description'  => '',
+        'author'       => '',
+        'layout'       => 'page',
+        'tagsHtml'     => '',
+    ];
 
-    // Regex matches {{ virtual:name }}
-    return preg_replace_callback('/{{\s*virtual:\s*([a-zA-Z0-9_-]+)\s*}}/', function($matches) use ($pagesDir, $parentPageData, $contextPath) {
-        $pageName = $matches[1];
-
-        // apply sidebar visibility settings
-        if ($pageName === 'left_sidebar' && ($parentPageData['Settings']['hide_left_sidebar'] ?? false)) {
-            return '';
+    // Fallback if 404 page is missing
+    if (!$pageData) {
+        $page['title'] = 'Page Not Found - PureWiki';
+        $page['contentHtml'] = '<h2>404 - Not Found</h2><p>The page you are looking for does not exist.</p>';
+        if ($contextPath !== '/') {
+            $page['contentHtml'] .= '<a href="' . BASE_PATH . '/">Go to Startpage</a>';
         }
-        if ($pageName === 'right_sidebar' && ($parentPageData['Settings']['hide_right_sidebar'] ?? false)) {
-            return '';
+        return $page;
+    }
+
+    $page['title'] = $pageData['pagetitle'] ?? $fallbackTitle;
+    $page['seoTitle'] = trim((string) ($pageData['Settings']['seo_title'] ?? ''));
+    $page['contentHtml'] = parseBlocksToHtml($pageData['blocks'] ?? [], $contextPath);
+
+    $rawCreated  = $pageData['DateCreated']  ?? '';
+    $rawModified = $pageData['DateModified'] ?? '';
+    $page['rawCreated']   = $rawCreated;
+    $page['rawModified']  = $rawModified;
+    $page['dateCreated']  = $rawCreated  ? date('d.m.Y', strtotime($rawCreated))  : '';
+    $page['dateModified'] = $rawModified ? date('d.m.Y', strtotime($rawModified)) : '';
+
+    $description = $pageData['description'] ?? $pageData['Description'] ?? '';
+    if (empty($description) && !empty($config['wiki_description'])) {
+        $description = $config['wiki_description'];
+    }
+    $page['description'] = $description;
+
+    // Public display name only, the stored author is the login name
+    require_once __DIR__ . '/../core/auth.php';
+    $page['author'] = getUserDisplayName((string) ($pageData['Author'] ?? ''));
+
+    // Layout without .php, fallback is page
+    $rawLayout = $pageData['Settings']['Layout'] ?? '';
+    if ($rawLayout !== '') {
+        $page['layout'] = pathinfo($rawLayout, PATHINFO_FILENAME);
+    }
+    if (!empty($pageData['Tags']) && is_array($pageData['Tags'])) {
+        $page['tagsHtml'] = renderTagsHtml($pageData['Tags'], $config);
+    }
+    return $page;
+}
+
+/**
+ * Returns possible template files in lookup order.
+ * System template, then {layout}.php and page.php of the theme, then page.php of default theme.
+ */
+function getTemplateCandidates(string $themeName, string $layout, string $systemTemplate = ''): array {
+    $themeBase = getThemesDir();
+    $templates = [
+        $themeBase . '/' . $themeName . '/' . $layout . '.php',
+        $themeBase . '/' . $themeName . '/page.php',
+        $themeBase . '/default/page.php',
+    ];
+    if ($systemTemplate !== '') {
+        array_unshift($templates, $themeBase . '/' . $themeName . '/' . $systemTemplate . '.php');
+    }
+    return $templates;
+}
+
+/** Returns first existing template file, null if none exists. */
+function findTemplateFile(array $templates): ?string {
+    foreach ($templates as $template) {
+        if (file_exists($template)) return $template;
+    }
+    return null;
+}
+
+/** Renders theme template, the template sees only the variables in $scope. */
+function renderThemeTemplate(string $templateFile, array $scope): string {
+    ob_start();
+    (static function () {
+        extract(func_get_arg(1));
+        include func_get_arg(0);
+    })($templateFile, $scope);
+    return ob_get_clean();
+}
+
+/** Returns URL of theme folder with trailing slash. */
+function getThemeUrl(string $themeName): string {
+    return BASE_PATH . '/themes/' . $themeName . '/';
+}
+
+/** Returns favicon URL from settings, empty if none is set. */
+function resolveFaviconUrl(array $config): string {
+    if (empty($config['wiki_favicon'])) return '';
+    $faviconUrl = $config['wiki_favicon'];
+    return str_starts_with($faviconUrl, '/') ? BASE_PATH . $faviconUrl : $faviconUrl;
+}
+
+/** Wraps custom code in tag if it is not already included. */
+function wrapCustomCode(string $code, string $tag): string {
+    $code = trim($code);
+    if ($code !== '' && stripos($code, '<' . $tag) === false) {
+        $code = "<{$tag}>\n{$code}\n</{$tag}>";
+    }
+    return $code;
+}
+
+/**
+ * Returns theme colors, custom code and output of head hooks.
+ * Requires Iconify for admin menu before hooks, so asset order stays the same.
+ */
+function buildCustomHeadAssets(array $config, string $themeName): string {
+    // Color overrides from theme settings
+    $themeColorsCss = buildThemeColorsCss($config, $themeName);
+    $customCss      = wrapCustomCode($config['custom_css'] ?? '', 'style');
+    $customHtmlHead = trim($config['custom_html_head'] ?? '');
+    $customJsHead   = wrapCustomCode($config['custom_js_head'] ?? '', 'script');
+
+    if (isLoggedIn() && ($config['enable_admin_menu'] ?? false)) {
+        AssetManager::requireIconify();
+    }
+
+    $extHead = '';
+    if (class_exists('ExtensionLoader')) {
+        ob_start();
+        ExtensionLoader::doAction('frontend.head_css');
+        ExtensionLoader::doAction('frontend.head_js');
+        $extHead = ob_get_clean();
+    }
+    return $themeColorsCss . "\n" . $customCss . "\n" . $customHtmlHead . "\n" . $customJsHead . $extHead;
+}
+
+/** Returns all head assets, registered assets first, then custom code and head tags. */
+function buildHeadAssets(string $customHead, array $headTags): string {
+    // BASE_PATH and CURRENT_LANG for frontend JS
+    $pwBasePathScript = "<script>window.PW_BASE_PATH = '" . addslashes(BASE_PATH) . "'; window.PW_CURRENT_LANG = '" . addslashes(defined('CURRENT_LANG') ? CURRENT_LANG : '') . "';</script>";
+
+    $assetsHead = $pwBasePathScript . "\n" . AssetManager::getStyles() . AssetManager::getScripts('head') . "\n" . $customHead;
+    if (!empty($headTags)) {
+        $assetsHead .= "\n" . implode("\n", $headTags) . "\n";
+    }
+    return $assetsHead;
+}
+
+/** Returns footer assets, custom code and output of footer hooks. */
+function buildFooterAssets(array $config): string {
+    $extFooter = '';
+    if (class_exists('ExtensionLoader')) {
+        ob_start();
+        ExtensionLoader::doAction('frontend.footer_js');
+        $extFooter = ob_get_clean();
+    }
+
+    $customHtmlFooter = trim($config['custom_html_footer'] ?? '');
+    $customJsFooter   = wrapCustomCode($config['custom_js_footer'] ?? '', 'script');
+    return AssetManager::getScripts('footer') . AssetManager::getInlineScripts() . "\n" . $customHtmlFooter . "\n" . $customJsFooter . $extFooter;
+}
+
+/** Returns nav links of pages shown in navbar as list items. */
+function buildNavLinksHtml(): string {
+    $html = '';
+    foreach (getNavLinks() as $link) {
+        $linkText = !empty($link['link_text']) ? $link['link_text'] : $link['title'];
+        $linkPath = $link['path'];
+        // Internal links need BASE_PATH
+        if (str_starts_with($linkPath, '/')) {
+            $linkPath = BASE_PATH . $linkPath;
         }
+        $html .= '<li><a href="' . htmlspecialchars($linkPath) . '">' . htmlspecialchars($linkText) . '</a></li>';
+    }
+    return $html;
+}
 
-        $lang = defined('CURRENT_LANG') ? CURRENT_LANG : '';
-        $filename = getPageFilename($lang);
-        $defaultFilename = 'page.json';
-
-        // Check for override in /pages/_virtual/
-        $overridePath = $pagesDir . '/_virtual/' . $pageName . '/' . $filename;
-        $overrideFallback = $pagesDir . '/_virtual/' . $pageName . '/' . $defaultFilename;
-        
-        // Fallback to system default in /purewiki/data/pages/_virtual/
-        $defaultPath = getVirtualPagesDir() . '/_virtual/' . $pageName . '/' . $filename;
-        $defaultFallback = getVirtualPagesDir() . '/_virtual/' . $pageName . '/' . $defaultFilename;
-
-        $virtualJson = null;
-        if (file_exists($overridePath)) {
-            $virtualJson = $overridePath;
-        } elseif ($lang !== '' && file_exists($overrideFallback)) {
-            $virtualJson = $overrideFallback;
-        } elseif (file_exists($defaultPath)) {
-            $virtualJson = $defaultPath;
-        } elseif ($lang !== '' && file_exists($defaultFallback)) {
-            $virtualJson = $defaultFallback;
-        }
-
-        if ($virtualJson) {
-            $vData = readJson($virtualJson, null);
-            if ($vData && !empty($vData['blocks'])) {
-                return parseBlocksToHtml($vData['blocks'], $contextPath, $parentPageData['blocks'] ?? null);
-            }
-        }
-
-        return '';
-    }, $html);
+/** Returns values for {{ placeholders }} in theme templates. */
+function buildTemplateVars(array $page, array $config, string $themeName, string $assetsHead, string $assetsFooter): array {
+    $pageData = $page['pageData'];
+    return [
+        'title'             => htmlspecialchars(resolvePageTitle($page, $config)),
+        'page_title'        => htmlspecialchars($page['title']),
+        'assets_head'       => $assetsHead,
+        'assets_footer'     => $assetsFooter,
+        'content'           => $page['contentHtml'],
+        'date_created'      => htmlspecialchars($page['dateCreated']),
+        'date_modified'     => htmlspecialchars($page['dateModified']),
+        'date_created_iso'  => !empty($page['rawCreated']) ? date('Y-m-d', strtotime($page['rawCreated'])) : '',
+        'date_modified_iso' => !empty($page['rawModified']) ? date('Y-m-d', strtotime($page['rawModified'])) : '',
+        'description'       => htmlspecialchars($page['description']),
+        'wiki_description'  => htmlspecialchars($config['wiki_description'] ?? ''),
+        'wiki_name'         => htmlspecialchars($page['wikiName']),
+        'wiki_logo'         => htmlspecialchars(str_starts_with($config['wiki_logo'] ?? '', '/') ? BASE_PATH . $config['wiki_logo'] : ($config['wiki_logo'] ?? '')),
+        'wiki_favicon'      => htmlspecialchars(resolveFaviconUrl($config)),
+        'author'            => htmlspecialchars($page['author']),
+        'nav_links'         => buildNavLinksHtml(),
+        'context_path'      => htmlspecialchars($page['contextPath']),
+        'current_year'      => date('Y'),
+        'current_theme'     => htmlspecialchars($themeName),
+        'base_url'          => htmlspecialchars(BASE_PATH . ((defined('CURRENT_LANG') && CURRENT_LANG !== '') ? '/' . CURRENT_LANG . '/' : '/')),
+        'theme_url'         => htmlspecialchars(getThemeUrl($themeName)),
+        'pw_base_path'      => htmlspecialchars(BASE_PATH),
+        'show_left_sidebar'  => !($pageData['Settings']['hide_left_sidebar']  ?? false),
+        'show_right_sidebar' => !($pageData['Settings']['hide_right_sidebar'] ?? false),
+        'tags'               => $page['tagsHtml'],
+        'lang'               => htmlspecialchars(getFrontendLanguage()),
+    ];
 }
 
 /** Returns the search page URL, empty if disabled. */
@@ -572,37 +378,5 @@ function renderTagsHtml(array $tags, array $config): string {
         $html .= '<li class="pw-tag">' . $label . '</li>';
     }
     return $html . '</ul></div>';
-}
-
-/**
- * Resolves macros in the format {{ macro:macroname | param }}
- * by executing the corresponding PHP file in purewiki/frontend/macros/.
- *
- * @param string $html The HTML content to process
- * @param array $data Optional data to pass to the macro scope
- * @return string The processed HTML with resolved macros
- */
-function resolveMacros(string $html, array $data = []): string {
-    $macroDir = __DIR__ . '/macros/';
-
-    // Regex matches {{ macro:name }} or {{ macro:name | param }}
-    return preg_replace_callback('/{{\s*macro:\s*([a-zA-Z0-9_-]+)(?:\s*\|\s*([^}]+?))?\s*}}/', function($matches) use ($macroDir, $data) {
-        $macroName = $matches[1];
-        $macroParam = isset($matches[2]) ? trim($matches[2]) : null;
-        $macroFile = $macroDir . $macroName . '.php';
-
-        if (file_exists($macroFile)) {
-            ob_start();
-            $contextPath = $data['contextPath'] ?? '';
-            $wikiName    = $data['wikiName'] ?? '';
-            $pageData    = $data['pageData'] ?? [];
-            $config      = $data['config'] ?? [];
-
-            include $macroFile;
-            return ob_get_clean();
-        }
-
-        return '<!-- Macro "' . htmlspecialchars($macroName) . '" not found -->';
-    }, $html);
 }
 

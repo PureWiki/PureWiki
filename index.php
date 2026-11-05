@@ -69,8 +69,8 @@ if ($path === '/robots.txt') {
     echo 'Disallow: ' . BASE_PATH . "/dashboard\n";
     echo 'Disallow: ' . BASE_PATH . "/purewiki/api.php\n";
     if (!empty($config['seo_enable_sitemap'])) {
-        $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || ($_SERVER['SERVER_PORT'] ?? '') == 443) ? 'https://' : 'http://';
-        echo "\nSitemap: " . $protocol . ($_SERVER['HTTP_HOST'] ?? 'localhost') . BASE_PATH . "/sitemap.xml\n";
+        require_once __DIR__ . '/purewiki/core/http.php';
+        echo "\nSitemap: " . getSiteOrigin() . BASE_PATH . "/sitemap.xml\n";
     }
     exit;
 }
