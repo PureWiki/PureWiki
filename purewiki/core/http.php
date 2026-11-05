@@ -127,3 +127,9 @@ function fetchMarkdownUrl(string $url) {
 
     return ($httpCode >= 200 && $httpCode < 300 && $content !== false) ? $content : false;
 }
+
+/** Returns scheme and host of current request, like https://domain.de. */
+function getSiteOrigin(): string {
+    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443)) ? "https://" : "http://";
+    return $protocol . ($_SERVER['HTTP_HOST'] ?? 'localhost');
+}

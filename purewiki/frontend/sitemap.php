@@ -16,11 +16,10 @@ require_once __DIR__ . '/../core/config.php';
 require_once __DIR__ . '/../core/tree.php';
 require_once __DIR__ . '/../core/fs.php';
 require_once __DIR__ . '/../core/json.php';
+require_once __DIR__ . '/../core/http.php';
 
 // Prepare base URL
-$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443)) ? "https://" : "http://";
-$host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-$baseUrl = $protocol . $host . BASE_PATH;
+$baseUrl = getSiteOrigin() . BASE_PATH;
 
 // Get all public pages
 $rootDir = getPageDir();

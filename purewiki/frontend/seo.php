@@ -14,6 +14,7 @@
 defined('PUREWIKI') || die('Direct access denied.');
 
 require_once __DIR__ . '/parser.php';
+require_once __DIR__ . '/../core/http.php';
 require_once __DIR__ . '/../core/i18n_pages.php';
 
 const PW_JSONLD_FLAGS = JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT;
@@ -44,12 +45,6 @@ function buildSeoTags(array $seo): array {
     if ($schema !== null) $tags[] = $schema;
 
     return $tags;
-}
-
-/** Returns scheme and host of current request, like https://domain.de. */
-function getSiteOrigin(): string {
-    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443)) ? "https://" : "http://";
-    return $protocol . ($_SERVER['HTTP_HOST'] ?? 'localhost');
 }
 
 /** Checks if page is shown in its translation for current language. */
