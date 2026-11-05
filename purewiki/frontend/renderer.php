@@ -56,30 +56,8 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
         'layout' => $pageLayout, 'tagsHtml' => $tagsHtml,
     ] = $page;
 
-    // Resolve the template file in the following order:
-    // 1. themes/{current_theme}/{layout}.php
-    // 2. themes/{current_theme}/page.php
-    // 3. themes/default/page.php
-    $themeBase   = realpath(__DIR__ . '/../../themes') ?: __DIR__ . '/../../themes';
-    $templates = [
-        $themeBase . '/' . $themeName . '/' . $pageLayout . '.php',
-        $themeBase . '/' . $themeName . '/page.php',
-        $themeBase . '/default/page.php',
-    ];
-
-    // System templates first, fall back to the page layout
-    if (!empty($options['template'])) {
-        array_unshift($templates, $themeBase . '/' . $themeName . '/' . $options['template'] . '.php');
-    }
-
-    $templateFile = null;
-    foreach ($templates as $currentTemplate) {
-        if (file_exists($currentTemplate)) {
-            $templateFile = $currentTemplate;
-            break;
-        }
-    }
-
+    $templates    = getTemplateCandidates($themeName, $pageLayout, !empty($options['template']) ? (string) $options['template'] : '');
+    $templateFile = findTemplateFile($templates);
     if (!$templateFile) {
         pw_debug('No theme template found', ['theme' => $themeName, 'layout' => $pageLayout], 'WARN', 'renderer');
         return '<h1>No theme template found.</h1>';
@@ -88,13 +66,26 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
     // Without system template the macro is shown as content
     if (!empty($options['macro']) && $templateFile !== $templates[0]) {
         $contentHtml = resolveMacros('{{ macro:' . $options['macro'] . ' }}', ['contextPath' => $contextPath, 'pageData' => $pageData, 'config' => $config]);
+        $page['contentHtml'] = $contentHtml;
     }
 
     $themeUrl = BASE_PATH . '/themes/' . $themeName . '/';
 
-    ob_start();
-    include $templateFile;
-    $themeTemplate = ob_get_clean();
+    $themeTemplate = renderThemeTemplate($templateFile, [
+        'title'        => $title,
+        'contentHtml'  => $contentHtml,
+        'pageData'     => $pageData,
+        'config'       => $config,
+        'contextPath'  => $contextPath,
+        'wikiName'     => $wikiName,
+        'themeName'    => $themeName,
+        'themeUrl'     => $themeUrl,
+        'description'  => $description,
+        'author'       => $author,
+        'dateCreated'  => $dateCreated,
+        'dateModified' => $dateModified,
+        'options'      => $options,
+    ]);
 
     // Build nav links
     $navLinksHtml = '';
@@ -322,6 +313,41 @@ function buildPageContext(?array $pageData, string $fallbackTitle, string $pageJ
         $page['tagsHtml'] = renderTagsHtml($pageData['Tags'], $config);
     }
     return $page;
+}
+
+/**
+ * Returns possible template files in lookup order.
+ * System template, then {layout}.php and page.php of the theme, then page.php of default theme.
+ */
+function getTemplateCandidates(string $themeName, string $layout, string $systemTemplate = ''): array {
+    $themeBase = getThemesDir();
+    $templates = [
+        $themeBase . '/' . $themeName . '/' . $layout . '.php',
+        $themeBase . '/' . $themeName . '/page.php',
+        $themeBase . '/default/page.php',
+    ];
+    if ($systemTemplate !== '') {
+        array_unshift($templates, $themeBase . '/' . $themeName . '/' . $systemTemplate . '.php');
+    }
+    return $templates;
+}
+
+/** Returns first existing template file, null if none exists. */
+function findTemplateFile(array $templates): ?string {
+    foreach ($templates as $template) {
+        if (file_exists($template)) return $template;
+    }
+    return null;
+}
+
+/** Renders theme template, the template sees only the variables in $scope. */
+function renderThemeTemplate(string $templateFile, array $scope): string {
+    ob_start();
+    (static function () {
+        extract(func_get_arg(1));
+        include func_get_arg(0);
+    })($templateFile, $scope);
+    return ob_get_clean();
 }
 
 /** Returns the search page URL, empty if disabled. */
