@@ -124,7 +124,7 @@ function loadPageData(string $pageJsonPath, array $options): ?array {
     } else {
         http_response_code(404);
         // User override of 404 page first, then system default
-        $userPath   = __DIR__ . '/../../pages/_virtual/404/page.json';
+        $userPath   = getPageDir() . '/_virtual/404/page.json';
         $systemPath = getVirtualPagesDir() . '/_virtual/404/page.json';
 
         $pageData = [];
