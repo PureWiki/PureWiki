@@ -15,6 +15,7 @@ defined('PUREWIKI') || die('Direct access denied.');
 
 require_once __DIR__ . '/parser.php';
 require_once __DIR__ . '/template.php';
+require_once __DIR__ . '/seo.php';
 require_once __DIR__ . '/../core/config.php';
 require_once __DIR__ . '/../core/tree.php';
 require_once __DIR__ . '/../core/nav.php';
@@ -197,7 +198,7 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
         $extHead = ob_get_clean();
     }
 
-    // SEO Meta Tags Generation
+    // Favicon first, then SEO tags
     if (!empty($config['wiki_favicon'])) {
         $faviconUrl = $config['wiki_favicon'];
         if (str_starts_with($faviconUrl, '/')) {
@@ -206,158 +207,23 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
         $seoTags[] = '<link rel="icon" href="' . htmlspecialchars($faviconUrl) . '">';
     }
 
-    if (!empty($config['seo_prevent_indexing']) || !empty($options['noindex'])) {
-        $seoTags[] = '<meta name="robots" content="noindex, nofollow">';
-    }
-
-    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443)) ? "https://" : "http://";
-    $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-    $hasTranslation = defined('CURRENT_LANG') && CURRENT_LANG !== '' && str_ends_with(basename($pageJsonPath), '.' . CURRENT_LANG . '.json');
-    // Pages without translation show the default language content, so they point to its URL
-    $langPrefix = $hasTranslation ? '/' . CURRENT_LANG : '';
-    $urlPath = rtrim($contextPath, '/');
-    $currentUrl = rtrim($protocol . $host . BASE_PATH, '/') . $langPrefix . $urlPath;
-
-    // Result pages of a paginated page list
-    ['page' => $resultPage, 'pages' => $resultPages] = pageRenderFlags();
-    if ($resultPage > 0 && $resultPage <= $resultPages) {
-        $baseUrl = $currentUrl;
-        $pageUrl = fn(int $page) => $baseUrl . ($page > 1 ? '?page=' . $page : '');
-        $currentUrl = $pageUrl($resultPage);
-        if ($resultPage > 1) {
-            $seoTags[] = '<link rel="prev" href="' . htmlspecialchars($pageUrl($resultPage - 1)) . '">';
-        }
-        if ($resultPage < $resultPages) {
-            $seoTags[] = '<link rel="next" href="' . htmlspecialchars($pageUrl($resultPage + 1)) . '">';
-        }
-    }
-
-    if (!empty($config['seo_auto_canonical'])) {
-        $seoTags[] = '<link rel="canonical" href="' . htmlspecialchars($currentUrl) . '">';
-    }
-
-    if (!empty($config['i18n_enabled'])) {
-        require_once __DIR__ . '/../core/i18n_pages.php';
-        $supportedLangs = getSupportedPageLangs();
-        $defaultLang = getDefaultPageLang();
-        $pageDir = dirname($pageJsonPath);
-        // Only languages with a published translation of this page
-        $translatedLangs = array_filter(
-            $supportedLangs,
-            fn($lang) => $lang !== $defaultLang && file_exists($pageDir . '/' . getPageFilename($lang))
-        );
-        if (!empty($translatedLangs)) {
-            $baseUrlLang = rtrim($protocol . $host . BASE_PATH, '/');
-            $xDefaultUrl = $baseUrlLang . $urlPath;
-            if ($xDefaultUrl === '') $xDefaultUrl = '/';
-            
-            $seoTags[] = '<link rel="alternate" hreflang="x-default" href="' . htmlspecialchars($xDefaultUrl) . '">';
-            $seoTags[] = '<link rel="alternate" hreflang="' . htmlspecialchars($defaultLang) . '" href="' . htmlspecialchars($xDefaultUrl) . '">';
-
-            foreach ($translatedLangs as $lang) {
-                $langUrl = $baseUrlLang . '/' . $lang . $urlPath;
-                $seoTags[] = '<link rel="alternate" hreflang="' . htmlspecialchars($lang) . '" href="' . htmlspecialchars($langUrl) . '">';
-            }
-        }
-    }
-
-    $isStartpage = $contextPath === '/';
-    $shareTitle = $seoTitle !== '' ? $seoTitle : $title;
-
-    if (!empty($config['seo_auto_opengraph'])) {
-        $seoTags[] = '<meta property="og:title" content="' . htmlspecialchars($shareTitle) . '">';
-        if (!empty($description)) {
-            $seoTags[] = '<meta property="og:description" content="' . htmlspecialchars($description) . '">';
-        }
-        $seoTags[] = '<meta property="og:url" content="' . htmlspecialchars($currentUrl) . '">';
-        $seoTags[] = '<meta property="og:site_name" content="' . htmlspecialchars($wikiName) . '">';
-        $seoTags[] = '<meta property="og:type" content="' . ($isStartpage ? 'website' : 'article') . '">';
-    }
-
-    if (!empty($config['seo_twitter_cards'])) {
-        $seoTags[] = '<meta name="twitter:card" content="summary_large_image">';
-        $seoTags[] = '<meta name="twitter:title" content="' . htmlspecialchars($shareTitle) . '">';
-        if (!empty($description)) {
-            $seoTags[] = '<meta name="twitter:description" content="' . htmlspecialchars($description) . '">';
-        }
-    }
-
-    // Preview image of the page replaces the global one
-    $pageImageUrl = (string) ($pageData['Settings']['preview_image'] ?? '');
-    if ($pageImageUrl !== '' || !empty($config['seo_og_image_url'])) {
-        $imageUrl = $pageImageUrl !== '' ? $pageImageUrl : $config['seo_og_image_url'];
-        // resolve relative image urls
-        if (!preg_match('~^(?:f|ht)tps?://~i', $imageUrl)) {
-            // If it starts with a slash, we make it absolute for OpenGraph (requires full URL)
-            // OpenGraph usually works best with absolute URLs including domain.
-            $imageUrl = $protocol . $host . ($pageImageUrl !== '' ? BASE_PATH : '') . '/' . ltrim($imageUrl, '/');
-        }
-        $seoTags[] = '<meta property="og:image" content="' . htmlspecialchars($imageUrl) . '">';
-        if (!empty($config['seo_twitter_cards'])) {
-            $seoTags[] = '<meta name="twitter:image" content="' . htmlspecialchars($imageUrl) . '">';
-        }
-    }
-
-    // No structured data for error and system pages
-    $hasSchema = !empty($config['seo_schema_org']) && empty($options['noindex']) && http_response_code() !== 404;
-
-    // Startpage describes the wiki
-    if ($hasSchema && $isStartpage) {
-        $schemaData = [
-            '@context' => 'https://schema.org',
-            '@type' => 'WebSite',
-            'name' => $wikiName,
-            'url' => $currentUrl,
-        ];
-        if (!empty($description)) {
-            $schemaData['description'] = $description;
-        }
-
-        if ($hasTranslation) {
-            $schemaData['inLanguage'] = CURRENT_LANG;
-        } elseif (!empty($config['i18n_enabled'])) {
-            require_once __DIR__ . '/../core/i18n_pages.php';
-            $schemaData['inLanguage'] = getDefaultPageLang();
-        }
-        $seoTags[] = '<script type="application/ld+json">' . json_encode($schemaData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . '</script>';
-    } elseif ($hasSchema) {
-        $schemaData = [
-            '@context' => 'https://schema.org',
-            '@type' => 'Article',
-            'headline' => $title,
-            'url' => $currentUrl,
-        ];
-        if (!empty($description)) {
-            $schemaData['description'] = $description;
-        }
-        if (!empty($author)) {
-            $schemaData['author'] = [
-                '@type' => 'Person',
-                'name' => $author
-            ];
-        }
-        if (!empty($rawCreated)) {
-            $schemaData['datePublished'] = date('c', strtotime($rawCreated));
-        }
-        if (!empty($rawModified)) {
-            $schemaData['dateModified'] = date('c', strtotime($rawModified));
-        }
-        if (isset($imageUrl) && !empty($imageUrl)) {
-            $schemaData['image'] = $imageUrl;
-        }
-        $seoTags[] = '<script type="application/ld+json">' . json_encode($schemaData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . '</script>';
-    }
-
-    $titleFormat = $config['seo_title_format'] ?? '{{ page_title }} - {{ wiki_name }}';
-    $renderedTitle = str_replace(
-        ['{{ page_title }}', '{{ wiki_name }}'],
-        [$title, $wikiName],
-        $titleFormat
-    );
-    // SEO title from page settings replaces title format
-    if ($seoTitle !== '') {
-        $renderedTitle = $seoTitle;
-    }
+    // Runs after parsing, page list sets result page and 404 status
+    $seo = [
+        'config'       => $config,
+        'options'      => $options,
+        'pageData'     => $pageData,
+        'pageJsonPath' => $pageJsonPath,
+        'contextPath'  => $contextPath,
+        'title'        => $title,
+        'seoTitle'     => $seoTitle,
+        'description'  => $description,
+        'author'       => $author,
+        'rawCreated'   => $rawCreated ?? '',
+        'rawModified'  => $rawModified ?? '',
+        'wikiName'     => $wikiName,
+    ];
+    array_push($seoTags, ...buildSeoTags($seo));
+    $renderedTitle = resolvePageTitle($seo);
 
     // Macros and virtual pages first, icon check needs their output
     $finalOutput = resolveTemplateStructure($themeTemplate, [
