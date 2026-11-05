@@ -14,6 +14,7 @@
 defined('PUREWIKI') || die('Direct access denied.');
 
 require_once __DIR__ . '/parser.php';
+require_once __DIR__ . '/template.php';
 require_once __DIR__ . '/../core/config.php';
 require_once __DIR__ . '/../core/tree.php';
 require_once __DIR__ . '/../core/nav.php';
@@ -358,18 +359,13 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
         $renderedTitle = $seoTitle;
     }
 
-    $finalOutput = $themeTemplate;
-
-    // Resolve Macros first
-    $finalOutput = resolveMacros($finalOutput, [
+    // Macros and virtual pages first, icon check needs their output
+    $finalOutput = resolveTemplateStructure($themeTemplate, [
         'contextPath' => $contextPath,
         'wikiName' => $wikiName,
         'pageData' => $pageData,
         'config' => $config
     ]);
-
-    // Resolve Virtual Pages
-    $finalOutput = resolveVirtualPages($finalOutput, $pageData ?: [], $contextPath);
 
     // Check if any icon is present in output or content
     if (str_contains($finalOutput, '<iconify-icon') || str_contains($contentHtml, '<iconify-icon')) {
@@ -420,13 +416,7 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
         'lang'               => htmlspecialchars(getFrontendLanguage()),
     ];
 
-    // Resolve conditions (if / else / endif)
-    $finalOutput = resolveConditions($finalOutput, $vars);
-
-    $finalOutput = preg_replace_callback('/{{\s*([a-zA-Z0-9_]+)\s*}}/', function($matches) use ($vars) {
-        $key = $matches[1];
-        return $vars[$key] ?? $matches[0]; // keep original if key is unknown
-    }, $finalOutput);
+    $finalOutput = resolveTemplateVars($finalOutput, $vars);
 
     // In-Page Admin Menu
     injectAdminMenu($finalOutput, $config, $contextPath);
@@ -445,110 +435,6 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
     }
 
     return $finalOutput;
-}
-
-/**
- * Resolves if / else / endif logic in the template.
- * Supported format: {{ if variable }} ... {{ else }} ... {{ endif }}
- *
- * @param string $html The HTML content to process
- * @param array $vars The variables available in the current context
- * @return string The processed HTML
- */
-function resolveConditions(string $html, array $vars): string {
-    $ifCount = preg_match_all('/{{\s*if\s+[a-zA-Z0-9_]+\s*}}/', $html);
-    $endifCount = preg_match_all('/{{\s*endif\s*}}/', $html);
-
-    if ($ifCount !== $endifCount) {
-        return "<!-- Template Error: Mismatched {{ if }} and {{ endif }} count ($ifCount ifs, $endifCount endifs) -->\n" . $html;
-    }
-
-    $pattern = '/{{\s*if\s+([a-zA-Z0-9_]+)\s*}}((?:(?!{{\s*if\s+[a-zA-Z0-9_]+\s*}}).)*?){{\s*endif\s*}}/s';
-
-    $loopCount = 0;
-    while (preg_match('/{{\s*if\s+[a-zA-Z0-9_]+\s*}}/', $html) && $loopCount < 50) {
-        $html = preg_replace_callback($pattern, function($matches) use ($vars) {
-            $conditionKey = $matches[1];
-            $innerBlock = $matches[2];
-
-            $parts = preg_split('/{{\s*else\s*}}/', $innerBlock, 2);
-            $trueBlock = $parts[0];
-            $falseBlock = $parts[1] ?? '';
-
-            $conditionValue = $vars[$conditionKey] ?? null;
-            if (!empty($conditionValue)) {
-                return $trueBlock;
-            } else {
-                return $falseBlock;
-            }
-        }, $html, -1, $count);
-
-        if ($count === 0) {
-            $html = "<!-- Template Error: Malformed {{ if }} blocks detected -->\n" . $html;
-            break;
-        }
-        $loopCount++;
-    }
-
-    return $html;
-}
-
-/**
- * Resolves virtual pages in the format {{ virtual:pagename }}.
- * Dynamically looks up /purewiki/data/pages/_pagename/page.json and /pages/_pagename/page.json and parses its blocks.
- *
- * @param string $html The HTML content to process
- * @param array $parentPageData The data of the current page being rendered
- * @param string $contextPath The current request path
- * @return string The processed HTML with rendered virtual pages
- */
-function resolveVirtualPages(string $html, array $parentPageData, string $contextPath): string {
-    $pagesDir = getPageDir();
-
-    // Regex matches {{ virtual:name }}
-    return preg_replace_callback('/{{\s*virtual:\s*([a-zA-Z0-9_-]+)\s*}}/', function($matches) use ($pagesDir, $parentPageData, $contextPath) {
-        $pageName = $matches[1];
-
-        // apply sidebar visibility settings
-        if ($pageName === 'left_sidebar' && ($parentPageData['Settings']['hide_left_sidebar'] ?? false)) {
-            return '';
-        }
-        if ($pageName === 'right_sidebar' && ($parentPageData['Settings']['hide_right_sidebar'] ?? false)) {
-            return '';
-        }
-
-        $lang = defined('CURRENT_LANG') ? CURRENT_LANG : '';
-        $filename = getPageFilename($lang);
-        $defaultFilename = 'page.json';
-
-        // Check for override in /pages/_virtual/
-        $overridePath = $pagesDir . '/_virtual/' . $pageName . '/' . $filename;
-        $overrideFallback = $pagesDir . '/_virtual/' . $pageName . '/' . $defaultFilename;
-        
-        // Fallback to system default in /purewiki/data/pages/_virtual/
-        $defaultPath = getVirtualPagesDir() . '/_virtual/' . $pageName . '/' . $filename;
-        $defaultFallback = getVirtualPagesDir() . '/_virtual/' . $pageName . '/' . $defaultFilename;
-
-        $virtualJson = null;
-        if (file_exists($overridePath)) {
-            $virtualJson = $overridePath;
-        } elseif ($lang !== '' && file_exists($overrideFallback)) {
-            $virtualJson = $overrideFallback;
-        } elseif (file_exists($defaultPath)) {
-            $virtualJson = $defaultPath;
-        } elseif ($lang !== '' && file_exists($defaultFallback)) {
-            $virtualJson = $defaultFallback;
-        }
-
-        if ($virtualJson) {
-            $vData = readJson($virtualJson, null);
-            if ($vData && !empty($vData['blocks'])) {
-                return parseBlocksToHtml($vData['blocks'], $contextPath, $parentPageData['blocks'] ?? null);
-            }
-        }
-
-        return '';
-    }, $html);
 }
 
 /** Returns the search page URL, empty if disabled. */
@@ -572,37 +458,5 @@ function renderTagsHtml(array $tags, array $config): string {
         $html .= '<li class="pw-tag">' . $label . '</li>';
     }
     return $html . '</ul></div>';
-}
-
-/**
- * Resolves macros in the format {{ macro:macroname | param }}
- * by executing the corresponding PHP file in purewiki/frontend/macros/.
- *
- * @param string $html The HTML content to process
- * @param array $data Optional data to pass to the macro scope
- * @return string The processed HTML with resolved macros
- */
-function resolveMacros(string $html, array $data = []): string {
-    $macroDir = __DIR__ . '/macros/';
-
-    // Regex matches {{ macro:name }} or {{ macro:name | param }}
-    return preg_replace_callback('/{{\s*macro:\s*([a-zA-Z0-9_-]+)(?:\s*\|\s*([^}]+?))?\s*}}/', function($matches) use ($macroDir, $data) {
-        $macroName = $matches[1];
-        $macroParam = isset($matches[2]) ? trim($matches[2]) : null;
-        $macroFile = $macroDir . $macroName . '.php';
-
-        if (file_exists($macroFile)) {
-            ob_start();
-            $contextPath = $data['contextPath'] ?? '';
-            $wikiName    = $data['wikiName'] ?? '';
-            $pageData    = $data['pageData'] ?? [];
-            $config      = $data['config'] ?? [];
-
-            include $macroFile;
-            return ob_get_clean();
-        }
-
-        return '<!-- Macro "' . htmlspecialchars($macroName) . '" not found -->';
-    }, $html);
 }
 
