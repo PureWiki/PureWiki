@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fixed the default social media image pointing to the wrong URL when the wiki is installed in a subfolder.
+- Fixed pages without description getting an empty `<meta name="description">` tag (theme).
 
 ## [0.3.2] - 2026-11-04
 
