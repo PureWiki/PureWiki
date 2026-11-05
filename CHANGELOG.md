@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Split the page renderer into `renderer.php`, `seo.php` and `template.php`. The output of pages does not change.
 - Theme templates now only get the PHP variables listed in the theme documentation. Themes that only use placeholders like `{{ content }}` are not affected.
 
+### Fixed
+
+- Fixed the default social media image pointing to the wrong URL when the wiki is installed in a subfolder.
+
 ## [0.3.2] - 2026-11-04
 
 ### Added

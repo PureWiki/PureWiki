@@ -134,7 +134,7 @@ function resolveShareImageUrl(array $page, array $config): string {
     $imageUrl = $pageImageUrl !== '' ? $pageImageUrl : $globalImageUrl;
     // OpenGraph needs absolute URL with domain
     if (!preg_match('~^(?:f|ht)tps?://~i', $imageUrl)) {
-        $imageUrl = getSiteOrigin() . ($pageImageUrl !== '' ? BASE_PATH : '') . '/' . ltrim($imageUrl, '/');
+        $imageUrl = getSiteOrigin() . BASE_PATH . '/' . ltrim($imageUrl, '/');
     }
     return $imageUrl;
 }
