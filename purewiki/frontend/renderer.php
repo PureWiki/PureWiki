@@ -35,16 +35,6 @@ require_once __DIR__ . '/../version.php';
  * @return string Final HTML output
  */
 function renderPage(string $pageJsonPath, string $fallbackTitle, string $contextPath = '/', array $options = []): string {
-    $title = 'PureWiki';
-    $contentHtml = '';
-    $dateCreated = '';
-    $dateModified = '';
-    $description = '';
-    $seoTitle = '';
-    $author = '';
-    $pageLayout = 'page';
-    $tagsHtml = '';
-    $pageData = [];
     $seoTags = [];
     $faviconUrl = '';
 
@@ -56,57 +46,15 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
     $wikiName  = $config['wiki_name']     ?? 'PureWiki';
     $themeName = $config['current_theme'] ?? 'default';
 
-    if (isset($options['pageData'])) {
-        $pageData = $options['pageData'];
-    } elseif (file_exists($pageJsonPath)) {
-        $pageData = readJson($pageJsonPath, null);
-    } else {
-        http_response_code(404);
-        // Fallback to virtual 404 page (pages Folder Override first, then System Default)
-        $UserPath   = __DIR__ . '/../../pages/_virtual/404/page.json';
-        $SystemPath = getVirtualPagesDir() . '/_virtual/404/page.json';
-
-        if (file_exists($UserPath)) {
-            $pageData = readJson($UserPath, null);
-        } elseif (file_exists($SystemPath)) {
-            $pageData = readJson($SystemPath, null);
-        }
-    }
-
-    if ($pageData) {
-            $title = $pageData['pagetitle'] ?? $fallbackTitle;
-            $seoTitle = trim((string) ($pageData['Settings']['seo_title'] ?? ''));
-            $blocks = $pageData['blocks'] ?? [];
-            $contentHtml = parseBlocksToHtml($blocks, $contextPath);
-
-            $rawCreated   = $pageData['DateCreated']  ?? '';
-            $rawModified  = $pageData['DateModified'] ?? '';
-            $dateCreated  = $rawCreated  ? date('d.m.Y', strtotime($rawCreated))  : '';
-            $dateModified = $rawModified ? date('d.m.Y', strtotime($rawModified)) : '';
-            $description  = $pageData['description'] ?? $pageData['Description'] ?? '';
-            if (empty($description) && !empty($config['wiki_description'])) {
-                $description = $config['wiki_description'];
-            }
-            // Public display name only, the stored author is the login name
-            require_once __DIR__ . '/../core/auth.php';
-            $author       = getUserDisplayName((string) ($pageData['Author'] ?? ''));
-
-            // Resolve layout from page settings (strip .php if present, fallback to 'page')
-            $rawLayout  = $pageData['Settings']['Layout'] ?? '';
-            if ($rawLayout !== '') {
-                $pageLayout = pathinfo($rawLayout, PATHINFO_FILENAME);
-            }
-            if (!empty($pageData['Tags']) && is_array($pageData['Tags'])) {
-                $tagsHtml = renderTagsHtml($pageData['Tags'], $config);
-            }
-    } else {
-        // Fallback if _404 is missing
-        $title = 'Page Not Found - PureWiki';
-        $contentHtml = '<h2>404 - Not Found</h2><p>The page you are looking for does not exist.</p>';
-        if ($contextPath !== '/') {
-            $contentHtml .= '<a href="' . BASE_PATH . '/">Go to Startpage</a>';
-        }
-    }
+    $pageData = loadPageData($pageJsonPath, $options);
+    $page     = buildPageContext($pageData, $fallbackTitle, $pageJsonPath, $contextPath, $config);
+    [
+        'title' => $title, 'seoTitle' => $seoTitle, 'contentHtml' => $contentHtml,
+        'rawCreated' => $rawCreated, 'rawModified' => $rawModified,
+        'dateCreated' => $dateCreated, 'dateModified' => $dateModified,
+        'description' => $description, 'author' => $author,
+        'layout' => $pageLayout, 'tagsHtml' => $tagsHtml,
+    ] = $page;
 
     // Resolve the template file in the following order:
     // 1. themes/{current_theme}/{layout}.php
@@ -208,22 +156,8 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
     }
 
     // Runs after parsing, page list sets result page and 404 status
-    $seo = [
-        'config'       => $config,
-        'options'      => $options,
-        'pageData'     => $pageData,
-        'pageJsonPath' => $pageJsonPath,
-        'contextPath'  => $contextPath,
-        'title'        => $title,
-        'seoTitle'     => $seoTitle,
-        'description'  => $description,
-        'author'       => $author,
-        'rawCreated'   => $rawCreated ?? '',
-        'rawModified'  => $rawModified ?? '',
-        'wikiName'     => $wikiName,
-    ];
-    array_push($seoTags, ...buildSeoTags($seo));
-    $renderedTitle = resolvePageTitle($seo);
+    array_push($seoTags, ...buildSeoTags($page, $config, $options));
+    $renderedTitle = resolvePageTitle($page, $config);
 
     // Macros and virtual pages first, icon check needs their output
     $finalOutput = resolveTemplateStructure($themeTemplate, [
@@ -301,6 +235,93 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
     }
 
     return $finalOutput;
+}
+
+/** Returns page data from options or page.json, else 404 page and sets 404 status. */
+function loadPageData(string $pageJsonPath, array $options): ?array {
+    if (isset($options['pageData'])) {
+        $pageData = $options['pageData'];
+    } elseif (file_exists($pageJsonPath)) {
+        $pageData = readJson($pageJsonPath, null);
+    } else {
+        http_response_code(404);
+        // User override of 404 page first, then system default
+        $userPath   = __DIR__ . '/../../pages/_virtual/404/page.json';
+        $systemPath = getVirtualPagesDir() . '/_virtual/404/page.json';
+
+        $pageData = [];
+        if (file_exists($userPath)) {
+            $pageData = readJson($userPath, null);
+        } elseif (file_exists($systemPath)) {
+            $pageData = readJson($systemPath, null);
+        }
+    }
+    return is_array($pageData) ? $pageData : null;
+}
+
+/**
+ * Returns page values for templates and SEO tags.
+ * Parses the blocks, so it sets result page of a page list and 404 status.
+ */
+function buildPageContext(?array $pageData, string $fallbackTitle, string $pageJsonPath, string $contextPath, array $config): array {
+    $page = [
+        'pageData'     => $pageData,
+        'pageJsonPath' => $pageJsonPath,
+        'contextPath'  => $contextPath,
+        'wikiName'     => $config['wiki_name'] ?? 'PureWiki',
+        'title'        => 'PureWiki',
+        'seoTitle'     => '',
+        'contentHtml'  => '',
+        'rawCreated'   => '',
+        'rawModified'  => '',
+        'dateCreated'  => '',
+        'dateModified' => '',
+        'description'  => '',
+        'author'       => '',
+        'layout'       => 'page',
+        'tagsHtml'     => '',
+    ];
+
+    // Fallback if 404 page is missing
+    if (!$pageData) {
+        $page['title'] = 'Page Not Found - PureWiki';
+        $page['contentHtml'] = '<h2>404 - Not Found</h2><p>The page you are looking for does not exist.</p>';
+        if ($contextPath !== '/') {
+            $page['contentHtml'] .= '<a href="' . BASE_PATH . '/">Go to Startpage</a>';
+        }
+        return $page;
+    }
+
+    $page['title'] = $pageData['pagetitle'] ?? $fallbackTitle;
+    $page['seoTitle'] = trim((string) ($pageData['Settings']['seo_title'] ?? ''));
+    $page['contentHtml'] = parseBlocksToHtml($pageData['blocks'] ?? [], $contextPath);
+
+    $rawCreated  = $pageData['DateCreated']  ?? '';
+    $rawModified = $pageData['DateModified'] ?? '';
+    $page['rawCreated']   = $rawCreated;
+    $page['rawModified']  = $rawModified;
+    $page['dateCreated']  = $rawCreated  ? date('d.m.Y', strtotime($rawCreated))  : '';
+    $page['dateModified'] = $rawModified ? date('d.m.Y', strtotime($rawModified)) : '';
+
+    $description = $pageData['description'] ?? $pageData['Description'] ?? '';
+    if (empty($description) && !empty($config['wiki_description'])) {
+        $description = $config['wiki_description'];
+    }
+    $page['description'] = $description;
+
+    // Public display name only, the stored author is the login name
+    require_once __DIR__ . '/../core/auth.php';
+    $page['author'] = getUserDisplayName((string) ($pageData['Author'] ?? ''));
+
+    // Layout without .php, fallback is page
+    $rawLayout = $pageData['Settings']['Layout'] ?? '';
+    if ($rawLayout !== '') {
+        $page['layout'] = pathinfo($rawLayout, PATHINFO_FILENAME);
+    }
+    if (!empty($pageData['Tags']) && is_array($pageData['Tags'])) {
+        $page['tagsHtml'] = renderTagsHtml($pageData['Tags'], $config);
+    }
+    return $page;
 }
 
 /** Returns the search page URL, empty if disabled. */

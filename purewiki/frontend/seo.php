@@ -19,29 +19,25 @@ require_once __DIR__ . '/../core/i18n_pages.php';
 
 const PW_JSONLD_FLAGS = JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT;
 
-/**
- * Returns all SEO tags of a page in output order.
- * Tags: config, options, pageData, pageJsonPath, contextPath, title, seoTitle,
- * description, author, rawCreated, rawModified and wikiName.
- */
-function buildSeoTags(array $seo): array {
+/** Returns all SEO tags of a page in output order, $page comes from buildPageContext(). */
+function buildSeoTags(array $page, array $config, array $options): array {
     $tags = [];
 
-    $robots = buildRobotsTag($seo);
+    $robots = buildRobotsTag($config, $options);
     if ($robots !== null) $tags[] = $robots;
 
-    $urls = buildPageUrls($seo);
+    $urls = buildPageUrls($page);
     array_push($tags, ...buildPaginationLinks($urls));
 
-    $canonical = buildCanonicalTag($seo, $urls['current']);
+    $canonical = buildCanonicalTag($config, $urls['current']);
     if ($canonical !== null) $tags[] = $canonical;
 
-    array_push($tags, ...buildHreflangLinks($seo));
+    array_push($tags, ...buildHreflangLinks($page, $config));
 
-    $image = resolveShareImageUrl($seo);
-    array_push($tags, ...buildSocialTags($seo, $urls['current'], $image));
+    $image = resolveShareImageUrl($page, $config);
+    array_push($tags, ...buildSocialTags($page, $config, $urls['current'], $image));
 
-    $schema = buildStructuredData($seo, $urls['current'], $image);
+    $schema = buildStructuredData($page, $config, $options, $urls['current'], $image);
     if ($schema !== null) $tags[] = $schema;
 
     return $tags;
@@ -53,18 +49,18 @@ function pageHasTranslation(string $pageJsonPath): bool {
 }
 
 /** Returns robots tag if indexing is off, else null. */
-function buildRobotsTag(array $seo): ?string {
-    if (!empty($seo['config']['seo_prevent_indexing']) || !empty($seo['options']['noindex'])) {
+function buildRobotsTag(array $config, array $options): ?string {
+    if (!empty($config['seo_prevent_indexing']) || !empty($options['noindex'])) {
         return '<meta name="robots" content="noindex, nofollow">';
     }
     return null;
 }
 
 /** Returns absolute URLs of page with prev and next for result pages of a page list. */
-function buildPageUrls(array $seo): array {
+function buildPageUrls(array $page): array {
     // Pages without translation show default language content, so they point to its URL
-    $langPrefix = pageHasTranslation($seo['pageJsonPath']) ? '/' . CURRENT_LANG : '';
-    $currentUrl = rtrim(getSiteOrigin() . BASE_PATH, '/') . $langPrefix . rtrim($seo['contextPath'], '/');
+    $langPrefix = pageHasTranslation($page['pageJsonPath']) ? '/' . CURRENT_LANG : '';
+    $currentUrl = rtrim(getSiteOrigin() . BASE_PATH, '/') . $langPrefix . rtrim($page['contextPath'], '/');
     $urls = ['current' => $currentUrl, 'prev' => null, 'next' => null];
 
     // Result pages of paginated page list
@@ -95,17 +91,17 @@ function buildPaginationLinks(array $urls): array {
 }
 
 /** Returns canonical link if enabled, else null. */
-function buildCanonicalTag(array $seo, string $url): ?string {
-    if (empty($seo['config']['seo_auto_canonical'])) return null;
+function buildCanonicalTag(array $config, string $url): ?string {
+    if (empty($config['seo_auto_canonical'])) return null;
     return '<link rel="canonical" href="' . htmlspecialchars($url) . '">';
 }
 
 /** Returns hreflang links for default language and all published translations. */
-function buildHreflangLinks(array $seo): array {
-    if (empty($seo['config']['i18n_enabled'])) return [];
+function buildHreflangLinks(array $page, array $config): array {
+    if (empty($config['i18n_enabled'])) return [];
 
     $defaultLang = getDefaultPageLang();
-    $pageDir = dirname($seo['pageJsonPath']);
+    $pageDir = dirname($page['pageJsonPath']);
     // Only languages with a published translation of this page
     $translatedLangs = array_filter(
         getSupportedPageLangs(),
@@ -114,7 +110,7 @@ function buildHreflangLinks(array $seo): array {
     if (empty($translatedLangs)) return [];
 
     $baseUrl = rtrim(getSiteOrigin() . BASE_PATH, '/');
-    $urlPath = rtrim($seo['contextPath'], '/');
+    $urlPath = rtrim($page['contextPath'], '/');
     $xDefaultUrl = $baseUrl . $urlPath;
     if ($xDefaultUrl === '') $xDefaultUrl = '/';
 
@@ -129,10 +125,10 @@ function buildHreflangLinks(array $seo): array {
 }
 
 /** Returns absolute URL of share image, empty if none is set. */
-function resolveShareImageUrl(array $seo): string {
+function resolveShareImageUrl(array $page, array $config): string {
     // Preview image of the page replaces the global one
-    $pageImageUrl = (string) ($seo['pageData']['Settings']['preview_image'] ?? '');
-    $globalImageUrl = $seo['config']['seo_og_image_url'] ?? '';
+    $pageImageUrl = (string) ($page['pageData']['Settings']['preview_image'] ?? '');
+    $globalImageUrl = $config['seo_og_image_url'] ?? '';
     if ($pageImageUrl === '' && empty($globalImageUrl)) return '';
 
     $imageUrl = $pageImageUrl !== '' ? $pageImageUrl : $globalImageUrl;
@@ -144,10 +140,9 @@ function resolveShareImageUrl(array $seo): string {
 }
 
 /** Returns OpenGraph and Twitter (X) tags, image tags are added even with OpenGraph off. */
-function buildSocialTags(array $seo, string $url, string $image): array {
-    $config = $seo['config'];
-    $description = $seo['description'];
-    $shareTitle = $seo['seoTitle'] !== '' ? $seo['seoTitle'] : $seo['title'];
+function buildSocialTags(array $page, array $config, string $url, string $image): array {
+    $description = $page['description'];
+    $shareTitle = $page['seoTitle'] !== '' ? $page['seoTitle'] : $page['title'];
     $tags = [];
 
     if (!empty($config['seo_auto_opengraph'])) {
@@ -156,8 +151,8 @@ function buildSocialTags(array $seo, string $url, string $image): array {
             $tags[] = '<meta property="og:description" content="' . htmlspecialchars($description) . '">';
         }
         $tags[] = '<meta property="og:url" content="' . htmlspecialchars($url) . '">';
-        $tags[] = '<meta property="og:site_name" content="' . htmlspecialchars($seo['wikiName']) . '">';
-        $tags[] = '<meta property="og:type" content="' . ($seo['contextPath'] === '/' ? 'website' : 'article') . '">';
+        $tags[] = '<meta property="og:site_name" content="' . htmlspecialchars($page['wikiName']) . '">';
+        $tags[] = '<meta property="og:type" content="' . ($page['contextPath'] === '/' ? 'website' : 'article') . '">';
     }
 
     if (!empty($config['seo_twitter_cards'])) {
@@ -178,27 +173,26 @@ function buildSocialTags(array $seo, string $url, string $image): array {
 }
 
 /** Returns JSON-LD script with WebSite for startpage and Article for other pages, null if disabled. */
-function buildStructuredData(array $seo, string $url, string $image): ?string {
-    $config = $seo['config'];
+function buildStructuredData(array $page, array $config, array $options, string $url, string $image): ?string {
     // No structured data for error and system pages
-    if (empty($config['seo_schema_org']) || !empty($seo['options']['noindex']) || http_response_code() === 404) {
+    if (empty($config['seo_schema_org']) || !empty($options['noindex']) || http_response_code() === 404) {
         return null;
     }
 
-    $description = $seo['description'];
+    $description = $page['description'];
 
     // Startpage describes the wiki
-    if ($seo['contextPath'] === '/') {
+    if ($page['contextPath'] === '/') {
         $schemaData = [
             '@context' => 'https://schema.org',
             '@type' => 'WebSite',
-            'name' => $seo['wikiName'],
+            'name' => $page['wikiName'],
             'url' => $url,
         ];
         if (!empty($description)) {
             $schemaData['description'] = $description;
         }
-        if (pageHasTranslation($seo['pageJsonPath'])) {
+        if (pageHasTranslation($page['pageJsonPath'])) {
             $schemaData['inLanguage'] = CURRENT_LANG;
         } elseif (!empty($config['i18n_enabled'])) {
             $schemaData['inLanguage'] = getDefaultPageLang();
@@ -209,23 +203,23 @@ function buildStructuredData(array $seo, string $url, string $image): ?string {
     $schemaData = [
         '@context' => 'https://schema.org',
         '@type' => 'Article',
-        'headline' => $seo['title'],
+        'headline' => $page['title'],
         'url' => $url,
     ];
     if (!empty($description)) {
         $schemaData['description'] = $description;
     }
-    if (!empty($seo['author'])) {
+    if (!empty($page['author'])) {
         $schemaData['author'] = [
             '@type' => 'Person',
-            'name' => $seo['author']
+            'name' => $page['author']
         ];
     }
-    if (!empty($seo['rawCreated'])) {
-        $schemaData['datePublished'] = date('c', strtotime($seo['rawCreated']));
+    if (!empty($page['rawCreated'])) {
+        $schemaData['datePublished'] = date('c', strtotime($page['rawCreated']));
     }
-    if (!empty($seo['rawModified'])) {
-        $schemaData['dateModified'] = date('c', strtotime($seo['rawModified']));
+    if (!empty($page['rawModified'])) {
+        $schemaData['dateModified'] = date('c', strtotime($page['rawModified']));
     }
     if ($image !== '') {
         $schemaData['image'] = $image;
@@ -234,13 +228,13 @@ function buildStructuredData(array $seo, string $url, string $image): ?string {
 }
 
 /** Returns page title from title format, SEO title of page replaces it. */
-function resolvePageTitle(array $seo): string {
-    if ($seo['seoTitle'] !== '') return $seo['seoTitle'];
+function resolvePageTitle(array $page, array $config): string {
+    if ($page['seoTitle'] !== '') return $page['seoTitle'];
 
-    $titleFormat = $seo['config']['seo_title_format'] ?? '{{ page_title }} - {{ wiki_name }}';
+    $titleFormat = $config['seo_title_format'] ?? '{{ page_title }} - {{ wiki_name }}';
     return str_replace(
         ['{{ page_title }}', '{{ wiki_name }}'],
-        [$seo['title'], $seo['wikiName']],
+        [$page['title'], $page['wikiName']],
         $titleFormat
     );
 }
