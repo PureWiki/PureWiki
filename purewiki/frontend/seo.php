@@ -29,7 +29,7 @@ function buildSeoTags(array $page, array $config, array $options): array {
     $urls = buildPageUrls($page);
     array_push($tags, ...buildPaginationLinks($urls));
 
-    $canonical = buildCanonicalTag($config, $urls['current']);
+    $canonical = buildCanonicalTag($config, $options, $urls['current']);
     if ($canonical !== null) $tags[] = $canonical;
 
     array_push($tags, ...buildHreflangLinks($page, $config));
@@ -48,12 +48,15 @@ function pageHasTranslation(string $pageJsonPath): bool {
     return defined('CURRENT_LANG') && CURRENT_LANG !== '' && str_ends_with(basename($pageJsonPath), '.' . CURRENT_LANG . '.json');
 }
 
+/** Checks if indexing is off for whole wiki or page. */
+function isNoindexPage(array $config, array $options): bool {
+    return !empty($config['seo_prevent_indexing']) || !empty($options['noindex']);
+}
+
 /** Returns robots tag if indexing is off, else null. */
 function buildRobotsTag(array $config, array $options): ?string {
-    if (!empty($config['seo_prevent_indexing']) || !empty($options['noindex'])) {
-        return '<meta name="robots" content="noindex, nofollow">';
-    }
-    return null;
+    if (!isNoindexPage($config, $options)) return null;
+    return '<meta name="robots" content="noindex, nofollow">';
 }
 
 /** Returns absolute URLs of page with prev and next for result pages of a page list. */
@@ -90,9 +93,11 @@ function buildPaginationLinks(array $urls): array {
     return $tags;
 }
 
-/** Returns canonical link if enabled, else null. */
-function buildCanonicalTag(array $config, string $url): ?string {
+/** Returns canonical link if enabled, null on 404 and noindex pages. */
+function buildCanonicalTag(array $config, array $options, string $url): ?string {
     if (empty($config['seo_auto_canonical'])) return null;
+    // No canonical for pages that should not be indexed
+    if (isNoindexPage($config, $options) || http_response_code() === 404) return null;
     return '<link rel="canonical" href="' . htmlspecialchars($url) . '">';
 }
 
