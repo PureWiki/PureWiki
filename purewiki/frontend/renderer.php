@@ -35,185 +35,72 @@ require_once __DIR__ . '/../version.php';
  * @return string Final HTML output
  */
 function renderPage(string $pageJsonPath, string $fallbackTitle, string $contextPath = '/', array $options = []): string {
-    $seoTags = [];
-    $faviconUrl = '';
-
     // Log page render time if debug mode is enabled
     $renderStart = isDebugMode() ? microtime(true) : 0.0;
 
-    // Load global config
     $config    = getGlobalConfig();
-    $wikiName  = $config['wiki_name']     ?? 'PureWiki';
     $themeName = $config['current_theme'] ?? 'default';
+    $pageData  = loadPageData($pageJsonPath, $options);
+    $page      = buildPageContext($pageData, $fallbackTitle, $pageJsonPath, $contextPath, $config);
 
-    $pageData = loadPageData($pageJsonPath, $options);
-    $page     = buildPageContext($pageData, $fallbackTitle, $pageJsonPath, $contextPath, $config);
-    [
-        'title' => $title, 'seoTitle' => $seoTitle, 'contentHtml' => $contentHtml,
-        'rawCreated' => $rawCreated, 'rawModified' => $rawModified,
-        'dateCreated' => $dateCreated, 'dateModified' => $dateModified,
-        'description' => $description, 'author' => $author,
-        'layout' => $pageLayout, 'tagsHtml' => $tagsHtml,
-    ] = $page;
-
-    $templates    = getTemplateCandidates($themeName, $pageLayout, !empty($options['template']) ? (string) $options['template'] : '');
+    $templates    = getTemplateCandidates($themeName, $page['layout'], !empty($options['template']) ? (string) $options['template'] : '');
     $templateFile = findTemplateFile($templates);
     if (!$templateFile) {
-        pw_debug('No theme template found', ['theme' => $themeName, 'layout' => $pageLayout], 'WARN', 'renderer');
+        pw_debug('No theme template found', ['theme' => $themeName, 'layout' => $page['layout']], 'WARN', 'renderer');
         return '<h1>No theme template found.</h1>';
     }
 
     // Without system template the macro is shown as content
     if (!empty($options['macro']) && $templateFile !== $templates[0]) {
-        $contentHtml = resolveMacros('{{ macro:' . $options['macro'] . ' }}', ['contextPath' => $contextPath, 'pageData' => $pageData, 'config' => $config]);
-        $page['contentHtml'] = $contentHtml;
+        $page['contentHtml'] = resolveMacros('{{ macro:' . $options['macro'] . ' }}', ['contextPath' => $contextPath, 'pageData' => $pageData, 'config' => $config]);
     }
 
-    $themeUrl = BASE_PATH . '/themes/' . $themeName . '/';
-
-    $themeTemplate = renderThemeTemplate($templateFile, [
-        'title'        => $title,
-        'contentHtml'  => $contentHtml,
+    $html = renderThemeTemplate($templateFile, [
+        'title'        => $page['title'],
+        'contentHtml'  => $page['contentHtml'],
         'pageData'     => $pageData,
         'config'       => $config,
         'contextPath'  => $contextPath,
-        'wikiName'     => $wikiName,
+        'wikiName'     => $page['wikiName'],
         'themeName'    => $themeName,
-        'themeUrl'     => $themeUrl,
-        'description'  => $description,
-        'author'       => $author,
-        'dateCreated'  => $dateCreated,
-        'dateModified' => $dateModified,
+        'themeUrl'     => getThemeUrl($themeName),
+        'description'  => $page['description'],
+        'author'       => $page['author'],
+        'dateCreated'  => $page['dateCreated'],
+        'dateModified' => $page['dateModified'],
         'options'      => $options,
     ]);
 
-    // Build nav links
-    $navLinksHtml = '';
-    $navLinks = getNavLinks();
-    foreach ($navLinks as $link) {
-        $linkText = !empty($link['link_text']) ? $link['link_text'] : $link['title'];
-        $linkPath = $link['path'];
-        // Prepend BASE_PATH for internal links
-        if (str_starts_with($linkPath, '/')) {
-            $linkPath = BASE_PATH . $linkPath;
-        }
-        $navLinksHtml .= '<li><a href="' . htmlspecialchars($linkPath) . '">' . htmlspecialchars($linkText) . '</a></li>';
-    }
-
-    // Color overrides from theme settings
-    $themeColorsCss = buildThemeColorsCss($config, $themeName);
-
-    // inject custom code blocks
-    $customCss = trim($config['custom_css'] ?? '');
-    if ($customCss !== '' && stripos($customCss, '<style') === false) {
-        $customCss = "<style>\n{$customCss}\n</style>";
-    }
-
-    $customJsHead = trim($config['custom_js_head'] ?? '');
-    if ($customJsHead !== '' && stripos($customJsHead, '<script') === false) {
-        $customJsHead = "<script>\n{$customJsHead}\n</script>";
-    }
-
-    $customJsFooter = trim($config['custom_js_footer'] ?? '');
-    if ($customJsFooter !== '' && stripos($customJsFooter, '<script') === false) {
-        $customJsFooter = "<script>\n{$customJsFooter}\n</script>";
-    }
-
-    $customHtmlHead = trim($config['custom_html_head'] ?? '');
-    $customHtmlFooter = trim($config['custom_html_footer'] ?? '');
-
-    if (isLoggedIn() && ($config['enable_admin_menu'] ?? false)) {
-        AssetManager::requireIconify();
-    }
-
-    // Inject BASE_PATH and CURRENT_LANG into the frontend so JS can use it
-    $pwBasePathScript = "<script>window.PW_BASE_PATH = '" . addslashes(BASE_PATH) . "'; window.PW_CURRENT_LANG = '" . addslashes(defined('CURRENT_LANG') ? CURRENT_LANG : '') . "';</script>";
-
-    $extHead = '';
-    if (class_exists('ExtensionLoader')) {
-        ob_start();
-        ExtensionLoader::doAction('frontend.head_css');
-        ExtensionLoader::doAction('frontend.head_js');
-        $extHead = ob_get_clean();
-    }
-
-    // Favicon first, then SEO tags
-    if (!empty($config['wiki_favicon'])) {
-        $faviconUrl = $config['wiki_favicon'];
-        if (str_starts_with($faviconUrl, '/')) {
-            $faviconUrl = BASE_PATH . $faviconUrl;
-        }
-        $seoTags[] = '<link rel="icon" href="' . htmlspecialchars($faviconUrl) . '">';
-    }
+    // Head hooks run before macros, so macros never see their output
+    $customHead = buildCustomHeadAssets($config, $themeName);
 
     // Runs after parsing, page list sets result page and 404 status
-    array_push($seoTags, ...buildSeoTags($page, $config, $options));
-    $renderedTitle = resolvePageTitle($page, $config);
+    $faviconUrl = resolveFaviconUrl($config);
+    $headTags = $faviconUrl !== '' ? ['<link rel="icon" href="' . htmlspecialchars($faviconUrl) . '">'] : [];
+    array_push($headTags, ...buildSeoTags($page, $config, $options));
 
     // Macros and virtual pages first, icon check needs their output
-    $finalOutput = resolveTemplateStructure($themeTemplate, [
+    $html = resolveTemplateStructure($html, [
         'contextPath' => $contextPath,
-        'wikiName' => $wikiName,
+        'wikiName' => $page['wikiName'],
         'pageData' => $pageData,
         'config' => $config
     ]);
-
-    // Check if any icon is present in output or content
-    if (str_contains($finalOutput, '<iconify-icon') || str_contains($contentHtml, '<iconify-icon')) {
+    if (str_contains($html, '<iconify-icon') || str_contains($page['contentHtml'], '<iconify-icon')) {
         AssetManager::requireIconify();
     }
 
-    $extFooter = '';
-    if (class_exists('ExtensionLoader')) {
-        ob_start();
-        ExtensionLoader::doAction('frontend.footer_js');
-        $extFooter = ob_get_clean();
-    }
+    // Footer hooks may add assets, so they run before head assets are built
+    $assetsFooter = buildFooterAssets($config);
+    $assetsHead   = buildHeadAssets($customHead, $headTags);
 
-    $assetsHead = $pwBasePathScript . "\n" . AssetManager::getStyles() . AssetManager::getScripts('head') . "\n" . $themeColorsCss . "\n" . $customCss . "\n" . $customHtmlHead . "\n" . $customJsHead . $extHead;
-    if (!empty($seoTags)) {
-        $assetsHead .= "\n" . implode("\n", $seoTags) . "\n";
-    }
-
-    $assetsFooter = AssetManager::getScripts('footer') . AssetManager::getInlineScripts() . "\n" . $customHtmlFooter . "\n" . $customJsFooter . $extFooter;
-
-    // Replace all placeholders
-    $vars = [
-        'title'             => htmlspecialchars($renderedTitle),
-        'page_title'        => htmlspecialchars($title),
-        'assets_head'       => $assetsHead,
-        'assets_footer'     => $assetsFooter,
-        'content'           => $contentHtml,
-        'date_created'      => htmlspecialchars($dateCreated),
-        'date_modified'     => htmlspecialchars($dateModified),
-        'date_created_iso'  => !empty($rawCreated) ? date('Y-m-d', strtotime($rawCreated)) : '',
-        'date_modified_iso' => !empty($rawModified) ? date('Y-m-d', strtotime($rawModified)) : '',
-        'description'       => htmlspecialchars($description),
-        'wiki_description'  => htmlspecialchars($config['wiki_description'] ?? ''),
-        'wiki_name'         => htmlspecialchars($wikiName),
-        'wiki_logo'         => htmlspecialchars(str_starts_with($config['wiki_logo'] ?? '', '/') ? BASE_PATH . $config['wiki_logo'] : ($config['wiki_logo'] ?? '')),
-        'wiki_favicon'      => htmlspecialchars($faviconUrl ?? ''),
-        'author'            => htmlspecialchars($author),
-        'nav_links'         => $navLinksHtml,
-        'context_path'      => htmlspecialchars($contextPath),
-        'current_year'      => date('Y'),
-        'current_theme'     => htmlspecialchars($themeName),
-        'base_url'          => htmlspecialchars(BASE_PATH . ((defined('CURRENT_LANG') && CURRENT_LANG !== '') ? '/' . CURRENT_LANG . '/' : '/')),
-        'theme_url'         => htmlspecialchars($themeUrl),
-        'pw_base_path'      => htmlspecialchars(BASE_PATH),
-        'show_left_sidebar'  => !($pageData['Settings']['hide_left_sidebar']  ?? false),
-        'show_right_sidebar' => !($pageData['Settings']['hide_right_sidebar'] ?? false),
-        'tags'               => $tagsHtml,
-        'lang'               => htmlspecialchars(getFrontendLanguage()),
-    ];
-
-    $finalOutput = resolveTemplateVars($finalOutput, $vars);
+    $html = resolveTemplateVars($html, buildTemplateVars($page, $config, $themeName, $assetsHead, $assetsFooter));
 
     // In-Page Admin Menu
-    injectAdminMenu($finalOutput, $config, $contextPath);
+    injectAdminMenu($html, $config, $contextPath);
 
     if (class_exists('ExtensionLoader')) {
-        $finalOutput = ExtensionLoader::applyFilter('renderer.html', $finalOutput, ['path' => $contextPath, 'page' => $pageData]);
+        $html = ExtensionLoader::applyFilter('renderer.html', $html, ['path' => $contextPath, 'page' => $pageData]);
     }
 
     if (isDebugMode()) {
@@ -225,7 +112,7 @@ function renderPage(string $pageJsonPath, string $fallbackTitle, string $context
         ], 'INFO', 'renderer');
     }
 
-    return $finalOutput;
+    return $html;
 }
 
 /** Returns page data from options or page.json, else 404 page and sets 404 status. */
@@ -348,6 +235,126 @@ function renderThemeTemplate(string $templateFile, array $scope): string {
         include func_get_arg(0);
     })($templateFile, $scope);
     return ob_get_clean();
+}
+
+/** Returns URL of theme folder with trailing slash. */
+function getThemeUrl(string $themeName): string {
+    return BASE_PATH . '/themes/' . $themeName . '/';
+}
+
+/** Returns favicon URL from settings, empty if none is set. */
+function resolveFaviconUrl(array $config): string {
+    if (empty($config['wiki_favicon'])) return '';
+    $faviconUrl = $config['wiki_favicon'];
+    return str_starts_with($faviconUrl, '/') ? BASE_PATH . $faviconUrl : $faviconUrl;
+}
+
+/** Wraps custom code in tag if it is not already included. */
+function wrapCustomCode(string $code, string $tag): string {
+    $code = trim($code);
+    if ($code !== '' && stripos($code, '<' . $tag) === false) {
+        $code = "<{$tag}>\n{$code}\n</{$tag}>";
+    }
+    return $code;
+}
+
+/**
+ * Returns theme colors, custom code and output of head hooks.
+ * Requires Iconify for admin menu before hooks, so asset order stays the same.
+ */
+function buildCustomHeadAssets(array $config, string $themeName): string {
+    // Color overrides from theme settings
+    $themeColorsCss = buildThemeColorsCss($config, $themeName);
+    $customCss      = wrapCustomCode($config['custom_css'] ?? '', 'style');
+    $customHtmlHead = trim($config['custom_html_head'] ?? '');
+    $customJsHead   = wrapCustomCode($config['custom_js_head'] ?? '', 'script');
+
+    if (isLoggedIn() && ($config['enable_admin_menu'] ?? false)) {
+        AssetManager::requireIconify();
+    }
+
+    $extHead = '';
+    if (class_exists('ExtensionLoader')) {
+        ob_start();
+        ExtensionLoader::doAction('frontend.head_css');
+        ExtensionLoader::doAction('frontend.head_js');
+        $extHead = ob_get_clean();
+    }
+    return $themeColorsCss . "\n" . $customCss . "\n" . $customHtmlHead . "\n" . $customJsHead . $extHead;
+}
+
+/** Returns all head assets, registered assets first, then custom code and head tags. */
+function buildHeadAssets(string $customHead, array $headTags): string {
+    // BASE_PATH and CURRENT_LANG for frontend JS
+    $pwBasePathScript = "<script>window.PW_BASE_PATH = '" . addslashes(BASE_PATH) . "'; window.PW_CURRENT_LANG = '" . addslashes(defined('CURRENT_LANG') ? CURRENT_LANG : '') . "';</script>";
+
+    $assetsHead = $pwBasePathScript . "\n" . AssetManager::getStyles() . AssetManager::getScripts('head') . "\n" . $customHead;
+    if (!empty($headTags)) {
+        $assetsHead .= "\n" . implode("\n", $headTags) . "\n";
+    }
+    return $assetsHead;
+}
+
+/** Returns footer assets, custom code and output of footer hooks. */
+function buildFooterAssets(array $config): string {
+    $extFooter = '';
+    if (class_exists('ExtensionLoader')) {
+        ob_start();
+        ExtensionLoader::doAction('frontend.footer_js');
+        $extFooter = ob_get_clean();
+    }
+
+    $customHtmlFooter = trim($config['custom_html_footer'] ?? '');
+    $customJsFooter   = wrapCustomCode($config['custom_js_footer'] ?? '', 'script');
+    return AssetManager::getScripts('footer') . AssetManager::getInlineScripts() . "\n" . $customHtmlFooter . "\n" . $customJsFooter . $extFooter;
+}
+
+/** Returns nav links of pages shown in navbar as list items. */
+function buildNavLinksHtml(): string {
+    $html = '';
+    foreach (getNavLinks() as $link) {
+        $linkText = !empty($link['link_text']) ? $link['link_text'] : $link['title'];
+        $linkPath = $link['path'];
+        // Internal links need BASE_PATH
+        if (str_starts_with($linkPath, '/')) {
+            $linkPath = BASE_PATH . $linkPath;
+        }
+        $html .= '<li><a href="' . htmlspecialchars($linkPath) . '">' . htmlspecialchars($linkText) . '</a></li>';
+    }
+    return $html;
+}
+
+/** Returns values for {{ placeholders }} in theme templates. */
+function buildTemplateVars(array $page, array $config, string $themeName, string $assetsHead, string $assetsFooter): array {
+    $pageData = $page['pageData'];
+    return [
+        'title'             => htmlspecialchars(resolvePageTitle($page, $config)),
+        'page_title'        => htmlspecialchars($page['title']),
+        'assets_head'       => $assetsHead,
+        'assets_footer'     => $assetsFooter,
+        'content'           => $page['contentHtml'],
+        'date_created'      => htmlspecialchars($page['dateCreated']),
+        'date_modified'     => htmlspecialchars($page['dateModified']),
+        'date_created_iso'  => !empty($page['rawCreated']) ? date('Y-m-d', strtotime($page['rawCreated'])) : '',
+        'date_modified_iso' => !empty($page['rawModified']) ? date('Y-m-d', strtotime($page['rawModified'])) : '',
+        'description'       => htmlspecialchars($page['description']),
+        'wiki_description'  => htmlspecialchars($config['wiki_description'] ?? ''),
+        'wiki_name'         => htmlspecialchars($page['wikiName']),
+        'wiki_logo'         => htmlspecialchars(str_starts_with($config['wiki_logo'] ?? '', '/') ? BASE_PATH . $config['wiki_logo'] : ($config['wiki_logo'] ?? '')),
+        'wiki_favicon'      => htmlspecialchars(resolveFaviconUrl($config)),
+        'author'            => htmlspecialchars($page['author']),
+        'nav_links'         => buildNavLinksHtml(),
+        'context_path'      => htmlspecialchars($page['contextPath']),
+        'current_year'      => date('Y'),
+        'current_theme'     => htmlspecialchars($themeName),
+        'base_url'          => htmlspecialchars(BASE_PATH . ((defined('CURRENT_LANG') && CURRENT_LANG !== '') ? '/' . CURRENT_LANG . '/' : '/')),
+        'theme_url'         => htmlspecialchars(getThemeUrl($themeName)),
+        'pw_base_path'      => htmlspecialchars(BASE_PATH),
+        'show_left_sidebar'  => !($pageData['Settings']['hide_left_sidebar']  ?? false),
+        'show_right_sidebar' => !($pageData['Settings']['hide_right_sidebar'] ?? false),
+        'tags'               => $page['tagsHtml'],
+        'lang'               => htmlspecialchars(getFrontendLanguage()),
+    ];
 }
 
 /** Returns the search page URL, empty if disabled. */
