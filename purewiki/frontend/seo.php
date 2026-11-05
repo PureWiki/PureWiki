@@ -144,7 +144,7 @@ function resolveShareImageUrl(array $page, array $config): string {
     return $imageUrl;
 }
 
-/** Returns OpenGraph and Twitter (X) tags, image tags are added even with OpenGraph off. */
+/** Returns OpenGraph and Twitter (X) tags. */
 function buildSocialTags(array $page, array $config, string $url, string $image): array {
     $description = $page['description'];
     $shareTitle = $page['seoTitle'] !== '' ? $page['seoTitle'] : $page['title'];
@@ -167,9 +167,11 @@ function buildSocialTags(array $page, array $config, string $url, string $image)
             $tags[] = '<meta name="twitter:description" content="' . htmlspecialchars($description) . '">';
         }
     }
-
+    
     if ($image !== '') {
-        $tags[] = '<meta property="og:image" content="' . htmlspecialchars($image) . '">';
+        if (!empty($config['seo_auto_opengraph'])) {
+            $tags[] = '<meta property="og:image" content="' . htmlspecialchars($image) . '">';
+        }
         if (!empty($config['seo_twitter_cards'])) {
             $tags[] = '<meta name="twitter:image" content="' . htmlspecialchars($image) . '">';
         }

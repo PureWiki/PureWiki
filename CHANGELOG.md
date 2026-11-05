@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed the default social media image pointing to the wrong URL when the wiki is installed in a subfolder.
 - Fixed pages without description getting an empty `<meta name="description">` tag (theme).
 - Fixed 404 pages, the search page and all pages with indexing turned off getting a canonical link.
+- Fixed `og:image` being added when OpenGraph is turned off.
 
 ## [0.3.2] - 2026-11-04
 
