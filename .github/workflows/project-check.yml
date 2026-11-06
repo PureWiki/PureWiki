@@ -18,6 +18,9 @@ on:
       - '**.css'
       - '**.json'
 
+permissions:
+  contents: read
+
 jobs:
   check:
     runs-on: ubuntu-latest
