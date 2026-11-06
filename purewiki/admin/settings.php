@@ -768,6 +768,11 @@ require_once __DIR__ . '/layout_head.php';
     <script>window.PW_DEBUG = <?php echo !empty(getGlobalConfig()['dev_debug_output']) ? 'true' : 'false'; ?>;</script>
     <script src="<?php echo BASE_PATH; ?>/purewiki/assets/js/notify.js"></script>
     <script src="<?php echo BASE_PATH; ?>/purewiki/assets/js/settings.js"></script>
+    <script src="<?php echo BASE_PATH; ?>/purewiki/assets/js/settings-update.js"></script>
+    <script src="<?php echo BASE_PATH; ?>/purewiki/assets/js/settings-users.js"></script>
+    <script src="<?php echo BASE_PATH; ?>/purewiki/assets/js/settings-backups.js"></script>
+    <script src="<?php echo BASE_PATH; ?>/purewiki/assets/js/settings-extensions.js"></script>
+    <script src="<?php echo BASE_PATH; ?>/purewiki/assets/js/settings-logs.js"></script>
     <script src="<?php echo BASE_PATH; ?>/purewiki/assets/js/clear_cache.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
