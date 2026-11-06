@@ -81,6 +81,28 @@ if ($action === 'list_users') {
     } else {
         $response['message'] = $result;
     }
+} else if ($action === 'set_user_display_name') {
+    $target      = $_POST['username'] ?? '';
+    $displayName = $_POST['display_name'] ?? '';
+
+    if (!is_string($target) || !is_string($displayName)) {
+        $response['message'] = 'Invalid display name.';
+        return;
+    }
+
+    $result = changeUserDisplayName($target, $displayName);
+    if ($result !== true) {
+        $response['message'] = $result;
+        return;
+    }
+
+    // Display name is shown as page author --> cached pages are outdated
+    require_once __DIR__ . '/../../core/cache.php';
+    clearCache();
+    $response['success'] = true;
+    $response['message'] = __('auth.display_name_changed');
+    logActivity('user_display_name_change', 'system', null, ['user' => $target, 'changed_by' => $_SESSION['pw_user'] ?? '']);
+
 } else if ($action === 'change_theme') {
     $theme    = trim($_POST['theme'] ?? '');
     $username = $_SESSION['pw_user'] ?? '';

@@ -606,6 +606,7 @@
         "user_deleted": "Benutzer gelöscht.",
         "reset_2fa": "Zwei-Faktor-Login zurücksetzen",
         "reset_2fa_confirm": "Zwei-Faktor-Login für \"%s\" ausschalten? Der Benutzer kann sich dann nur mit Passwort anmelden und es neu einrichten.",
+        "display_name_hint": "Wird als Autor der Seiten von \"%s\" angezeigt, zum Beispiel in den strukturierten Daten für Suchmaschinen. Leer lassen, um keinen Autor anzuzeigen.",
         "failed_delete_user": "Benutzer konnte nicht gelöscht werden.",
         "user_created": "Benutzer erfolgreich erstellt.",
         "failed_create_user": "Benutzer konnte nicht erstellt werden.",

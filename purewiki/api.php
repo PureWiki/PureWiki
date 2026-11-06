@@ -135,6 +135,7 @@ $apiRoutes = [
     'change_language' => 'system/users.php',
     'change_theme' => 'system/users.php',
     'change_display_name' => 'system/users.php',
+    'set_user_display_name' => 'system/users.php',
     'start_2fa_setup' => 'system/twofactor.php',
     'enable_2fa' => 'system/twofactor.php',
     'disable_2fa' => 'system/twofactor.php',
@@ -203,7 +204,7 @@ if (!isset($apiRoutes[$action])) {
 $publicActions = ['search', 'setup_wiki', 'submit_comment'];
 $readerActions = ['logout', 'change_password', 'change_language', 'change_theme', 'change_display_name','start_2fa_setup', 'enable_2fa', 'disable_2fa'];
 $adminActions  = [
-    'get_config', 'save_config', 'clear_cache', 'rebuild_backlinks', 'list_users', 'create_user', 'delete_user', 'reset_user_2fa',
+    'get_config', 'save_config', 'clear_cache', 'rebuild_backlinks', 'list_users', 'create_user', 'delete_user', 'reset_user_2fa', 'set_user_display_name',
     'list_backups', 'start_backup', 'get_backup_status', 'delete_backup', 'download_backup',
     'get_system_status', 'start_bulk_webp', 'get_bulk_webp_status', 'backup_image',
     'restore_image', 'process_image_edit', 'check_for_updates', 'get_update_requirements',

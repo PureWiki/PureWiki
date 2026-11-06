@@ -606,6 +606,7 @@
         "user_deleted": "User deleted.",
         "reset_2fa": "Reset two-factor login",
         "reset_2fa_confirm": "Turn off two-factor login for \"%s\"? The user can log in with the password only and set it up again.",
+        "display_name_hint": "Shown as author of the pages by \"%s\", for example in the structured data for search engines. Leave it empty to show no author.",
         "failed_delete_user": "Failed to delete user.",
         "user_created": "User created successfully.",
         "failed_create_user": "Failed to create user.",

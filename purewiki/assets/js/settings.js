@@ -1036,6 +1036,14 @@ function renderUserList(users) {
         row.querySelector('[data-field="username"]').textContent = user.username;
         row.querySelector('[data-field="role"]').textContent = user.role || 'admin';
 
+        const displayNameEl = row.querySelector('[data-field="display_name"]');
+        if (user.display_name) {
+            displayNameEl.textContent = user.display_name;
+        } else {
+            displayNameEl.remove();
+        }
+        row.querySelector('.pw-user-display-name-btn').addEventListener('click', () => editUserDisplayName(user.username, user.display_name || ''));
+
         // Format last login date
         const lastLoginEl = row.querySelector('[data-field="last_login"]');
         if (user.last_login_at) {
@@ -1065,6 +1073,35 @@ function renderUserList(users) {
         }
         tbody.appendChild(row);
     });
+}
+
+/** Opens dialog to change or clear the display name of a user and reloads the list. */
+async function editUserDisplayName(username, current) {
+    const html = `
+        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 5px;">
+            <label for="pw-admin-display-name" style="display: block; font-size: 13px; color: var(--pw-text-muted);">${escapeHtml(__('settings.display_name_hint', username))}</label>
+            <input id="pw-admin-display-name" type="text" class="pw-input pw-w-full" maxlength="100" value="${escapeHtml(current)}" placeholder="${__('auth.display_name_placeholder')}">
+        </div>
+    `;
+
+    const confirmed = await openDialog({
+        title: __('auth.change_display_name'),
+        html: html,
+        type: 'confirm',
+        confirmText: __('common.save'),
+        cancelText: __('common.cancel')
+    });
+    if (!confirmed) return;
+
+    const input = document.getElementById('pw-admin-display-name');
+    const displayName = input ? input.value.trim() : '';
+    if (displayName === current) return;
+
+    const result = await apiSafe('set_user_display_name', { username, display_name: displayName });
+    if (result) {
+        notify(result.message, 'success');
+        loadUsers();
+    }
 }
 
 /** Resets 2FA of a user via the API and reloads the list. */
