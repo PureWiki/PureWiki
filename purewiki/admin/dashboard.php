@@ -208,6 +208,7 @@ require_once __DIR__ . '/layout_head.php';
     <script src="<?php echo BASE_PATH; ?>/purewiki/assets/js/i18n.js"></script>
     <script src="<?php echo BASE_PATH; ?>/purewiki/assets/js/core.js"></script>
     <script src="<?php echo BASE_PATH; ?>/purewiki/assets/js/dashboard-tree.js"></script>
+    <script src="<?php echo BASE_PATH; ?>/purewiki/assets/js/dashboard-cards.js"></script>
     <script src="<?php echo BASE_PATH; ?>/purewiki/assets/js/dashboard.js"></script>
     <script src="<?php echo BASE_PATH; ?>/purewiki/assets/js/page-picker.js"></script>
     <script>window.PW_DEBUG = <?php echo !empty($config['dev_debug_output']) ? 'true' : 'false'; ?>;</script>
