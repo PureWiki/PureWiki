@@ -168,6 +168,14 @@ if ($action === 'drag_drop_page') {
     logActivity('page_move', 'page', '/' . $safeSource, ['new_path' => $sourcePath]);
     clearCache();
 
+    if ($safeSource !== $newSourceRelPath) {
+        require_once __DIR__ . '/../../core/notify.php';
+        notifyAdmin('pages', __n('notify.page_moved_title'), [
+            __n('notify.old_path') => '/' . $safeSource,
+            __n('notify.new_path') => '/' . $newSourceRelPath,
+        ], [__n('notify.view_page') => getNotificationUrl($newSourceRelPath)]);
+    }
+
 } else if ($action === 'move_page') {
     $path = $_POST['path'] ?? '';
     $direction = $_POST['direction'] ?? '';

@@ -71,7 +71,13 @@ function getMailConfig(): array {
         'mail_password' => '',
         'mail_encryption' => 'tls',
         'mail_from_address' => '',
-        'mail_from_name' => ''
+        'mail_from_name' => '',
+        'mail_notify_address' => '',
+        'mail_notify_comments' => false,
+        'mail_notify_pages' => false,
+        'mail_notify_publish' => false,
+        'mail_notify_users' => false,
+        'mail_notify_security' => false
     ];
 
     try {

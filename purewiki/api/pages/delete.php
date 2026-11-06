@@ -34,6 +34,11 @@ if ($targetPath && isPathInDir($targetPath, $pagesDir)) {
     $response['success'] = true;
     $response['message'] = 'Page moved to trash.';
     logActivity('page_delete', 'page', '/' . $safePath);
+
+    require_once __DIR__ . '/../../core/notify.php';
+    notifyAdmin('pages', __n('notify.page_deleted_title'), [
+        __n('notify.page') => '/' . $safePath,
+    ], [__n('notify.open_trash') => getNotificationUrl('/dashboard/trash')]);
     clearCache('/' . $safePath);
 } else {
     $response['message'] = 'Page does not exist or target out of bounds.';

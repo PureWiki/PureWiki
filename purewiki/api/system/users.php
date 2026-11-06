@@ -30,6 +30,12 @@ if ($action === 'list_users') {
         $response['success'] = true;
         $response['message'] = 'User created successfully.';
         logActivity('user_create', 'system', null, ['created_user' => $username, 'role' => $role]);
+
+        require_once __DIR__ . '/../../core/notify.php';
+        notifyAdmin('users', __n('notify.user_created_title'), [
+            __n('notify.username') => $username,
+            __n('notify.role')     => $role,
+        ], [__n('notify.open_settings') => getNotificationUrl('/dashboard/settings')]);
     } else {
         $response['message'] = $result;
     }
@@ -41,6 +47,11 @@ if ($action === 'list_users') {
         $response['success'] = true;
         $response['message'] = 'User deleted successfully.';
         logActivity('user_delete', 'system', null, ['deleted_user' => $username]);
+
+        require_once __DIR__ . '/../../core/notify.php';
+        notifyAdmin('users', __n('notify.user_deleted_title'), [
+            __n('notify.username') => $username,
+        ], [__n('notify.open_settings') => getNotificationUrl('/dashboard/settings')]);
     } else {
         $response['message'] = $result;
     }
@@ -54,6 +65,11 @@ if ($action === 'list_users') {
         $response['success'] = true;
         $response['message'] = function_exists('__') ? __('auth.password_changed') : 'Password changed successfully.';
         logActivity('user_password_change', 'system', null, ['user' => $username]);
+
+        require_once __DIR__ . '/../../core/notify.php';
+        notifyAdmin('security', __n('notify.password_changed_title'), [
+            __n('notify.username') => $username,
+        ]);
     } else {
         $response['message'] = $result;
     }

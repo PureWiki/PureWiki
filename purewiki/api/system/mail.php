@@ -31,6 +31,13 @@ if ($action === 'get_mail_config') {
     $configData = json_decode($configDataRaw, true);
 
     if (is_array($configData)) {
+        $notifyAddress = trim((string)($configData['mail_notify_address'] ?? ''));
+        if ($notifyAddress !== '' && !filter_var($notifyAddress, FILTER_VALIDATE_EMAIL)) {
+            $response['message'] = __('settings.mail_notify_invalid');
+            return;
+        }
+        if (isset($configData['mail_notify_address'])) $configData['mail_notify_address'] = $notifyAddress;
+
         if (saveMailConfig($configData)) {
             $response['success'] = true;
             $response['message'] = __('settings.save_success');

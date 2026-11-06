@@ -465,6 +465,17 @@ require_once __DIR__ . '/layout_head.php';
                             ?>
 
                             <hr class="pw-separator">
+                            <h3 class="pw-settings-heading"><?php echo __('settings.mail_notifications'); ?></h3>
+                            <?php
+                            renderInput('pw-setting-mail-notify-address', __('settings.mail_notify_address'), __('settings.mail_notify_address_desc'), 'email', 'pw-input pw-w-lg', 'admin@example.com');
+                            renderToggle('pw-setting-mail-notify-comments', __('settings.mail_notify_comments'), __('settings.mail_notify_comments_desc'));
+                            renderToggle('pw-setting-mail-notify-pages', __('settings.mail_notify_pages'), __('settings.mail_notify_pages_desc'));
+                            renderToggle('pw-setting-mail-notify-publish', __('settings.mail_notify_publish'), __('settings.mail_notify_publish_desc'));
+                            renderToggle('pw-setting-mail-notify-users', __('settings.mail_notify_users'), __('settings.mail_notify_users_desc'));
+                            renderToggle('pw-setting-mail-notify-security', __('settings.mail_notify_security'), __('settings.mail_notify_security_desc'));
+                            ?>
+
+                            <hr class="pw-separator">
                             <h3 class="pw-settings-heading"><?php echo __('settings.test_mail'); ?></h3>
                             <p class="pw-hint"><?php echo __('settings.test_mail_desc'); ?></p>
                             <div style="display: flex; gap: 10px; align-items: center; margin-top: 10px;">

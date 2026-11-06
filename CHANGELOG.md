@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added the display name of each user to the user management in `Global Settings`. Admins can change or clear it for any user and set it when adding a new user.
+- Added a notification function to send a mail to specific address for new comments, page changes, published pages, added or deleted users and security events.
 
 ### Changed
 

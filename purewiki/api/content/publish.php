@@ -84,6 +84,14 @@ if ($targetDir && isPathInDir($targetDir, $pagesDir) && is_dir($targetDir)) {
             $response['message'] = 'Page published successfully.';
             logActivity('page_publish', 'page', $safePath);
 
+            require_once __DIR__ . '/../../core/notify.php';
+            $publishedData = readJson($publishPath, []);
+            $langPrefix = is_string($lang) && preg_match('/^[a-z]{2}(-[a-z]{2})?$/i', $lang) ? $lang . '/' : '';
+            notifyAdmin('publish', __n('notify.page_published_title'), [
+                __n('notify.title') => $publishedData['pagetitle'] ?? '',
+                __n('notify.page')  => '/' . $langPrefix . $safePath,
+            ], [__n('notify.view_page') => getNotificationUrl($langPrefix . $safePath)]);
+
             // Clear only the specific page's HTML cache to avoid full cache rebuilds.
             clearCache('/' . $safePath);
         } else {

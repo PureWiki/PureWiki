@@ -121,6 +121,7 @@ function recordFailedLoginAttempt(string $username, ?string $ip = null): void {
         $keys[] = 'user_' . md5(strtolower($username));
     }
 
+    $newLockout = false;
     foreach ($keys as $key) {
         $entry = $attempts[$key] ?? ['count' => 0, 'last_attempt' => 0, 'blocked_until' => 0];
 
@@ -132,6 +133,7 @@ function recordFailedLoginAttempt(string $username, ?string $ip = null): void {
         $entry['last_attempt'] = $now;
 
         if ($entry['count'] >= $maxAttempts) {
+            if ((int)$entry['blocked_until'] <= $now) $newLockout = true;
             $entry['blocked_until'] = $now + $lockoutDuration;
         }
 
@@ -139,6 +141,15 @@ function recordFailedLoginAttempt(string $username, ?string $ip = null): void {
     }
 
     writeLoginAttempts($attempts);
+
+    if ($newLockout) {
+        require_once __DIR__ . '/notify.php';
+        notifyAdmin('security', __n('notify.login_locked_title'), [
+            __n('notify.username')   => $username,
+            __n('notify.ip')         => $ip,
+            __n('notify.locked_for') => (int)ceil($lockoutDuration / 60) . ' min',
+        ]);
+    }
 }
 
 /** Clears failed login attempts for IP and username on successful login. */

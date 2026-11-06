@@ -79,6 +79,13 @@ if ($sourceDir && isPathInDir($sourceDir, $pagesDir) && is_dir($sourceDir)) {
         $response['message'] = 'Folder renamed successfully.';
         $response['new_path'] = '/' . ltrim(($parentPath !== '' ? $parentPath . '/' : '') . $folderName, '/');
 
+        require_once __DIR__ . '/../../core/notify.php';
+        notifyAdmin('pages', __n('notify.page_renamed_title'), [
+            __n('notify.title')    => $newName,
+            __n('notify.old_path') => '/' . $safePath,
+            __n('notify.new_path') => $response['new_path'],
+        ], [__n('notify.view_page') => getNotificationUrl($response['new_path'])]);
+
         clearCache();
     } else {
         $response['message'] = 'Failed to rename directory.';

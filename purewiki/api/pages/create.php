@@ -58,6 +58,12 @@ if (createDirectory($targetPath)) {
     $response['message'] = 'Page created successfully.';
     $response['new_path'] = '/' . ltrim($safeParentPath . '/' . $folderName, '/');
     logActivity('page_create', 'page', $response['new_path'], ['title' => $title]);
+
+    require_once __DIR__ . '/../../core/notify.php';
+    notifyAdmin('pages', __n('notify.page_created_title'), [
+        __n('notify.title') => $title,
+        __n('notify.page')  => $response['new_path'],
+    ], [__n('notify.edit_page') => getNotificationEditUrl($response['new_path'])]);
 } else {
     $response['message'] = 'Failed to create directory.';
 }

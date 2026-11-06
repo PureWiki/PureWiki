@@ -63,6 +63,11 @@ if ($action === 'start_2fa_setup') {
     setUserTotpSecret($username, null);
     logActivity('user_2fa_disable', 'system', null, ['user' => $username]);
 
+    require_once __DIR__ . '/../../core/notify.php';
+    notifyAdmin('security', __n('notify.2fa_disabled_title'), [
+        __n('notify.username') => $username,
+    ]);
+
     $response['success'] = true;
     $response['message'] = __('auth.2fa_disabled');
 
@@ -79,6 +84,11 @@ if ($action === 'start_2fa_setup') {
     }
 
     logActivity('user_2fa_disable', 'system', null, ['user' => $target, 'reset_by' => $username]);
+
+    require_once __DIR__ . '/../../core/notify.php';
+    notifyAdmin('security', __n('notify.2fa_reset_title'), [
+        __n('notify.username') => $target,
+    ]);
 
     $response['success'] = true;
     $response['message'] = __('auth.2fa_disabled');

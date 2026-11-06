@@ -86,6 +86,18 @@ try {
         clearCache($safePath);
     }
     logActivity('comment_add', 'comment', '/' . $safePath, ['author' => $name]);
+
+    require_once __DIR__ . '/../../core/notify.php';
+    $isPending = $newComment['status'] === 'pending';
+    $baseUrl = getNotificationBaseUrl();
+    $text = mb_strlen($newComment['text']) > 500 ? mb_substr($newComment['text'], 0, 500) . '…' : $newComment['text'];
+    $links = [__n('notify.view_page') => $baseUrl . '/' . $safePath];
+    if ($isPending) $links = [__n('notify.moderate_comments') => $baseUrl . '/dashboard/comments'] + $links;
+    notifyAdmin('comments', __n($isPending ? 'notify.comment_pending_title' : 'notify.comment_new_title'), [
+        __n('notify.page')    => '/' . $safePath,
+        __n('notify.author')  => $newComment['name'] . ' <' . $newComment['email'] . '>',
+        __n('notify.comment') => $text,
+    ], $links);
     $response['success'] = true;
     $response['data'] = [
         'id' => $newComment['id'],

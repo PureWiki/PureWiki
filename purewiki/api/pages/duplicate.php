@@ -76,6 +76,13 @@ if ($sourceDir && isPathInDir($sourceDir, $pagesDir) && is_dir($sourceDir)) {
             $response['success'] = true;
             $response['message'] = 'Page duplicated successfully.';
             $response['new_path'] = '/' . ltrim(($parentPath !== '' ? $parentPath . '/' : '') . $folderName, '/');
+
+            require_once __DIR__ . '/../../core/notify.php';
+            notifyAdmin('pages', __n('notify.page_duplicated_title'), [
+                __n('notify.title')     => $title,
+                __n('notify.page')      => $response['new_path'],
+                __n('notify.copied_from') => '/' . $safePath,
+            ], [__n('notify.edit_page') => getNotificationEditUrl($response['new_path'])]);
         } else {
             $response['message'] = 'Errors occurred during copying. Source might be partially duplicated.';
         }
