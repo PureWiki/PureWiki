@@ -188,13 +188,17 @@ function checkPasswordLength(string $password): ?string {
 }
 
 /** Creates a new user with a hashed password. */
-function createUser(string $username, string $password, string $role = 'admin'): bool|string {
+function createUser(string $username, string $password, string $role = 'admin', string $displayName = ''): bool|string {
     $username = trim($username);
+    $displayName = normalizeDisplayName($displayName);
 
     if (empty($username) || empty($password)) return 'Username and password are required.';
     if ($error = checkPasswordLength($password)) return $error;
     if (!in_array($role, ['admin', 'editor', 'reader'])) return 'Invalid role specified.';
     if (!preg_match('/^[a-zA-Z0-9_\-\.]+$/', $username)) return 'Username may only contain letters, numbers, underscores, hyphens, and dots.';
+    if (mb_strlen($displayName) > 100) {
+        return function_exists('__') ? __('auth.error_display_name_too_long') : 'Display name may be at most 100 characters long.';
+    }
 
     $users = readUsers();
     if (isset($users[$username])) return 'A user with that username already exists.';
@@ -204,6 +208,9 @@ function createUser(string $username, string $password, string $role = 'admin'):
         'role'          => $role,
         'created_at'    => date('c')
     ];
+    if ($displayName !== '') {
+        $users[$username]['display_name'] = $displayName;
+    }
 
     writeUsers($users);
     return true;
@@ -344,10 +351,15 @@ function changeUserTheme(string $username, string $theme): bool|string {
     return true;
 }
 
+/** Trims a display name and collapses whitespace. */
+function normalizeDisplayName(string $displayName): string {
+    return trim(preg_replace('/\s+/u', ' ', $displayName) ?? '');
+}
+
 /** Sets public display name of a user. Empty name removes it. */
 function changeUserDisplayName(string $username, string $displayName): bool|string {
     $username = trim($username);
-    $displayName = trim(preg_replace('/\s+/u', ' ', $displayName) ?? '');
+    $displayName = normalizeDisplayName($displayName);
 
     if (mb_strlen($displayName) > 100) {
         return function_exists('__') ? __('auth.error_display_name_too_long') : 'Display name may be at most 100 characters long.';

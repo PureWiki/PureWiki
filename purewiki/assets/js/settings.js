@@ -1140,23 +1140,26 @@ async function addUser(e) {
     const usernameEl = document.getElementById('pw-new-username');
     const passwordEl = document.getElementById('pw-new-password');
     const roleEl = document.getElementById('pw-new-role');
+    const displayNameEl = document.getElementById('pw-new-display-name');
     if (!usernameEl || !passwordEl) return;
 
     const username = usernameEl.value.trim();
     const password = passwordEl.value;
     const role = roleEl ? roleEl.value : 'admin';
+    const displayName = displayNameEl ? displayNameEl.value.trim() : '';
 
     if (!username || !password) {
         notify(__('settings.username_password_required'), 'error');
         return;
     }
 
-    const result = await apiSafe('create_user', { username, password, role });
+    const result = await apiSafe('create_user', { username, password, role, display_name: displayName });
 
     if (result) {
         notify(__('settings.user_created'), 'success');
         usernameEl.value = '';
         passwordEl.value = '';
+        if (displayNameEl) displayNameEl.value = '';
         if (roleEl) roleEl.value = 'admin';
         loadUsers();
     }

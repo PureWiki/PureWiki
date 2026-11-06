@@ -1500,6 +1500,10 @@ body.pw-sidebar-resizing .pw-sidebar-resizer {
     font-size: 1rem;
 }
 
+h3.pw-settings-subheading {
+    margin-bottom: 16px;
+}
+
 .pw-theme-color-row {
     display: grid;
     grid-template-columns: minmax(140px, 200px) auto auto auto;

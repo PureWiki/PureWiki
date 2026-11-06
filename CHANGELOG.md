@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added the display name of each user to the user management in `Global Settings`. Admins can change or clear it for any user and set it when adding a new user.
+
 ### Changed
 
 - Split the page renderer into `renderer.php`, `seo.php` and `template.php`. The output of pages does not change.
@@ -25,7 +29,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added an SEO title to the page settings. It replaces the browser title and `og:title` of the page.
 - Added the last modified date of each page to the sitemap, so search engines find changed pages faster.
 - Added a display name in the user menu. It is shown as page author in the structured data instead of the login name.
-- Added the display name of each user to the user management in `Global Settings`. Admins can change or clear it for any user.
 
 ### Changed
 

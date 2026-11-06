@@ -22,7 +22,10 @@ if ($action === 'list_users') {
     $username = trim($_POST['username'] ?? '');
     $password = $_POST['password'] ?? '';
     $role     = $_POST['role'] ?? 'admin';
-    $result = createUser($username, $password, $role);
+    $displayName = $_POST['display_name'] ?? '';
+    if (!is_string($displayName)) $displayName = '';
+
+    $result = createUser($username, $password, $role, $displayName);
     if ($result === true) {
         $response['success'] = true;
         $response['message'] = 'User created successfully.';

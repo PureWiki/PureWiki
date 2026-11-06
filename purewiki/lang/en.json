@@ -540,6 +540,7 @@
         "password_label": "Password",
         "password_placeholder": "Enter a secure password",
         "username_placeholder": "e.g. editor",
+        "display_name_optional": "Display Name (optional)",
         "cannot_delete_last": "Cannot delete the last admin",
         "status_title": "System Status",
         "wiki_version": "Wiki Version:",
