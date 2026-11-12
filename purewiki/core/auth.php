@@ -17,6 +17,12 @@ require_once __DIR__ . '/json.php';
 require_once __DIR__ . '/fs.php';
 require_once __DIR__ . '/config.php';
 
+/** Session lifetime in seconds (def: 30 days). */
+const PW_SESSION_LIFETIME = 60 * 60 * 24 * 30;
+
+/** Lifetime of sessions without login in seconds(def: 24 minutes). */
+const PW_GUEST_SESSION_LIFETIME = 1440;
+
 /** Returns the absolute path to users.json. */
 function getUsersFilePath(): string {
     return getConfigDir() . '/users.json';
@@ -412,6 +418,58 @@ function getCurrentUserInitials(?string $username = null): string {
     return strtoupper(mb_substr($user, 0, min(2, mb_strlen($user))));
 }
 
+/** Stores sessions in cache/sessions so the host session cleanup does not log users out. */
+function prepareSessionStorage(): bool {
+    if (ini_get('session.save_handler') !== 'files') return false;
+
+    $dir = getSessionDir();
+
+    try {
+        if (!is_dir($dir)) @createDirectory($dir, 0700);
+        // Protection if the rule in the main .htaccess is missing
+        if (is_dir($dir) && !is_file($dir . '/.htaccess')) {
+            @file_put_contents($dir . '/.htaccess', "<IfModule mod_authz_core.c>\n    Require all denied\n</IfModule>\n<IfModule !mod_authz_core.c>\n    Deny from all\n</IfModule>\n");
+        }
+        if (is_dir($dir) && !is_file($dir . '/index.html')) @file_put_contents($dir . '/index.html', '');
+    } catch (Throwable $e) {
+        // Falls back to the PHP default
+    }
+
+    $ok = is_dir($dir) && is_writable($dir) && !str_contains($dir, ';')
+        && is_file($dir . '/.htaccess') && is_file($dir . '/index.html')
+        && function_exists('ini_set')
+        && @ini_set('session.save_path', $dir) !== false
+        && @ini_set('session.gc_maxlifetime', (string)PW_SESSION_LIFETIME) !== false;
+
+    if ($ok) {
+        @ini_set('session.gc_probability', '1');
+        @ini_set('session.gc_divisor', '100');
+        // Rejects session IDs the server did not create
+        @ini_set('session.use_strict_mode', '1');
+        if (random_int(1, 100) === 1) cleanupGuestSessions($dir);
+    } else {
+        require_once __DIR__ . '/debug.php';
+        pw_debug('Session directory not usable, using PHP default', ['dir' => $dir], 'WARN', 'auth');
+    }
+
+    return $ok;
+}
+
+/** Deletes sessions without login after 24 minutes */
+function cleanupGuestSessions(string $dir): void {
+    $limit = time() - PW_GUEST_SESSION_LIFETIME;
+    foreach (glob($dir . '/sess_*') ?: [] as $file) {
+        if ((@filemtime($file) ?: PHP_INT_MAX) >= $limit) continue;
+        $data = @file_get_contents($file, false, null, 0, 8192);
+        if ($data !== false && !str_contains($data, 'pw_user')) @unlink($file);
+    }
+}
+
+/** Returns true if sessions are stored in cache/sessions. */
+function hasOwnSessionStorage(): bool {
+    return ini_get('session.save_path') === getSessionDir();
+}
+
 /** Starts the PHP session if not already active. */
 function startAuth(): void {
     if (session_status() === PHP_SESSION_NONE) {
@@ -421,9 +479,9 @@ function startAuth(): void {
                     (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https');
 
         if (!headers_sent()) {
-            // Hardcoded 30-day lifetime
+            prepareSessionStorage();
             session_set_cookie_params([
-                'lifetime' => 60 * 60 * 24 * 30,
+                'lifetime' => PW_SESSION_LIFETIME,
                 'path'     => '/',
                 'secure'   => $isSecure,
                 'httponly' => true,
@@ -491,9 +549,8 @@ function isLoggedIn(): bool {
         return false;
     }
 
-    // Enforce 30-day maximum session lifetime
-    $maxAge = 60 * 60 * 24 * 30;
-    if (time() - (int)$_SESSION['pw_login_time'] > $maxAge) {
+    // Enforce maximum session lifetime
+    if (time() - (int)$_SESSION['pw_login_time'] > PW_SESSION_LIFETIME) {
         logoutUser();
         return false;
     }

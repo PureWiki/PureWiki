@@ -13,6 +13,7 @@
 defined('PUREWIKI') || die('Direct access denied.');
 
 require_once __DIR__ . '/../../core/fs.php';
+require_once __DIR__ . '/../../core/auth.php';
 
 if ($action === 'get_system_status') {
     // get basic system info
@@ -81,6 +82,10 @@ if ($action === 'get_system_status') {
             'upload_max_filesize' => $uploadMax > 0 ? formatBytes($uploadMax) : null,
             'post_max_size' => $postMax > 0 ? formatBytes($postMax) : null,
             'post_too_small' => $postMax > 0 && ($uploadMax === 0 || $postMax < $uploadMax)
+        ],
+        'sessions' => [
+            'own_dir' => hasOwnSessionStorage(),
+            'lifetime' => (int)ini_get('session.gc_maxlifetime')
         ]
     ];
 }

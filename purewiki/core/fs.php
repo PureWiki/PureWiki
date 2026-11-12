@@ -175,6 +175,11 @@ function getCacheDir(): string {
     return $dir;
 }
 
+/** Returns the absolute path to the session directory. */
+function getSessionDir(): string {
+    return getCacheDir() . DIRECTORY_SEPARATOR . 'sessions';
+}
+
 /**
  * Returns the absolute path to the extensions directory.
  * @return string

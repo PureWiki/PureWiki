@@ -296,6 +296,17 @@ async function loadSystemStatus() {
             }
         }
 
+        const alertsEl = document.getElementById('pw-status-alerts');
+        if (data.sessions && !data.sessions.own_dir && alertsEl && !alertsEl.querySelector('[data-field="session-alert"]')) {
+            const minutes = Math.max(1, Math.round(data.sessions.lifetime / 60));
+            const warning = document.createElement('div');
+            warning.dataset.field = 'session-alert';
+            warning.style.cssText = 'color: var(--pw-warning); font-size: 0.9em; margin-top: 4px;';
+            warning.innerHTML = '<iconify-icon icon="mdi:alert-outline"></iconify-icon> ';
+            warning.append(__('settings.session_default_dir', minutes));
+            alertsEl.appendChild(warning);
+        }
+
         const webpEl = document.getElementById('pw-status-webp');
         const actionsEl = document.getElementById('pw-status-actions');
         const statsEl = document.getElementById('pw-status-media-stats');
