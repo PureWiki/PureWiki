@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Updated PHPMailer from 7.1.1 to 7.2.0
+
 ### Fixed
 
 - Fixed users being logged out after about 24 minutes without activity on many hosts. Sessions are now stored in `cache/sessions`.

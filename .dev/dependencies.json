@@ -2,7 +2,7 @@
   "php": {
     "erusev/parsedown": "1.8.0",
     "erusev/parsedown-extra": "0.9.0",
-    "PHPMailer/PHPMailer": "7.1.1"
+    "PHPMailer/PHPMailer": "7.2.0"
   },
   "client": {
     "@editorjs/editorjs": "2.31.6",
