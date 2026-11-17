@@ -12,6 +12,14 @@
 
 defined('PUREWIKI') || die('Direct access denied.');
 
+require_once __DIR__ . '/../../core/i18n_pages.php';
+
+$lang = $_POST['lang'] ?? '';
+if (!isValidPageLang($lang)) {
+    $response['message'] = 'Invalid language.';
+    return;
+}
+
 if ($action === 'get_page_history') {
     $path = $_POST['path'] ?? '';
     if (!$path) {
@@ -27,7 +35,6 @@ if ($action === 'get_page_history') {
         $versions = [];
 
         if (is_dir($historyDir)) {
-            $lang = $_POST['lang'] ?? '';
             $globPattern = $historyDir . '/page.' . ($lang ? $lang . '.' : '') . '*.json';
             $files = glob($globPattern);
             
@@ -80,14 +87,9 @@ if ($action === 'get_page_history') {
 
     if ($targetDir && isPathInDir($targetDir, $pagesDir) && is_dir($targetDir)) {
         $historyFile = $targetDir . '/_history/' . $safeFile;
-        $lang = $_POST['lang'] ?? '';
-        
         $regex = '/^page\.' . ($lang ? preg_quote($lang) . '\.' : '') . '\d{14}\.json$/';
 
         if (file_exists($historyFile) && preg_match($regex, $safeFile)) {
-            if (!function_exists('getPageFilename')) {
-                require_once __DIR__ . '/../../core/i18n_pages.php';
-            }
             $draftPath = $targetDir . '/' . getPageFilename($lang, true);
             if (copy($historyFile, $draftPath)) {
                 $response['success'] = true;
@@ -117,16 +119,11 @@ if ($action === 'get_page_history') {
 
     if ($targetDir && isPathInDir($targetDir, $pagesDir) && is_dir($targetDir)) {
         $historyFile = $targetDir . '/_history/' . $safeFile;
-        $lang = $_POST['lang'] ?? '';
-
         $regex = '/^page\.' . ($lang ? preg_quote($lang) . '\.' : '') . '\d{14}\.json$/';
 
         if (file_exists($historyFile) && preg_match($regex, $safeFile)) {
             require_once __DIR__ . '/../../core/diff.php';
 
-            if (!function_exists('getPageFilename')) {
-                require_once __DIR__ . '/../../core/i18n_pages.php';
-            }
             $liveFile = $targetDir . '/' . getPageFilename($lang, false);
 
             $oldData = readJson($historyFile, null);

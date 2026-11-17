@@ -17,6 +17,12 @@ require_once __DIR__ . '/../../core/i18n_pages.php';
 
 $path     = $_POST['path'] ?? '';
 $lang     = $_POST['lang'] ?? '';
+
+if (!isValidPageLang($lang)) {
+    $response['message'] = 'Invalid language.';
+    return;
+}
+
 $safePath = sanitizeRelativePath($path);
 $isVirtual = str_starts_with($safePath, '_virtual/');
 

@@ -15,6 +15,12 @@ defined('PUREWIKI') || die('Direct access denied.');
 
 require_once __DIR__ . '/../../core/i18n_pages.php';
 
+$lang = $_POST['lang'] ?? '';
+if (!isValidPageLang($lang)) {
+    $response['message'] = 'Invalid language.';
+    return;
+}
+
 if ($action === 'save_draft') {
     $path = $_POST['path'] ?? '';
     $title = $_POST['title'] ?? null;
@@ -44,7 +50,6 @@ if ($action === 'save_draft') {
     }
 
     if ($targetDir) {
-        $lang = $_POST['lang'] ?? '';
         $draftPath = $targetDir . '/' . getPageFilename($lang, true);
         $publishPath = $targetDir . '/' . getPageFilename($lang, false);
 
@@ -128,7 +133,6 @@ if ($action === 'save_draft') {
     $targetDir = $safePath ? realpath($pagesDir . '/' . $safePath) : $pagesDir;
 
     if ($targetDir && isPathInDir($targetDir, $pagesDir) && is_dir($targetDir)) {
-        $lang = $_POST['lang'] ?? '';
         $draftPath = $targetDir . '/' . getPageFilename($lang, true);
         if (file_exists($draftPath)) {
             if (unlink($draftPath)) {

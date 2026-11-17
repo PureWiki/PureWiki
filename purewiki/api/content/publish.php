@@ -21,11 +21,16 @@ if (!$path) {
     return;
 }
 
+$lang = $_POST['lang'] ?? '';
+if (!isValidPageLang($lang)) {
+    $response['message'] = 'Invalid language.';
+    return;
+}
+
 $safePath = sanitizeRelativePath($path);
 $targetDir = $safePath ? realpath($pagesDir . '/' . $safePath) : $pagesDir;
 
 if ($targetDir && isPathInDir($targetDir, $pagesDir) && is_dir($targetDir)) {
-    $lang = $_POST['lang'] ?? '';
     $draftPath = $targetDir . '/' . getPageFilename($lang, true);
     $publishPath = $targetDir . '/' . getPageFilename($lang, false);
 
@@ -86,7 +91,7 @@ if ($targetDir && isPathInDir($targetDir, $pagesDir) && is_dir($targetDir)) {
 
             require_once __DIR__ . '/../../core/notify.php';
             $publishedData = readJson($publishPath, []);
-            $langPrefix = is_string($lang) && preg_match('/^[a-z]{2}(-[a-z]{2})?$/i', $lang) ? $lang . '/' : '';
+            $langPrefix = $lang !== '' ? $lang . '/' : '';
             notifyAdmin('publish', __n('notify.page_published_title'), [
                 __n('notify.title') => $publishedData['pagetitle'] ?? '',
                 __n('notify.page')  => '/' . $langPrefix . $safePath,

@@ -74,6 +74,11 @@ function stripLangPrefix(string $path, string $lang): string {
     return $path;
 }
 
+/** Returns true if value is empty or a language code like "de" or "en-us". */
+function isValidPageLang(mixed $lang): bool {
+    return $lang === '' || (is_string($lang) && preg_match('/^[a-z]{2}(-[a-z]{2})?$/iD', $lang) === 1);
+}
+
 /** Resolve filename for a specific language */
 function getPageFilename(string $lang, bool $isDraft = false): string {
     if (empty($lang)) {

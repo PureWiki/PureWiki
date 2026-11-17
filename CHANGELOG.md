@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fixed users being logged out after about 24 minutes without activity on many hosts. Sessions are now stored in `cache/sessions`.
+- Fixed a security issue where the page language could be used to write files outside of the pages folder.
 
 ## [0.3.3] - 2026-11-06
 

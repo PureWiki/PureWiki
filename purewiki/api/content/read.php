@@ -55,6 +55,11 @@ if (!function_exists('getPageFilename')) {
     require_once __DIR__ . '/../../core/i18n_pages.php';
 }
 
+if (!isValidPageLang($lang)) {
+    $response['message'] = 'Invalid language.';
+    return;
+}
+
 $draftFilename = getPageFilename($lang, true);
 $publishFilename = getPageFilename($lang, false);
 
